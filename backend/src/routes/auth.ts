@@ -231,3 +231,49 @@ authRouter.get('/users', async (req, res) => {
     });
   }
 });
+// Añadir AL FINAL de tu auth.ts, después de todos los endpoints existentes:
+
+// Complete registration - ALIAS para compatibilidad frontend
+authRouter.post('/register/complete', async (req, res) => {
+  try {
+    const { username, response, displayName } = req.body;
+    
+    if (!username || !response) {
+      return res.status(400).json({
+        success: false,
+        error: 'Username and response are required'
+      });
+    }
+
+    console.log(`🔐 Completing biometric registration for: ${username}`);
+    
+    // Pass displayName in the response object for the verification
+    const responseWithDisplayName = {
+      ...response,
+      displayName: displayName || username
+    };
+    
+    const verification = await WebAuthnService.verifyRegistration(username, responseWithDisplayName);
+    
+    if (verification.verified) {
+      res.json({
+        success: true,
+        message: 'Biometric authentication registered successfully',
+        user: verification.user
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        error: 'Registration verification failed'
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ Registration complete error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to complete registration',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});

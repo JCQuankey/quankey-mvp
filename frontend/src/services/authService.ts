@@ -68,12 +68,50 @@ export class AuthService {
 
       // Step 2: Try real WebAuthn registration
       try {
-        // For now, fall back to simulation since we don't have full WebAuthn setup
-        console.log('📱 Using simulation for biometric registration');
-        return this.simulateBiometricPrompt('register', username, displayName);
+        console.log('🔮 Attempting REAL WebAuthn registration...');
+        
+        // Create credential using real WebAuthn
+        const credential = await navigator.credentials.create({
+          publicKey: optionsResponse.data.options
+        }) as PublicKeyCredential;
+
+        if (!credential) {
+          console.log('⚠️ No credential created, falling back to simulation');
+          return this.simulateBiometricPrompt('register', username, displayName);
+        }
+
+        console.log('✅ Real WebAuthn credential created!');
+
+        // Step 3: Send credential to server for verification
+        const verificationResponse = await axios.post(`${API_BASE}/auth/register/complete`, {
+          username,
+          displayName,
+          response: {
+            id: credential.id,
+            rawId: Array.from(new Uint8Array(credential.rawId)),
+            response: {
+              attestationObject: Array.from(new Uint8Array((credential.response as AuthenticatorAttestationResponse).attestationObject)),
+              clientDataJSON: Array.from(new Uint8Array(credential.response.clientDataJSON))
+            },
+            type: credential.type
+          }
+        });
+
+        if (verificationResponse.data.success) {
+          console.log('🎉 Real WebAuthn registration successful!');
+          return {
+            success: true,
+            user: verificationResponse.data.user,
+            message: 'Real biometric authentication registered successfully'
+          };
+        } else {
+          console.log('⚠️ Server verification failed, falling back to simulation');
+          return this.simulateBiometricPrompt('register', username, displayName);
+        }
         
       } catch (error: any) {
         console.error('WebAuthn registration error:', error);
+        console.log('⚠️ WebAuthn failed, falling back to simulation');
         return this.simulateBiometricPrompt('register', username, displayName);
       }
 
@@ -192,6 +230,7 @@ export class AuthService {
             error: response.data.error || 'Registration failed'
           };
         }
+
       } else {
         // Authentication
         const response = await axios.post(`${API_BASE}/auth/authenticate/complete`, {
