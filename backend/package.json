@@ -1,4 +1,8 @@
 {
+  "name": "quankey-backend",
+  "version": "1.0.0",
+  "description": "Quankey Quantum Password Manager Backend",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "npm run clean && tsc",
@@ -7,5 +11,43 @@
     "start:dev": "ts-node src/server.ts",
     "test": "echo \"Tests coming soon...\" && exit 0",
     "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "quantum",
+    "password",
+    "security",
+    "crypto"
+  ],
+  "author": "Quankey Team",
+  "license": "ISC",
+  "engines": {
+    "node": "18.x"
+  },
+  "dependencies": {
+    "@simplewebauthn/browser": "^13.1.2",
+    "@simplewebauthn/server": "^13.1.2",
+    "@simplewebauthn/typescript-types": "^8.3.4",
+    "@types/bcrypt": "^6.0.0",
+    "@types/crypto-js": "^4.2.2",
+    "@types/pg": "^8.15.4",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "@types/uuid": "^10.0.0",
+    "axios": "^1.6.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "pg": "^8.16.3",
+    "uuid": "^11.1.0",
+    "typescript": "^5.3.0",
+    "ts-node": "^10.9.0"
+  },
+  "devDependencies": {
+    "@prisma/client": "^6.12.0",
+    "nodemon": "^3.0.0",
+    "prisma": "^6.12.0"
   }
 }
