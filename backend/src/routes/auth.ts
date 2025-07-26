@@ -34,8 +34,8 @@ authRouter.post('/register/begin', async (req, res) => {
   }
 });
 
-// Complete registration
-authRouter.post('/register/complete', async (req, res) => {
+// Complete registration - CAMBIADO DE /complete A /finish
+authRouter.post('/register/finish', async (req, res) => {
   try {
     const { username, response, displayName } = req.body;
     
@@ -79,7 +79,63 @@ authRouter.post('/register/complete', async (req, res) => {
   }
 });
 
-// Start authentication
+// Start authentication - AÑADIDO ALIAS PARA /login/begin
+authRouter.post('/login/begin', async (req, res) => {
+  try {
+    const { username } = req.body;
+    
+    console.log(`🔍 Starting biometric authentication for: ${username || 'any user'}`);
+    
+    const options = await WebAuthnService.generateAuthenticationOptions(username);
+    
+    res.json({
+      success: true,
+      options
+    });
+    
+  } catch (error) {
+    console.error('❌ Authentication begin error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate authentication options',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Complete authentication - AÑADIDO ALIAS PARA /login/finish
+authRouter.post('/login/finish', async (req, res) => {
+  try {
+    const { username, response } = req.body;
+    
+    console.log(`🔍 Completing biometric authentication for: ${username || 'credential-based'}`);
+    
+    const verification = await WebAuthnService.verifyAuthentication(response, username);
+    
+    if (verification.verified) {
+      res.json({
+        success: true,
+        message: 'Authentication successful',
+        user: verification.user
+      });
+    } else {
+      res.status(401).json({
+        success: false,
+        error: 'Authentication failed'
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ Authentication complete error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to complete authentication',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Start authentication - TU CÓDIGO ORIGINAL
 authRouter.post('/authenticate/begin', async (req, res) => {
   try {
     const { username } = req.body;
@@ -103,7 +159,7 @@ authRouter.post('/authenticate/begin', async (req, res) => {
   }
 });
 
-// Complete authentication
+// Complete authentication - TU CÓDIGO ORIGINAL
 authRouter.post('/authenticate/complete', async (req, res) => {
   try {
     const { username, response } = req.body;
@@ -135,7 +191,7 @@ authRouter.post('/authenticate/complete', async (req, res) => {
   }
 });
 
-// Check if user exists
+// Check if user exists - TU CÓDIGO ORIGINAL
 authRouter.get('/user/:username/exists', async (req, res) => {
   try {
     const { username } = req.params;
@@ -156,7 +212,7 @@ authRouter.get('/user/:username/exists', async (req, res) => {
   }
 });
 
-// Get user info (for debugging)
+// Get user info - TU CÓDIGO ORIGINAL
 authRouter.get('/users', async (req, res) => {
   try {
     const users = await WebAuthnService.getAllUsers();
