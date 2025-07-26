@@ -85,9 +85,17 @@ const processedOptions = {
 };
 
 console.log('🔧 Processed options:', processedOptions);
+
         // Create credential using real WebAuthn
         const credential = await navigator.credentials.create({
-  publicKey: processedOptions
+  publicKey: {
+    ...optionsResponse.data.options,
+    challenge: new TextEncoder().encode(optionsResponse.data.options.challenge),
+    user: {
+      ...optionsResponse.data.options.user,
+      id: new TextEncoder().encode(optionsResponse.data.options.user.id)
+    }
+  }
 }) as PublicKeyCredential;
 
         if (!credential) {
