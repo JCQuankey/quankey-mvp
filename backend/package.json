@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "description": "Quankey Quantum Password Manager Backend",
   "main": "dist/server.js",
-  "scripts": {
-    "dev": "nodemon --exec ts-node src/server.ts",
-    "build": "npm run clean && tsc",
-    "clean": "rm -rf dist",
-    "start": "npm run build && node dist/server.js",
-    "start:dev": "ts-node src/server.ts",
-    "test": "echo \"Tests coming soon...\" && exit 0",
-    "typecheck": "tsc --noEmit"
-  },
+ "scripts": {
+  "dev": "nodemon --exec ts-node src/server.ts",
+  "build": "echo 'Starting build...' && tsc --project . --outDir dist --skipLibCheck",
+  "clean": "rm -rf dist && echo 'Cleaned dist directory'",
+  "start": "npm run build && echo 'Build complete, starting server...' && node dist/server.js",
+  "start:dev": "ts-node src/server.ts",
+  "test": "echo \"Tests coming soon...\" && exit 0",
+  "typecheck": "tsc --noEmit"
+},
   "keywords": [
     "quantum",
     "password",
