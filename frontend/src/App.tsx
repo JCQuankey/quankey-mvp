@@ -10,10 +10,15 @@ import './App.css';
 interface PasswordResponse {
   success: boolean;
   password: string;
-  length: number;
-  timestamp: string;
-  quantum: boolean;
-  entropy: string;
+  strength: {
+    score: number;
+    level: string;
+    feedback: string[];
+    quantumAdvantage: string;
+  };
+  quantumSource: string;
+  generatedAt: string;
+  message: string;
   error?: string;
 }
 
@@ -62,17 +67,19 @@ function App() {
     setCopied(false);
     
     try {
-      const response = await axios.post<PasswordResponse>('http://localhost:5000/api/quantum/generate-password', {
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const response = await axios.post<PasswordResponse>(`${API_URL}/api/quantum/password`, {
         length: passwordLength,
         includeSymbols
       });
 
       if (response.data.success) {
-        setPassword(response.data.password);
-        setEntropy(response.data.entropy);
-      } else {
-        alert('Error generating password: ' + response.data.error);
-      }
+  setPassword(response.data.password);
+  setEntropy(response.data.quantumSource); // Cambiar de entropy a quantumSource
+  console.log('Password generated:', response.data);
+} else {
+  alert('Error generating password: ' + response.data.error);
+}
     } catch (error) {
       console.error('Error:', error);
       alert('Failed to connect to quantum backend');
