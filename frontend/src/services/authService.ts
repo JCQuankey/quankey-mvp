@@ -70,15 +70,25 @@ export class AuthService {
       }
 
       console.log('📱 Prompting for biometric registration...');
-      
+
       // Step 2: Try real WebAuthn registration
       try {
         console.log('🔮 Attempting REAL WebAuthn registration...');
-        
+        // Convertir strings/numbers a Uint8Array para WebAuthn
+const processedOptions = {
+  ...optionsResponse.data.options,
+  challenge: new Uint8Array(Buffer.from(optionsResponse.data.options.challenge, 'utf-8')),
+  user: {
+    ...optionsResponse.data.options.user,
+    id: new Uint8Array(Buffer.from(optionsResponse.data.options.user.id, 'utf-8'))
+  }
+};
+
+console.log('🔧 Processed options:', processedOptions);
         // Create credential using real WebAuthn
         const credential = await navigator.credentials.create({
-          publicKey: optionsResponse.data.options
-        }) as PublicKeyCredential;
+  publicKey: processedOptions
+}) as PublicKeyCredential;
 
         if (!credential) {
           console.log('⚠️ No credential created, falling back to simulation');
