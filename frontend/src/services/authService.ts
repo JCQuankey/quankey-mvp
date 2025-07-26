@@ -76,12 +76,12 @@ export class AuthService {
         console.log('🔮 Attempting REAL WebAuthn registration...');
         // Convertir strings/numbers a Uint8Array para WebAuthn
 const processedOptions = {
-  ...optionsResponse.data.options,
-  challenge: new Uint8Array(Buffer.from(optionsResponse.data.options.challenge, 'utf-8')),
-  user: {
-    ...optionsResponse.data.options.user,
-    id: new Uint8Array(Buffer.from(optionsResponse.data.options.user.id, 'utf-8'))
-  }
+ ...optionsResponse.data.options,
+ challenge: new TextEncoder().encode(optionsResponse.data.options.challenge),
+ user: {
+   ...optionsResponse.data.options.user,
+   id: new TextEncoder().encode(optionsResponse.data.options.user.id)
+ }
 };
 
 console.log('🔧 Processed options:', processedOptions);
