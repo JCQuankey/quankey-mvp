@@ -70,6 +70,7 @@ export class AuthService {
       }
 
       console.log('📱 Prompting for biometric registration...');
+      
       // Step 2: Try real WebAuthn registration
       try {
         console.log('🔮 Attempting REAL WebAuthn registration...');

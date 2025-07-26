@@ -17,6 +17,7 @@ authRouter.post('/register/begin', async (req, res) => {
 
     console.log(`🔐 Starting biometric registration for: ${username}`);
     
+    
     const options = await WebAuthnService.generateRegistrationOptions(username, displayName);
     
     res.json({
