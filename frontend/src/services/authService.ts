@@ -57,6 +57,11 @@ export class AuthService {
         displayName
       });
 
+      // DEBUGGING - Ver qué devuelve el backend
+      console.log('🔍 Full backend response:', optionsResponse.data);
+      console.log('🔍 Options structure:', optionsResponse.data.options);
+      console.log('🔍 Options type:', typeof optionsResponse.data.options);
+
       if (!optionsResponse.data.success) {
         return {
           success: false,
@@ -65,7 +70,6 @@ export class AuthService {
       }
 
       console.log('📱 Prompting for biometric registration...');
-
       // Step 2: Try real WebAuthn registration
       try {
         console.log('🔮 Attempting REAL WebAuthn registration...');
