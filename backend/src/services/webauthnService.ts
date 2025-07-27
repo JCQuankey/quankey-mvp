@@ -10,13 +10,19 @@ export class WebAuthnService {
       return {
         success: true,
         challenge: Date.now().toString(),
-        rp: { name: 'Quankey', id: 'localhost' },
+        rp: { 
+          name: 'Quankey', 
+          id: process.env.NODE_ENV === 'production' ? 'quankey-frontend.onrender.com' : 'localhost'
+        },
         user: {
           id: username,
           name: username,
           displayName: displayName
         },
-        pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
+        pubKeyCredParams: [
+          { alg: -7, type: 'public-key' },   // ES256
+          { alg: -257, type: 'public-key' }  // RS256 (añadido para compatibilidad)
+        ],
         authenticatorSelection: {
           authenticatorAttachment: 'platform',
           userVerification: 'preferred'
@@ -30,7 +36,6 @@ export class WebAuthnService {
       throw error;
     }
   }
-
   // Verify registration response (completely simplified)
   static async verifyRegistration(username: string, response: any) {
     try {
@@ -72,7 +77,7 @@ export class WebAuthnService {
         success: true,
         challenge: Date.now().toString(),
         timeout: 60000,
-        rpId: 'localhost',
+        rpID: process.env.NODE_ENV === 'production' ? 'quankey-frontend.onrender.com' : 'localhost',
         allowCredentials: [],
         userVerification: 'preferred'
       };
