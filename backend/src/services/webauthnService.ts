@@ -2,7 +2,7 @@ import { DatabaseService } from './databaseService';
 
 export class WebAuthnService {
   
-  // Generate registration options (completely simplified)
+  // Generate registration options (optimized for all devices)
   static async generateRegistrationOptions(username: string, displayName: string) {
     try {
       console.log(`🔐 Generating registration options for: ${username}`);
@@ -20,15 +20,22 @@ export class WebAuthnService {
           displayName: displayName
         },
         pubKeyCredParams: [
-          { alg: -7, type: 'public-key' },   // ES256
-          { alg: -257, type: 'public-key' }  // RS256 (añadido para compatibilidad)
+          { alg: -7, type: 'public-key' },    // ES256 (preferido móvil)
+          { alg: -257, type: 'public-key' },  // RS256 (Windows/Mac)
+          { alg: -37, type: 'public-key' }    // PS256 (compatibilidad extra)
         ],
         authenticatorSelection: {
-          authenticatorAttachment: 'platform',
-          userVerification: 'preferred'
+          authenticatorAttachment: 'platform',     // Touch ID, Face ID, Windows Hello
+          userVerification: 'preferred',           // Usa biometría si disponible
+          residentKey: 'preferred',               // 🆕 Mejor para móvil
+          requireResidentKey: false               // 🆕 Fallback si no soporta
         },
         timeout: 60000,
-        attestation: 'none'
+        attestation: 'none',
+        excludeCredentials: [],                    // 🆕 Evita registros duplicados
+        extensions: {                             // 🆕 Extensiones para mejor UX
+          credProps: true
+        }
       };
       
     } catch (error) {
@@ -36,6 +43,8 @@ export class WebAuthnService {
       throw error;
     }
   }
+
+
   // Verify registration response (completely simplified)
   static async verifyRegistration(username: string, response: any) {
     try {

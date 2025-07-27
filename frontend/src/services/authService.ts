@@ -15,6 +15,31 @@ export interface AuthResponse {
   message?: string;
 }
 
+// Detección de dispositivo para mejor UX
+const DeviceDetection = {
+  isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+  isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent),
+  isAndroid: /Android/i.test(navigator.userAgent),
+  isMac: /Mac|iPod|iPhone|iPad/.test(navigator.platform),
+  isWindows: /Win/.test(navigator.platform),
+  
+  getBiometricType(): string {
+    if (this.isIOS) return 'Face ID or Touch ID';
+    if (this.isAndroid) return 'Fingerprint or Face Unlock';
+    if (this.isWindows) return 'Windows Hello';
+    if (this.isMac) return 'Touch ID';
+    return 'Biometric Authentication';
+  },
+  
+  getDeviceIcon(): string {
+    if (this.isIOS) return '📱';
+    if (this.isAndroid) return '🤖';
+    if (this.isWindows) return '🖥️';
+    if (this.isMac) return '💻';
+    return '🔐';
+  }
+};
+
 export class AuthService {
   
   // Check if user exists
@@ -36,7 +61,7 @@ export class AuthService {
       // Check if WebAuthn is supported
       if (!window.PublicKeyCredential) {
         console.log('⚠️ WebAuthn not supported, falling back to simulation');
-        return this.simulateBiometricPrompt('register', username, displayName);
+        return AuthService.simulateBiometricPrompt('register', username, displayName);
       }
 
       // Try to check if platform authenticator is available
@@ -44,11 +69,11 @@ export class AuthService {
         const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
         if (!available) {
           console.log('⚠️ Platform authenticator not available, falling back to simulation');
-          return this.simulateBiometricPrompt('register', username, displayName);
+          return AuthService.simulateBiometricPrompt('register', username, displayName);
         }
       } catch (error) {
         console.log('⚠️ Could not check authenticator availability, falling back to simulation');
-        return this.simulateBiometricPrompt('register', username, displayName);
+        return AuthService.simulateBiometricPrompt('register', username, displayName);
       }
 
       // Step 1: Get registration options from server
@@ -74,33 +99,27 @@ export class AuthService {
       // Step 2: Try real WebAuthn registration
       try {
         console.log('🔮 Attempting REAL WebAuthn registration...');
-        // Convertir strings/numbers a Uint8Array para WebAuthn
-const processedOptions = {
- ...optionsResponse.data.options,
- challenge: new TextEncoder().encode(optionsResponse.data.options.challenge),
- user: {
-   ...optionsResponse.data.options.user,
-   id: new TextEncoder().encode(optionsResponse.data.options.user.id)
- }
-};
+        
+        // Convertir strings a Uint8Array para WebAuthn
+        const processedOptions = {
+          ...optionsResponse.data.options,
+          challenge: new TextEncoder().encode(optionsResponse.data.options.challenge),
+          user: {
+            ...optionsResponse.data.options.user,
+            id: new TextEncoder().encode(optionsResponse.data.options.user.id)
+          }
+        };
 
-console.log('🔧 Processed options:', processedOptions);
+        console.log('🔧 Processed options:', processedOptions);
 
         // Create credential using real WebAuthn
         const credential = await navigator.credentials.create({
-  publicKey: {
-    ...optionsResponse.data.options,
-    challenge: new TextEncoder().encode(optionsResponse.data.options.challenge),
-    user: {
-      ...optionsResponse.data.options.user,
-      id: new TextEncoder().encode(optionsResponse.data.options.user.id)
-    }
-  }
-}) as PublicKeyCredential;
+          publicKey: processedOptions
+        }) as PublicKeyCredential;
 
         if (!credential) {
           console.log('⚠️ No credential created, falling back to simulation');
-          return this.simulateBiometricPrompt('register', username, displayName);
+          return AuthService.simulateBiometricPrompt('register', username, displayName);
         }
 
         console.log('✅ Real WebAuthn credential created!');
@@ -129,13 +148,13 @@ console.log('🔧 Processed options:', processedOptions);
           };
         } else {
           console.log('⚠️ Server verification failed, falling back to simulation');
-          return this.simulateBiometricPrompt('register', username, displayName);
+          return AuthService.simulateBiometricPrompt('register', username, displayName);
         }
         
       } catch (error: any) {
         console.error('WebAuthn registration error:', error);
         console.log('⚠️ WebAuthn failed, falling back to simulation');
-        return this.simulateBiometricPrompt('register', username, displayName);
+        return AuthService.simulateBiometricPrompt('register', username, displayName);
       }
 
     } catch (error) {
@@ -155,11 +174,11 @@ console.log('🔧 Processed options:', processedOptions);
       // Check if WebAuthn is supported
       if (!window.PublicKeyCredential) {
         console.log('⚠️ WebAuthn not supported, falling back to simulation');
-        return this.simulateBiometricPrompt('authenticate', username);
+        return AuthService.simulateBiometricPrompt('authenticate', username);
       }
 
       // For now, always use simulation while we test
-      return this.simulateBiometricPrompt('authenticate', username);
+      return AuthService.simulateBiometricPrompt('authenticate', username);
 
     } catch (error) {
       console.error('Authentication error:', error);
@@ -210,11 +229,11 @@ console.log('🔧 Processed options:', processedOptions);
     displayName?: string
   ): Promise<AuthResponse> {
     const message = action === 'register' 
-      ? 'Touch your fingerprint sensor or look at your camera to register'
-      : 'Touch your fingerprint sensor or look at your camera to authenticate';
+      ? `Use ${DeviceDetection.getBiometricType()} to register`
+      : `Use ${DeviceDetection.getBiometricType()} to authenticate`;
     
     const confirmed = window.confirm(
-      `🔐 Biometric ${action}\n\n${message}\n\nNote: Using simulation mode for development.`
+      `${DeviceDetection.getDeviceIcon()} Biometric ${action}\n\n${message}\n\nNote: Using simulation mode for development.`
     );
     
     if (!confirmed) {
