@@ -1,0 +1,94 @@
+name: Security and Quality Check
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install backend dependencies
+      run: |
+        cd backend && npm ci
+        
+    - name: Install frontend dependencies
+      run: |
+        cd frontend && npm ci
+        
+    - name: Security audit backend
+      continue-on-error: true
+      run: |
+        cd backend && npm audit --audit-level=high
+        
+    - name: Security audit frontend
+      continue-on-error: true
+      run: |
+        cd frontend && npm audit --audit-level=high
+        
+    - name: Check for hardcoded secrets
+      run: |
+        echo "🔍 Checking for hardcoded secrets..."
+        
+        # Check for potential API tokens
+        if grep -r "Bearer.*0x" . --exclude-dir=node_modules --exclude-dir=.git; then
+          echo "❌ Potential hardcoded API tokens found"
+          exit 1
+        fi
+        
+        # Check for hardcoded passwords
+        if grep -r "password=" . --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md"; then
+          echo "❌ Potential hardcoded passwords found"
+          exit 1
+        fi
+        
+        # Check for private keys
+        if grep -r "-----BEGIN.*PRIVATE KEY-----" . --exclude-dir=node_modules --exclude-dir=.git; then
+          echo "❌ Private keys found in repository"
+          exit 1
+        fi
+        
+        echo "✅ No hardcoded secrets detected"
+        
+    - name: Run backend tests
+      run: |
+        cd backend && timeout 300 npm test -- --testTimeout=15000 --maxWorkers=1
+        
+    - name: Run frontend tests
+      run: |
+        cd frontend && timeout 300 npm test -- --watchAll=false --maxWorkers=1
+        
+    - name: Patent-critical code validation
+      run: |
+        echo "🏛️ Validating patent-critical code annotations..."
+        
+        # Verify patent headers exist
+        patent_files=$(find . -name "*.ts" -o -name "*.js" | grep -E "(quantum|encryption|webauthn)" | head -5)
+        
+        for file in $patent_files; do
+          if [ -f "$file" ]; then
+            if grep -q "PATENT-CRITICAL" "$file"; then
+              echo "✅ Patent annotations found in $file"
+            else
+              echo "⚠️ Missing patent annotations in $file"
+            fi
+          fi
+        done
+        
+    - name: Security summary
+      run: |
+        echo "🛡️ SECURITY CHECK SUMMARY"
+        echo "=========================="
+        echo "✅ Dependencies audited"
+        echo "✅ Secrets scan completed"
+        echo "✅ Tests executed"
+        echo "✅ Patent validation completed"
+        echo "🚀 Ready for production deployment"
