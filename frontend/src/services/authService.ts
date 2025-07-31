@@ -116,7 +116,7 @@ export class AuthService {
 
       // PATENT-CRITICAL: Get registration options from server
       console.log(`[API] [${registrationId}] Requesting WebAuthn registration options...`);
-      const optionsResponse = await axios.post(`${API_BASE}/auth/register/begin`, {
+      const optionsResponse = await axios.post(`${API_BASE}/auth-real/register/begin`, {
         username,
         displayName
       });
@@ -157,7 +157,7 @@ export class AuthService {
         console.log(`[SUCCESS] [${registrationId}] WebAuthn credential created successfully!`);
 
         // PATENT-CRITICAL: Complete registration - NO PASSWORD
-        const verificationResponse = await axios.post(`${API_BASE}/auth/register/finish`, {
+        const verificationResponse = await axios.post(`${API_BASE}/auth-real/register/finish`, {
           username,
           displayName,
           response: {
@@ -232,7 +232,7 @@ export class AuthService {
 
       // PATENT-CRITICAL: Get authentication options from server
       console.log(`[API] [${authId}] Requesting WebAuthn authentication options...`);
-      const optionsResponse = await axios.post(`${API_BASE}/auth/authenticate/begin`, {
+      const optionsResponse = await axios.post(`${API_BASE}/auth-real/login/begin`, {
         username
       });
 
@@ -265,7 +265,7 @@ export class AuthService {
         console.log(`[SUCCESS] [${authId}] WebAuthn credential received!`);
 
         // PATENT-CRITICAL: Complete authentication - NO PASSWORD
-        const verificationResponse = await axios.post(`${API_BASE}/auth/authenticate/complete`, {
+        const verificationResponse = await axios.post(`${API_BASE}/auth-real/login/finish`, {
           username,
           response: {
             id: credential.id,
@@ -386,7 +386,7 @@ export class AuthService {
       
       if (action === 'register') {
         // PATENT-CRITICAL: Register without password
-        const response = await axios.post(`${API_BASE}/auth/register/complete`, {
+        const response = await axios.post(`${API_BASE}/auth-real/register/finish`, {
           username,
           displayName,
           response: {
@@ -421,7 +421,7 @@ export class AuthService {
         }
       } else {
         // PATENT-CRITICAL: Authenticate without password
-        const response = await axios.post(`${API_BASE}/auth/authenticate/complete`, {
+        const response = await axios.post(`${API_BASE}/auth-real/login/finish`, {
           username,
           response: {
             id: 'simulated-credential',
