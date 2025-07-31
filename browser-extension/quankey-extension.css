@@ -1,0 +1,337 @@
+/**
+ * ===============================================================================
+ * 🌌 QUANKEY BROWSER EXTENSION - STYLES
+ * ===============================================================================
+ * 
+ * CRITICAL: Quantum-secured browser extension UI styles
+ * 
+ * Features:
+ * ✅ Non-intrusive design
+ * ✅ High contrast for accessibility
+ * ✅ Quantum-themed branding
+ * ✅ Secure visual indicators
+ */
+
+/* CSS Reset for Quankey elements */
+.quankey-autofill-icon,
+.quankey-credential-selector,
+.quankey-credential-item,
+.quankey-selector-header,
+.quankey-credentials-list,
+.quankey-logo,
+.quankey-close,
+.quankey-credential-info,
+.quankey-credential-username,
+.quankey-credential-site,
+.quankey-quantum-badge {
+  all: initial !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+  box-sizing: border-box !important;
+}
+
+/* Autofill Icon */
+.quankey-autofill-icon {
+  position: absolute !important;
+  right: 8px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  cursor: pointer !important;
+  z-index: 10000 !important;
+  background: white !important;
+  border-radius: 4px !important;
+  padding: 4px !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2) !important;
+  opacity: 0.8 !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid #e5e7eb !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.quankey-autofill-icon:hover {
+  opacity: 1 !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+  transform: translateY(-50%) scale(1.05) !important;
+}
+
+.quankey-autofill-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+  fill: #6366f1 !important;
+  transition: fill 0.2s ease !important;
+}
+
+.quankey-autofill-icon:hover svg {
+  fill: #4f46e5 !important;
+}
+
+/* Credential Selector */
+.quankey-credential-selector {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+  z-index: 10001 !important;
+  max-height: 300px !important;
+  overflow-y: auto !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  animation: quankeyFadeIn 0.2s ease-out !important;
+  min-width: 300px !important;
+}
+
+/* Selector Header */
+.quankey-selector-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+  color: white !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.quankey-logo {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.quankey-close {
+  background: none !important;
+  border: none !important;
+  color: white !important;
+  font-size: 18px !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+  border-radius: 4px !important;
+  transition: background-color 0.2s ease !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.quankey-close:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Credentials List */
+.quankey-credentials-list {
+  padding: 8px 0 !important;
+}
+
+.quankey-credential-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 16px !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+  border: none !important;
+  background: none !important;
+}
+
+.quankey-credential-item:hover {
+  background-color: #f8fafc !important;
+}
+
+.quankey-credential-item:active {
+  background-color: #f1f5f9 !important;
+}
+
+.quankey-credential-info {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.quankey-credential-username {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #1f2937 !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.quankey-credential-site {
+  font-size: 12px !important;
+  color: #6b7280 !important;
+  margin: 2px 0 0 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.quankey-quantum-badge {
+  font-size: 16px !important;
+  margin-left: 12px !important;
+  opacity: 0.8 !important;
+  transition: transform 0.2s ease !important;
+}
+
+.quankey-credential-item:hover .quankey-quantum-badge {
+  transform: scale(1.1) !important;
+  opacity: 1 !important;
+}
+
+/* Generate New Password Item */
+.quankey-generate-new {
+  border-top: 1px solid #f3f4f6 !important;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+}
+
+.quankey-generate-new:hover {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%) !important;
+}
+
+.quankey-generate-new .quankey-credential-username {
+  color: #6366f1 !important;
+  font-weight: 600 !important;
+}
+
+.quankey-generate-new .quankey-credential-site {
+  color: #8b5cf6 !important;
+}
+
+/* Animations */
+@keyframes quankeyFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Security Indicators */
+.quankey-secure-indicator {
+  position: absolute !important;
+  top: -8px !important;
+  right: -8px !important;
+  width: 16px !important;
+  height: 16px !important;
+  background: #10b981 !important;
+  border-radius: 50% !important;
+  border: 2px solid white !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 8px !important;
+  color: white !important;
+}
+
+/* Phishing Warning */
+.quankey-phishing-warning {
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+  color: #dc2626 !important;
+  padding: 12px 16px !important;
+  border-radius: 8px !important;
+  margin: 8px !important;
+  font-size: 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .quankey-credential-selector {
+    min-width: 280px !important;
+    max-width: calc(100vw - 32px) !important;
+  }
+  
+  .quankey-credential-username,
+  .quankey-credential-site {
+    font-size: 13px !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .quankey-autofill-icon {
+    border: 2px solid #000 !important;
+  }
+  
+  .quankey-credential-selector {
+    border: 2px solid #000 !important;
+  }
+  
+  .quankey-credential-username {
+    color: #000 !important;
+  }
+  
+  .quankey-credential-site {
+    color: #4a5568 !important;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .quankey-autofill-icon,
+  .quankey-credential-item,
+  .quankey-quantum-badge,
+  .quankey-close {
+    transition: none !important;
+  }
+  
+  .quankey-credential-selector {
+    animation: none !important;
+  }
+}
+
+/* Focus Styles for Accessibility */
+.quankey-credential-item:focus {
+  outline: 2px solid #6366f1 !important;
+  outline-offset: 2px !important;
+}
+
+.quankey-close:focus {
+  outline: 2px solid white !important;
+  outline-offset: 2px !important;
+}
+
+/* Print Styles */
+@media print {
+  .quankey-autofill-icon,
+  .quankey-credential-selector {
+    display: none !important;
+  }
+}

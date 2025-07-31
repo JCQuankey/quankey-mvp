@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quankey Demo - Real-Time Metrics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00ff41;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .dashboard {
+            padding: 20px;
+            height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
+        }
+
+        .header {
+            text-align: center;
+            border: 2px solid #00ff41;
+            padding: 15px;
+            background: rgba(0, 255, 65, 0.1);
+            border-radius: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #00ff41;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            color: #00ccff;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .metrics-panel {
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #00ccff;
+            border-bottom: 1px solid #00ccff;
+            padding-bottom: 10px;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .metric-item:hover {
+            background: rgba(0, 255, 65, 0.1);
+            padding-left: 10px;
+        }
+
+        .metric-label {
+            font-size: 1.1em;
+            color: #ffffff;
+        }
+
+        .metric-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #00ff41;
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        .metric-value.warning {
+            color: #ffaa00;
+            text-shadow: 0 0 10px #ffaa00;
+        }
+
+        .metric-value.error {
+            color: #ff4444;
+            text-shadow: 0 0 10px #ff4444;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+        }
+
+        .comparison-table th {
+            background: rgba(0, 255, 65, 0.2);
+            color: #00ccff;
+            font-weight: bold;
+        }
+
+        .comparison-table .quankey {
+            color: #00ff41;
+            font-weight: bold;
+        }
+
+        .comparison-table .competitor {
+            color: #ff4444;
+        }
+
+        .status-panel {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .status-card {
+            border: 2px solid;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .status-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .status-card.success {
+            border-color: #00ff41;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        .status-card.warning {
+            border-color: #ffaa00;
+            box-shadow: 0 0 20px rgba(255, 170, 0, 0.3);
+        }
+
+        .status-card.error {
+            border-color: #ff4444;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+        }
+
+        .status-card.info {
+            border-color: #00ccff;
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.3);
+        }
+
+        .status-title {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: inherit;
+        }
+
+        .status-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .status-description {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            border-top: 2px solid #00ff41;
+            background: rgba(0, 255, 65, 0.05);
+        }
+
+        .phase-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 0 10px;
+            border: 2px solid;
+            border-radius: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .phase-indicator.active {
+            background: rgba(0, 255, 65, 0.2);
+            border-color: #00ff41;
+            color: #00ff41;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+
+        .phase-indicator.completed {
+            background: rgba(0, 255, 65, 0.1);
+            border-color: #00ff41;
+            color: #00ff41;
+        }
+
+        .phase-indicator.pending {
+            border-color: #666;
+            color: #666;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #00ff41; }
+            to { text-shadow: 0 0 30px #00ff41, 0 0 40px #00ff41; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes countUp {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .animated-counter {
+            animation: countUp 0.5s ease-out;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff41, #00ccff);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌌 QUANKEY DEMO DASHBOARD</h1>
+            <div class="subtitle">Real-Time Quantum Recovery Metrics</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Current Metrics Panel -->
+            <div class="metrics-panel">
+                <div class="panel-title">🎯 Current Performance</div>
+                
+                <div class="metric-item">
+                    <span class="metric-label">Recovery Time:</span>
+                    <span class="metric-value" id="recoveryTime">-- seconds</span>
+                </div>
+                
+                <div class="metric-item">
+                    <span class="metric-label">Data Loss:</span>
+                    <span class="metric-value" id="dataLoss">0 bytes</span>
+                </div>
+                
+                <div class="metric-item">
+                    <span class="metric-label">Security Breaches:</span>
+                    <span class="metric-value" id="securityBreaches">0 passwords</span>
+                </div>
+                
+                <div class="metric-item">
+                    <span class="metric-label">Vault Integrity:</span>
+                    <span class="metric-value" id="vaultIntegrity">100%</span>
+                </div>
+                
+                <div class="metric-item">
+                    <span class="metric-label">Devices Revoked:</span>
+                    <span class="metric-value" id="devicesRevoked">0 devices</span>
+                </div>
+                
+                <div class="metric-item">
+                    <span class="metric-label">Quantum Entropy:</span>
+                    <span class="metric-value" id="quantumEntropy">99.9%</span>
+                </div>
+            </div>
+
+            <!-- Competitor Comparison Panel -->
+            <div class="metrics-panel">
+                <div class="panel-title">🆚 Competitive Analysis</div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th class="quankey">Quankey</th>
+                            <th class="competitor">1Password</th>
+                            <th class="competitor">Bitwarden</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Recovery Time</td>
+                            <td class="quankey" id="quankeyRecoveryTime">-- sec</td>
+                            <td class="competitor">24-48 hrs</td>
+                            <td class="competitor">24-48 hrs</td>
+                        </tr>
+                        <tr>
+                            <td>Data Loss</td>
+                            <td class="quankey">0%</td>
+                            <td class="competitor">Often 100%</td>
+                            <td class="competitor">Often 100%</td>
+                        </tr>
+                        <tr>
+                            <td>Device Revoke</td>
+                            <td class="quankey">Instant</td>
+                            <td class="competitor">Manual</td>
+                            <td class="competitor">Manual</td>
+                        </tr>
+                        <tr>
+                            <td>Quantum-Proof</td>
+                            <td class="quankey">✅</td>
+                            <td class="competitor">❌</td>
+                            <td class="competitor">❌</td>
+                        </tr>
+                        <tr>
+                            <td>Zero Master PW</td>
+                            <td class="quankey">✅</td>
+                            <td class="competitor">❌</td>
+                            <td class="competitor">❌</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Status Cards -->
+        <div class="status-panel">
+            <div class="status-card success" id="setupCard">
+                <div class="status-title">Setup Phase</div>
+                <div class="status-value" id="setupStatus">⏳</div>
+                <div class="status-description">User & Recovery</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="setupProgress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="status-card warning" id="attackCard">
+                <div class="status-title">Attack Phase</div>
+                <div class="status-value" id="attackStatus">🛡️</div>
+                <div class="status-description">Threat Detection</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="attackProgress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="status-card info" id="recoveryCard">
+                <div class="status-title">Recovery Phase</div>
+                <div class="status-value" id="recoveryStatus">🔄</div>
+                <div class="status-description">Quantum Recovery</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="recoveryProgress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="status-card success" id="metricsCard">
+                <div class="status-title">Final Metrics</div>
+                <div class="status-value" id="metricsStatus">📊</div>
+                <div class="status-description">Performance</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="metricsProgress" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="phase-indicator pending" id="phase1">Phase 1: Setup</div>
+            <div class="phase-indicator pending" id="phase2">Phase 2: Attack</div>
+            <div class="phase-indicator pending" id="phase3">Phase 3: Recovery</div>
+            <div class="phase-indicator pending" id="phase4">Phase 4: Metrics</div>
+        </div>
+    </div>
+
+    <script>
+        // Dashboard state
+        let demoState = {
+            phase: 'init',
+            startTime: null,
+            metrics: {
+                recoveryTime: 0,
+                dataLoss: 0,
+                securityBreaches: 0,
+                vaultIntegrity: 100,
+                devicesRevoked: 0,
+                quantumEntropy: 99.9
+            }
+        };
+
+        // Update metrics display
+        function updateMetrics(metrics) {
+            document.getElementById('recoveryTime').textContent = `${metrics.recoveryTime.toFixed(1)} seconds`;
+            document.getElementById('dataLoss').textContent = `${metrics.dataLoss} bytes`;
+            document.getElementById('securityBreaches').textContent = `${metrics.securityBreaches} passwords`;
+            document.getElementById('vaultIntegrity').textContent = `${metrics.vaultIntegrity}%`;
+            document.getElementById('devicesRevoked').textContent = `${metrics.devicesRevoked} devices`;
+            document.getElementById('quantumEntropy').textContent = `${metrics.quantumEntropy}%`;
+            
+            // Update comparison table
+            document.getElementById('quankeyRecoveryTime').textContent = `${metrics.recoveryTime.toFixed(0)} sec`;
+            
+            // Add animation to updated values
+            const elements = ['recoveryTime', 'dataLoss', 'securityBreaches', 'vaultIntegrity', 'devicesRevoked', 'quantumEntropy'];
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                element.classList.add('animated-counter');
+                setTimeout(() => element.classList.remove('animated-counter'), 500);
+            });
+        }
+
+        // Set phase status
+        function setPhase(phase, status = 'active', progress = 0) {
+            // Update phase indicators
+            const phases = ['phase1', 'phase2', 'phase3', 'phase4'];
+            phases.forEach((p, index) => {
+                const element = document.getElementById(p);
+                if (p === `phase${phase}`) {
+                    element.className = `phase-indicator ${status}`;
+                } else if (index < phase - 1) {
+                    element.className = 'phase-indicator completed';
+                } else {
+                    element.className = 'phase-indicator pending';
+                }
+            });
+
+            // Update status cards
+            const cardMappings = {
+                1: 'setup',
+                2: 'attack', 
+                3: 'recovery',
+                4: 'metrics'
+            };
+
+            const cardId = cardMappings[phase];
+            if (cardId) {
+                const card = document.getElementById(`${cardId}Card`);
+                const statusElement = document.getElementById(`${cardId}Status`);
+                const progressElement = document.getElementById(`${cardId}Progress`);
+
+                // Update card styling
+                card.className = `status-card ${status === 'completed' ? 'success' : status === 'active' ? 'info' : 'pending'}`;
+                
+                // Update status icon
+                const statusIcons = {
+                    setup: { active: '⚡', completed: '✅', pending: '⏳' },
+                    attack: { active: '🚨', completed: '🛡️', pending: '🛡️' },
+                    recovery: { active: '🔄', completed: '🎉', pending: '🔄' },
+                    metrics: { active: '📊', completed: '🏆', pending: '📊' }
+                };
+                
+                statusElement.textContent = statusIcons[cardId][status] || statusIcons[cardId]['pending'];
+                
+                // Update progress bar
+                progressElement.style.width = `${progress}%`;
+            }
+        }
+
+        // Simulate demo phases
+        function runDemoPhases() {
+            console.log('🎬 Starting demo dashboard simulation...');
+            
+            // Phase 1: Setup (30 seconds)
+            setTimeout(() => {
+                console.log('📋 Phase 1: Setup started');
+                setPhase(1, 'active', 0);
+                
+                // Simulate setup progress
+                let progress = 0;
+                const setupInterval = setInterval(() => {
+                    progress += 10;
+                    setPhase(1, 'active', progress);
+                    
+                    if (progress >= 100) {
+                        clearInterval(setupInterval);
+                        setPhase(1, 'completed', 100);
+                        console.log('✅ Phase 1: Setup completed');
+                    }
+                }, 3000);
+            }, 1000);
+
+            // Phase 2: Attack (45 seconds)
+            setTimeout(() => {
+                console.log('🚨 Phase 2: Attack simulation started');
+                setPhase(2, 'active', 0);
+                
+                // Update metrics during attack
+                demoState.metrics.devicesRevoked = 1;
+                updateMetrics(demoState.metrics);
+                
+                let progress = 0;
+                const attackInterval = setInterval(() => {
+                    progress += 8;
+                    setPhase(2, 'active', progress);
+                    
+                    if (progress >= 100) {
+                        clearInterval(attackInterval);
+                        setPhase(2, 'completed', 100);
+                        console.log('🛡️ Phase 2: Attack contained');
+                    }
+                }, 3600);
+            }, 31000);
+
+            // Phase 3: Recovery (60 seconds)
+            setTimeout(() => {
+                console.log('🔄 Phase 3: Recovery started');
+                setPhase(3, 'active', 0);
+                
+                let progress = 0;
+                let recoveryTime = 0;
+                const recoveryInterval = setInterval(() => {
+                    progress += 5;
+                    recoveryTime += 3;
+                    
+                    // Update recovery time in real-time
+                    demoState.metrics.recoveryTime = recoveryTime;
+                    updateMetrics(demoState.metrics);
+                    
+                    setPhase(3, 'active', progress);
+                    
+                    if (progress >= 100) {
+                        clearInterval(recoveryInterval);
+                        setPhase(3, 'completed', 100);
+                        
+                        // Final recovery metrics
+                        demoState.metrics.recoveryTime = 87;
+                        updateMetrics(demoState.metrics);
+                        
+                        console.log('🎉 Phase 3: Recovery completed');
+                    }
+                }, 1200);
+            }, 76000);
+
+            // Phase 4: Metrics (final)  
+            setTimeout(() => {
+                console.log('📊 Phase 4: Final metrics display');
+                setPhase(4, 'active', 0);
+                
+                let progress = 0;
+                const metricsInterval = setInterval(() => {
+                    progress += 20;
+                    setPhase(4, 'active', progress);
+                    
+                    if (progress >= 100) {
+                        clearInterval(metricsInterval);
+                        setPhase(4, 'completed', 100);
+                        console.log('🏆 Demo completed successfully!');
+                        
+                        // Show final celebration
+                        document.querySelector('.header h1').style.animation = 'glow 0.5s ease-in-out infinite alternate';
+                    }
+                }, 1000);
+            }, 136000);
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📊 Quankey Demo Dashboard initialized');
+            updateMetrics(demoState.metrics);
+            
+            // Start demo simulation
+            runDemoPhases();
+            
+            // Update timestamp every second
+            setInterval(() => {
+                if (demoState.startTime) {
+                    const elapsed = (Date.now() - demoState.startTime) / 1000;
+                    // Could add elapsed time display here
+                }
+            }, 1000);
+        });
+
+        // Listen for external updates (if running with backend)
+        if (typeof window !== 'undefined') {
+            window.updateDemoMetrics = updateMetrics;
+            window.setDemoPhase = setPhase;
+            window.demoState = demoState;
+        }
+    </script>
+</body>
+</html>

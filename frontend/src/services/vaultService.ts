@@ -247,11 +247,11 @@ export class VaultService {
   }
 
   private static getPasswordRecommendations(
-    password: string, 
-    hasLower: boolean, 
-    hasUpper: boolean, 
-    hasNumbers: boolean, 
-    hasSymbols: boolean, 
+    password: string,
+    hasLower: boolean,
+    hasUpper: boolean,
+    hasNumbers: boolean,
+    hasSymbols: boolean,
     length: number
   ): string[] {
     const recommendations: string[] = [];
@@ -265,3 +265,105 @@ export class VaultService {
     return recommendations;
   }
 }
+
+// Funciones para backend cifrado
+export const EncryptedVaultService = {
+  // Función helper para obtener token de autenticación
+  getAuthToken() {
+    // Primero buscar token simple
+    let token = localStorage.getItem('token');
+    if (token) return token;
+    
+    // Si no, buscar en los vault tokens
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('quankey_vault_')) {
+        const vaultData = localStorage.getItem(key);
+        if (vaultData) {
+          try {
+            const parsed = JSON.parse(vaultData);
+            return parsed.token || parsed.accessToken || parsed.authToken || vaultData;
+          } catch {
+            return vaultData;
+          }
+        }
+      }
+    }
+    return null;
+  },
+
+  // Generar contraseña cuántica - ACTUALIZADO PARA USAR LA RUTA CORRECTA
+  async generateQuantumPassword(length: number = 16, includeSymbols: boolean = true) {
+    const token = this.getAuthToken();
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // CAMBIO IMPORTANTE: Usar la ruta quantum correcta
+    const response = await fetch('http://localhost:5000/api/quantum/password', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ length, includeSymbols }),
+      credentials: 'include'
+    });
+    
+    const result = await response.json();
+    console.log('🔮 Quantum generate response:', result);
+    return result;
+  },
+
+  // Obtener contraseñas cifradas
+  async getEncryptedPasswords() {
+    const token = this.getAuthToken();
+    
+    const headers: Record<string, string> = {};
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch('http://localhost:5000/api/passwords/', {
+      headers,
+      credentials: 'include'
+    });
+    
+    const result = await response.json();
+    console.log('🛡️ Get passwords response:', result);
+    return result;
+  },
+
+  // Guardar contraseña cifrada
+  async saveEncryptedPassword(data: {
+    site: string;
+    username: string;
+    password: string;
+    notes?: string;
+    category?: string;
+  }) {
+    const token = this.getAuthToken();
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch('http://localhost:5000/api/passwords/save', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+      credentials: 'include'
+    });
+    
+    const result = await response.json();
+    console.log('💾 Save password response:', result);
+    return result;
+  }
+};

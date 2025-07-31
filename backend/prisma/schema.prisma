@@ -11,37 +11,70 @@ datasource db {
 }
 
 model User {
-  id                String   @id @default(cuid())
-  username          String   @unique
+  id                String    @id @default(cuid())
+  username          String    @unique
   displayName       String
-  biometricEnabled  Boolean  @default(false)
-  encryptionKey     String?  // For vault encryption
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  webauthnId        String?   @unique
+  publicKey         String?   @db.Text
+  counter           BigInt    @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastLogin         DateTime?
+  
+  // WebAuthn credentials storage
+  credentials       Json?     // Stores WebAuthn credential data
+  
+  // Quantum-specific fields
+  quantumSeed       String?   // For future quantum key derivation
   
   // Relations
-  passwords         Password[]
+  passwords         Password[] @relation("UserPasswords")
   sessions          Session[]
-  
+  recoveryKits RecoveryKit[] // PATENT-CRITICAL: Quantum recovery
+
   @@map("users")
 }
 
 model Password {
-  id          String   @id @default(cuid())
-  title       String
-  website     String
-  username    String
-  password    String   // Encrypted
-  notes       String?
-  isQuantum   Boolean  @default(false)
-  entropy     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String    @id @default(cuid())
+  userId            String
+  site              String
+  username          String
+  encryptedPassword String    @db.Text
+  encryptedNotes    String?   @db.Text
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastUsed          DateTime?
+  isFavorite        Boolean   @default(false)
+  category          String?   @default("General")
+  strength          Int       @default(0)
   
-  // Foreign keys
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Encryption metadata (PATENT-CRITICAL)
+  encryptedData     String    @db.Text  // Full encrypted payload
+  iv                String               // Initialization vector
+  salt              String               // Salt for key derivation
+  authTag           String               // Authentication tag (GCM)
   
+  // Quantum metadata (PATENT-CRITICAL)
+  isQuantum         Boolean   @default(false)  // Was password quantum-generated?
+  quantumSource     String?              // Which quantum source was used
+  quantumEntropy    String?              // Entropy information
+  metadata          Json?                // Additional metadata
+  
+  // Algorithm versioning
+  encryptionVersion String    @default("1.0")
+  algorithm         String    @default("AES-256-GCM")
+  keyDerivation     String    @default("Argon2id")
+
+  // Relation with User
+  user              User      @relation("UserPasswords", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Indexes for performance
+  @@index([userId])
+  @@index([site])
+  @@index([category])
+  @@index([isFavorite])
+
   @@map("passwords")
 }
 
@@ -51,9 +84,137 @@ model Session {
   expiresAt DateTime
   createdAt DateTime @default(now())
   
+  // Additional session data
+  ipAddress String?
+  userAgent String?
+  lastActivity DateTime @default(now())
+  
   // Foreign keys
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
+  // Indexes
+  @@index([userId])
+  @@index([expiresAt])
+  
   @@map("sessions")
+}
+
+// Future models for enterprise features
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String   // login, logout, create_password, view_password, etc.
+  entityType  String?  // password, user, session
+  entityId    String?
+  metadata    Json?
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([action])
+  @@index([timestamp])
+  
+  @@map("audit_logs")
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  members     TeamMember[]
+  sharedVaults SharedVault[]
+  
+  @@map("teams")
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  teamId      String
+  userId      String
+  role        String   @default("member") // admin, member, viewer
+  joinedAt    DateTime @default(now())
+  
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+model SharedVault {
+  id          String   @id @default(cuid())
+  teamId      String
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  @@map("shared_vaults")
+}
+// PATENT-CRITICAL: Quantum Recovery System Models
+// These models support the world's first quantum-based password recovery
+
+model RecoveryKit {
+  id             String   @id @default(cuid())
+  userId         String
+  type           String   // QUANTUM_SHAMIR, SOCIAL_QUANTUM
+  sharesTotal    Int      // Total number of shares created
+  sharesRequired Int      // Threshold for recovery
+  seedHash       String   // SHA-256 of quantum seed (never store actual seed)
+  metadata       Json     // Quantum generation proof
+  createdAt      DateTime @default(now())
+  expiresAt      DateTime
+  isActive       Boolean  @default(true)
+  usedAt         DateTime?
+  
+  // Relations
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shares         RecoveryShare[]
+  
+  @@index([userId])
+  @@index([isActive])
+  @@map("recovery_kits")
+}
+
+model RecoveryShare {
+  id             String   @id @default(cuid())
+  recoveryKitId  String
+  shareIndex     Int      // 1-5 for 5 shares
+  shareId        String   @unique // Public identifier
+  encryptedData  String   @db.Text // Quantum-encrypted share
+  checksum       String   // Integrity check
+  status         String   @default("CREATED") // CREATED, DISTRIBUTED, USED
+  
+  // Relations
+  recoveryKit    RecoveryKit @relation(fields: [recoveryKitId], references: [id], onDelete: Cascade)
+  distributions  ShareDistribution[]
+  
+  @@index([recoveryKitId])
+  @@index([shareId])
+  @@map("recovery_shares")
+}
+
+model ShareDistribution {
+  id              String   @id @default(cuid())
+  shareId         String
+  trusteeEmail    String
+  trusteeName     String
+  status          String   @default("PENDING") // PENDING, SENT, ACCEPTED, USED
+  encryptedChannel Json?   // Quantum-secured communication metadata
+  sentAt          DateTime?
+  acceptedAt      DateTime?
+  usedAt          DateTime?
+  expiresAt       DateTime
+  
+  // Relations
+  share           RecoveryShare @relation(fields: [shareId], references: [shareId], onDelete: Cascade)
+  
+  @@index([shareId])
+  @@index([trusteeEmail])
+  @@map("share_distributions")
 }

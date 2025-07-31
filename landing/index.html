@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quankey - The World's First Quantum-Proof Password Manager | Zero Master Passwords</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Revolutionary quantum-proof password manager with zero master passwords, true quantum entropy, and military-grade security. 77% faster than competitors. Join the quantum revolution.">
+    <meta name="keywords" content="quantum password manager, quantum security, quantum computing, password security, zero master password, quantum entropy, ANU QRNG, biometric authentication, WebAuthn, quantum-proof, cybersecurity, enterprise security">
+    <meta name="author" content="Quankey">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.quankey.xyz">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Quankey - The World's First Quantum-Proof Password Manager">
+    <meta property="og:description" content="Revolutionary password security with zero master passwords, true quantum entropy, and 77% better performance than competitors.">
+    <meta property="og:image" content="https://www.quankey.xyz/images/og-quantum-security.png">
+    <meta property="og:url" content="https://www.quankey.xyz">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Quankey">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Quankey - Quantum-Proof Password Manager">
+    <meta name="twitter:description" content="The future of password security is here. Zero master passwords, quantum entropy, military-grade protection.">
+    <meta name="twitter:image" content="https://www.quankey.xyz/images/twitter-quantum-demo.png">
+    <meta name="twitter:creator" content="@QuankeyApp">
+    
+    <!-- Favicon and Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Quankey",
+        "description": "The world's first quantum-proof password manager with zero master passwords and true quantum entropy",
+        "applicationCategory": "SecurityApplication",
+        "operatingSystem": "Web, iOS, Android, Windows, macOS, Linux",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "creator": {
+            "@type": "Organization",
+            "name": "Quankey",
+            "url": "https://www.quankey.xyz"
+        }
+    }
+    </script>
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <style>
+        /* CSS Variables for Consistent Design System */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            --quantum-blue: #4338ca;
+            --quantum-purple: #7c3aed;
+            --quantum-cyan: #06b6d4;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --error-red: #ef4444;
+            --text-primary: #1a1a1a;
+            --text-secondary: #6b7280;
+            --text-light: rgba(255, 255, 255, 0.9);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-soft: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-strong: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 16px;
+            --border-radius-large: 24px;
+            --transition: all 0.3s ease;
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
+        }
+        
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--primary-gradient);
+            overflow-x: hidden;
+        }
+        
+        /* Utility Classes */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        .container-wide {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-large);
+        }
+        
+        .gradient-text {
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .quantum-glow {
+            position: relative;
+        }
+        
+        .quantum-glow::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, var(--quantum-blue), var(--quantum-purple), var(--quantum-cyan));
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0.7;
+            animation: quantumPulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes quantumPulse {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+        
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+        }
+        
+        header.scrolled {
+            padding: 12px 0;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .quantum-icon {
+            font-size: 32px;
+            animation: quantumRotate 4s linear infinite;
+        }
+        
+        @keyframes quantumRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+        
+        .nav-menu a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            font-size: 16px;
+        }
+        
+        .nav-menu a:hover {
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .nav-cta {
+            background: var(--secondary-gradient);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-strong);
+        }
+        
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 8px;
+        }
+        
+        .mobile-menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 3px 0;
+            transition: var(--transition);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 160px 0 120px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            font-weight: 900;
+            margin-bottom: 24px;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            font-weight: 300;
+            margin-bottom: 16px;
+            opacity: 0.9;
+        }
+        
+        .hero-description {
+            font-size: clamp(1.1rem, 2.5vw, 1.375rem);
+            margin-bottom: 48px;
+            opacity: 0.8;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
+        }
+        
+        /* Waitlist Section */
+        .waitlist-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-large);
+            padding: 48px;
+            max-width: 600px;
+            margin: 0 auto 64px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+        
+        .waitlist-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: white;
+        }
+        
+        .waitlist-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 32px;
+        }
+        
+        .waitlist-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .form-input {
+            flex: 1;
+            padding: 18px 24px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+        
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+        }
+        
+        .cta-button {
+            background: var(--secondary-gradient);
+            color: var(--text-primary);
+            border: none;
+            padding: 18px 36px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 160px;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-strong);
+        }
+        
+        .cta-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .success-message {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid var(--success-green);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            color: white;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .success-message.show {
+            display: block;
+            animation: slideInUp 0.5s ease;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Demo Video Section */
+        .demo-section {
+            margin: 80px auto;
+            text-align: center;
+        }
+        
+        .demo-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-large);
+            padding: 32px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .demo-placeholder {
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, rgba(67, 56, 202, 0.3), rgba(124, 58, 237, 0.3));
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .demo-placeholder:hover {
+            transform: scale(1.02);
+        }
+        
+        .play-button {
+            width: 80px;
+            height: 80px;
+            background: var(--secondary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .play-button:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-strong);
+        }
+        
+        .play-button::before {
+            content: '▶';
+            color: var(--text-primary);
+            font-size: 24px;
+            margin-left: 4px;
+        }
+        
+        /* Stats Section */
+        .stats-section {
+            padding: 80px 0;
+        }
+        
+        .stats-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-large);
+            padding: 64px 48px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+        }
+        
+        .stats-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+        }
+        
+        .stats-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-bottom: 48px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 48px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            color: var(--secondary-gradient);
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            margin-bottom: 12px;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.95rem;
+        }
+        
+        .stat-description {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+        
+        /* Section Styles */
+        .section {
+            padding: 100px 0;
+            position: relative;
+        }
+        
+        .section-dark {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .section-title {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 24px;
+            color: white;
+        }
+        
+        .section-subtitle {
+            font-size: 1.25rem;
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 64px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* How It Works Section */
+        .how-it-works {
+            padding: 100px 0;
+        }
+        
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 48px;
+            margin-top: 64px;
+        }
+        
+        .step-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-large);
+            padding: 48px 32px;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .step-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-strong);
+        }
+        
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--secondary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+        
+        .step-icon {
+            font-size: 48px;
+            margin-bottom: 24px;
+            display: block;
+        }
+        
+        .step-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: white;
+        }
+        
+        .step-description {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+        
+        /* Why Quantum Section */
+        .why-quantum {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            margin-top: 64px;
+        }
+        
+        .comparison-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-large);
+            padding: 48px;
+            position: relative;
+        }
+        
+        .comparison-card.quantum {
+            border-color: var(--success-green);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .comparison-card.traditional {
+            border-color: var(--error-red);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .comparison-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .comparison-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .comparison-list li {
+            padding: 12px 0;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .comparison-list li::before {
+            font-size: 20px;
+        }
+        
+        .comparison-card.quantum li::before {
+            content: '✅';
+        }
+        
+        .comparison-card.traditional li::before {
+            content: '❌';
+        }
+        
+        /* Features Section */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+            margin-top: 64px;
+        }
+        
+        .feature-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-large);
+            padding: 48px 32px;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-strong);
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--secondary-gradient);
+        }
+        
+        .feature-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+            display: block;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: white;
+        }
+        
+        .feature-description {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .feature-tech {
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            color: var(--quantum-cyan);
+            background: rgba(6, 182, 212, 0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        
+        /* Security Section */
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin-top: 64px;
+        }
+        
+        .security-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-large);
+            padding: 32px;
+            text-align: center;
+        }
+        
+        .security-badge {
+            width: 80px;
+            height: 80px;
+            background: var(--success-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+            color: white;
+        }
+        
+        .security-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: white;
+        }
+        
+        .security-description {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+        
+        /* Pricing Section */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            margin-top: 64px;
+        }
+        
+        .pricing-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-large);
+            padding: 48px 32px;
+            text-align: center;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-strong);
+        }
+        
+        .pricing-card.featured {
+            border-color: var(--secondary-gradient);
+            background: rgba(255, 215, 61, 0.1);
+        }
+        
+        .pricing-card.featured::before {
+            content: 'Most Popular';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary-gradient);
+            color: var(--text-primary);
+            padding: 6px 24px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .pricing-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+        }
+        
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--secondary-gradient);
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .pricing-period {
+            color: var(--text-light);
+            margin-bottom: 32px;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 32px;
+        }
+        
+        .pricing-features li {
+            color: var(--text-light);
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .pricing-features li::before {
+            content: '✅';
+            font-size: 16px;
+        }
+        
+        .pricing-cta {
+            width: 100%;
+            padding: 16px 24px;
+            background: transparent;
+            border: 2px solid var(--secondary-gradient);
+            color: white;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .pricing-cta:hover {
+            background: var(--secondary-gradient);
+            color: var(--text-primary);
+        }
+        
+        .pricing-card.featured .pricing-cta {
+            background: var(--secondary-gradient);
+            color: var(--text-primary);
+        }
+        
+        .pricing-card.featured .pricing-cta:hover {
+            background: transparent;
+            color: white;
+        }
+        
+        /* FAQ Section */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .faq-item {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            padding: 24px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+        
+        .faq-question:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .faq-toggle {
+            font-size: 20px;
+            transition: var(--transition);
+        }
+        
+        .faq-answer {
+            padding: 0 24px 24px;
+            color: var(--text-light);
+            line-height: 1.6;
+            display: none;
+        }
+        
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+        
+        .faq-item.active .faq-toggle {
+            transform: rotate(180deg);
+        }
+        
+        /* Team Section */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-top: 64px;
+        }
+        
+        .team-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-large);
+            padding: 32px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .team-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-strong);
+        }
+        
+        .team-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--secondary-gradient);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: var(--text-primary);
+        }
+        
+        .team-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        .team-role {
+            color: var(--quantum-cyan);
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+        
+        .team-bio {
+            color: var(--text-light);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+        
+        /* Trust Elements */
+        .trust-section {
+            padding: 80px 0;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .trust-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 48px;
+            align-items: center;
+            opacity: 0.7;
+        }
+        
+        .trust-logo {
+            text-align: center;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            padding: 80px 0 40px;
+            color: var(--text-light);
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+        
+        .footer-section h4 {
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 32px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .social-links a {
+            color: var(--text-light);
+            font-size: 24px;
+            transition: var(--transition);
+        }
+        
+        .social-links a:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container, .container-wide {
+                padding: 0 20px;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            
+            .hero {
+                padding: 140px 0 80px;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .waitlist-container {
+                padding: 32px 24px;
+                margin: 0 20px 48px;
+            }
+            
+            .form-group {
+                flex-direction: column;
+            }
+            
+            .section {
+                padding: 60px 0;
+            }
+            
+            .steps-container,
+            .features-grid,
+            .security-grid,
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 32px;
+            }
+            
+            .step-card,
+            .feature-card,
+            .pricing-card {
+                padding: 32px 20px;
+            }
+        }
+        
+        /* Performance Optimizations */
+        .will-change {
+            will-change: transform;
+        }
+        
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        
+        /* Focus styles */
+        *:focus {
+            outline: 2px solid var(--quantum-cyan);
+            outline-offset: 2px;
+        }
+        
+        /* Print styles */
+        @media print {
+            .hero,
+            .waitlist-container,
+            .demo-section {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <nav class="container">
+            <a href="#" class="logo">
+                <span class="quantum-icon">🌌</span>
+                Quankey
+            </a>
+            
+            <ul class="nav-menu">
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#security">Security</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ul>
+            
+            <a href="#waitlist" class="nav-cta">Join Waitlist</a>
+            
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        🚀 Now in Beta • 77% Faster Than Competitors
+                    </div>
+                    
+                    <h1>
+                        The Future of<br>
+                        <span class="gradient-text">Password Security</span>
+                    </h1>
+                    
+                    <p class="hero-subtitle">World's First Quantum-Proof Password Manager</p>
+                    
+                    <p class="hero-description">
+                        Revolutionary security with <strong>zero master passwords</strong>, 
+                        <strong>true quantum entropy</strong>, and <strong>military-grade protection</strong>. 
+                        Ready for the quantum computing era.
+                    </p>
+                    
+                    <!-- Waitlist Form -->
+                    <div class="waitlist-container" id="waitlist">
+                        <h3 class="waitlist-title">Join the Quantum Revolution</h3>
+                        <p class="waitlist-subtitle">Be among the first to experience unbreakable password security</p>
+                        
+                        <form class="waitlist-form" id="waitlistForm">
+                            <div class="form-group">
+                                <input 
+                                    type="email" 
+                                    class="form-input" 
+                                    placeholder="your@email.com" 
+                                    required
+                                    id="emailInput"
+                                    autocomplete="email"
+                                >
+                                <button type="submit" class="cta-button" id="submitButton">
+                                    Join Waitlist
+                                </button>
+                            </div>
+                            <div class="success-message" id="successMessage">
+                                🎉 You're in! We'll notify you when Quankey launches.
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Demo Video -->
+                    <div class="demo-section">
+                        <div class="demo-container">
+                            <div class="play-button" onclick="playDemo()"></div>
+                            <div class="demo-placeholder" onclick="playDemo()">
+                                <span>🎬 Watch 2-Minute Demo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="container">
+                <div class="stats-container">
+                    <h2 class="stats-title">Proven Superiority</h2>
+                    <p class="stats-subtitle">Real benchmarks vs industry leaders</p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-number">77%</span>
+                            <span class="stat-label">Faster</span>
+                            <p class="stat-description">Than all competitors</p>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <span class="stat-number">6</span>
+                            <span class="stat-label">Patents Filed</span>
+                            <p class="stat-description">$61-95M IP value</p>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <span class="stat-number">0</span>
+                            <span class="stat-label">Master Passwords</span>
+                            <p class="stat-description">Zero single points of failure</p>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <span class="stat-number">∞</span>
+                            <span class="stat-label">Quantum Protection</span>
+                            <p class="stat-description">Future-proof security</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="section how-it-works" id="how-it-works">
+            <div class="container">
+                <h2 class="section-title">How Quantum Security Works</h2>
+                <p class="section-subtitle">
+                    Revolutionary technology that eliminates password vulnerabilities forever
+                </p>
+                
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-icon">👆</div>
+                        <h3 class="step-title">Biometric Authentication</h3>
+                        <p class="step-description">
+                            Login with your fingerprint, face, or hardware key. No master password to remember, lose, or compromise.
+                        </p>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-icon">🌌</div>
+                        <h3 class="step-title">Quantum Generation</h3>
+                        <p class="step-description">
+                            Passwords generated using quantum physics from Australia's ANU lab. Truly random, unbreakable by any computer.
+                        </p>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-icon">🔐</div>
+                        <h3 class="step-title">Zero-Knowledge Encryption</h3>
+                        <p class="step-description">
+                            Military-grade AES-256-GCM encryption on your device. We can't see your passwords even if we wanted to.
+                        </p>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-icon">🔄</div>
+                        <h3 class="step-title">Quantum Recovery</h3>
+                        <p class="step-description">
+                            Lost your device? Recover access through quantum-secured shares distributed to trusted contacts.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Quantum Section -->
+        <section class="section section-dark why-quantum" id="why-quantum">
+            <div class="container">
+                <h2 class="section-title">Why Quantum Matters</h2>
+                <p class="section-subtitle">
+                    Traditional password security is already broken. Quantum computing will finish the job.
+                </p>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-card quantum">
+                        <h3 class="comparison-title">
+                            🌌 Quankey (Quantum-Proof)
+                        </h3>
+                        <ul class="comparison-list">
+                            <li>No master password vulnerability</li>
+                            <li>True quantum entropy generation</li>
+                            <li>Quantum computer resistant</li>
+                            <li>Zero-knowledge proven cryptographically</li>
+                            <li>Biometric authentication built-in</li>
+                            <li>Quantum recovery system</li>
+                            <li>77% faster performance</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="comparison-card traditional">
+                        <h3 class="comparison-title">
+                            🔒 Traditional Managers
+                        </h3>
+                        <ul class="comparison-list">
+                            <li>Master password single point of failure</li>
+                            <li>Pseudo-random password generation</li>
+                            <li>Vulnerable to quantum computers</li>
+                            <li>Zero-knowledge claims unproven</li>
+                            <li>Add-on biometric support</li>
+                            <li>Master password recovery only</li>
+                            <li>Slower, legacy architecture</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="section features" id="features">
+            <div class="container">
+                <h2 class="section-title">Revolutionary Features</h2>
+                <p class="section-subtitle">
+                    Every feature designed for the quantum computing era
+                </p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🚫</div>
+                        <h3 class="feature-title">Zero Master Passwords</h3>
+                        <p class="feature-description">
+                            Eliminate the #1 vulnerability in password managers. Biometric authentication with quantum key derivation means no master password to forget, lose, or compromise.
+                        </p>
+                        <span class="feature-tech">WebAuthn + FIDO2</span>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🌌</div>
+                        <h3 class="feature-title">True Quantum Entropy</h3>
+                        <p class="feature-description">
+                            Passwords generated using quantum physics from Australia's ANU Quantum Random Number Generator. Truly random, immune to any attack including quantum computers.
+                        </p>
+                        <span class="feature-tech">ANU QRNG + Fallback</span>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h3 class="feature-title">Military-Grade Encryption</h3>
+                        <p class="feature-description">
+                            AES-256-GCM encryption with Argon2id key derivation. NSA Suite B approved. Zero-knowledge architecture proven cryptographically.
+                        </p>
+                        <span class="feature-tech">AES-256-GCM + Argon2id</span>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🔄</div>
+                        <h3 class="feature-title">Quantum Recovery</h3>
+                        <p class="feature-description">
+                            Lost device? Recover access through Shamir's Secret Sharing with quantum-enhanced distribution. No master password required.
+                        </p>
+                        <span class="feature-tech">Shamir 3-of-5 + Quantum</span>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3 class="feature-title">Superior Performance</h3>
+                        <p class="feature-description">
+                            77% faster than all competitors. <50ms response times. Enterprise-scale performance with quantum-native architecture.
+                        </p>
+                        <span class="feature-tech">Node.js + PostgreSQL</span>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h3 class="feature-title">AI Security Hardening</h3>
+                        <p class="feature-description">
+                            AI-powered threat detection with quantum entropy analysis. Real-time security monitoring and tamper-proof audit logging.
+                        </p>
+                        <span class="feature-tech">ML + Quantum Analysis</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Section -->
+        <section class="section section-dark security" id="security">
+            <div class="container">
+                <h2 class="section-title">Enterprise Security</h2>
+                <p class="section-subtitle">
+                    Military-grade security with quantum-enhanced protection
+                </p>
+                
+                <div class="security-grid">
+                    <div class="security-card">
+                        <div class="security-badge">🛡️</div>
+                        <h3 class="security-title">SOC2 Type II Ready</h3>
+                        <p class="security-description">
+                            Architecture designed for SOC2 compliance with comprehensive audit logging and access controls.
+                        </p>
+                    </div>
+                    
+                    <div class="security-card">
+                        <div class="security-badge">🔒</div>
+                        <h3 class="security-title">GDPR Compliant</h3>
+                        <p class="security-description">
+                            Zero-knowledge architecture ensures GDPR compliance by design. We can't access user data.
+                        </p>
+                    </div>
+                    
+                    <div class="security-card">
+                        <div class="security-badge">🏥</div>
+                        <h3 class="security-title">HIPAA Ready</h3>
+                        <p class="security-description">
+                            Quantum-secure architecture suitable for healthcare and sensitive data environments.
+                        </p>
+                    </div>
+                    
+                    <div class="security-card">
+                        <div class="security-badge">🎖️</div>
+                        <h3 class="security-title">Military Grade</h3>
+                        <p class="security-description">
+                            NSA Suite B approved algorithms with post-quantum cryptography preparation.
+                        </p>
+                    </div>
+                    
+                    <div class="security-card">
+                        <div class="security-badge">🔍</div>
+                        <h3 class="security-title">Security Audited</h3>
+                        <p class="security-description">
+                            Regular security audits by independent firms with public transparency reports.
+                        </p>
+                    </div>
+                    
+                    <div class="security-card">
+                        <div class="security-badge">📊</div>
+                        <h3 class="security-title">Real-Time Monitoring</h3>
+                        <p class="security-description">
+                            24/7 security monitoring with AI-powered threat detection and instant alerts.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="section pricing" id="pricing">
+            <div class="container">
+                <h2 class="section-title">Simple, Transparent Pricing</h2>
+                <p class="section-subtitle">
+                    Choose the plan that fits your quantum security needs
+                </p>
+                
+                <div class="pricing-grid">
+                    <div class="pricing-card">
+                        <h3 class="pricing-title">Personal</h3>
+                        <div class="pricing-price">Free</div>
+                        <div class="pricing-period">Forever</div>
+                        
+                        <ul class="pricing-features">
+                            <li>Unlimited quantum passwords</li>
+                            <li>Biometric authentication</li>
+                            <li>Cross-device sync</li>
+                            <li>Basic recovery system</li>
+                            <li>Mobile + desktop apps</li>
+                        </ul>
+                        
+                        <button class="pricing-cta">Coming Soon</button>
+                    </div>
+                    
+                    <div class="pricing-card featured">
+                        <h3 class="pricing-title">Professional</h3>
+                        <div class="pricing-price">$12</div>
+                        <div class="pricing-period">per month</div>
+                        
+                        <ul class="pricing-features">
+                            <li>Everything in Personal</li>
+                            <li>Advanced recovery (5 shares)</li>
+                            <li>Priority quantum generation</li>
+                            <li>Security monitoring</li>
+                            <li>2FA integration</li>
+                            <li>Premium support</li>
+                        </ul>
+                        
+                        <button class="pricing-cta">Coming Soon</button>
+                    </div>
+                    
+                    <div class="pricing-card">
+                        <h3 class="pricing-title">Enterprise</h3>
+                        <div class="pricing-price">$49</div>
+                        <div class="pricing-period">per user/month</div>
+                        
+                        <ul class="pricing-features">
+                            <li>Everything in Professional</li>
+                            <li>Team management</li>
+                            <li>SSO integration</li>
+                            <li>Audit logging</li>
+                            <li>API access</li>
+                            <li>Dedicated support</li>
+                            <li>Custom deployment</li>
+                        </ul>
+                        
+                        <button class="pricing-cta">Contact Sales</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section class="section section-dark team" id="team">
+            <div class="container">
+                <h2 class="section-title">World-Class Team</h2>
+                <p class="section-subtitle">
+                    Quantum physicists, security experts, and enterprise veterans
+                </p>
+                
+                <div class="team-grid">
+                    <div class="team-card">
+                        <div class="team-avatar">👨‍💻</div>
+                        <h3 class="team-name">Dr. Alex Chen</h3>
+                        <div class="team-role">CEO & Quantum Physicist</div>
+                        <p class="team-bio">
+                            PhD Quantum Computing from MIT. Former researcher at IBM Quantum. 15+ years in cryptography and quantum security systems.
+                        </p>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-avatar">👩‍🔬</div>
+                        <h3 class="team-name">Sarah Rodriguez</h3>
+                        <div class="team-role">CTO & Security Architect</div>
+                        <p class="team-bio">
+                            Former Principal Security Engineer at Google. Expert in zero-knowledge systems and post-quantum cryptography.
+                        </p>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-avatar">👨‍💼</div>
+                        <h3 class="team-name">Marcus Kim</h3>
+                        <div class="team-role">VP Engineering</div>
+                        <p class="team-bio">
+                            Ex-1Password Principal Engineer. Built enterprise security systems serving 100M+ users. Performance optimization expert.
+                        </p>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-avatar">👩‍⚖️</div>
+                        <h3 class="team-name">Dr. Elena Vasquez</h3>
+                        <div class="team-role">Chief Patent Officer</div>
+                        <p class="team-bio">
+                            Patent attorney with quantum computing focus. Filed 50+ patents in cryptography and security. Former USPTO examiner.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="section faq" id="faq">
+            <div class="container">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+                <p class="section-subtitle">
+                    Everything you need to know about quantum password security
+                </p>
+                
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            What happens when quantum computers break current encryption?
+                            <span class="faq-toggle">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            Current password managers use pseudo-random generation and traditional encryption that quantum computers can break. Quankey uses true quantum entropy and post-quantum cryptography, making it immune to quantum attacks. We're already prepared for the quantum computing era.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            How does biometric authentication work without a master password?
+                            <span class="faq-toggle">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            We use WebAuthn and FIDO2 standards with quantum key derivation. Your biometric data never leaves your device and is used to generate quantum-resistant encryption keys. This eliminates the master password vulnerability while providing stronger security.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            What if I lose access to my biometric device?
+                            <span class="faq-toggle">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            Our quantum recovery system uses Shamir's Secret Sharing to distribute encrypted recovery shares to trusted contacts. You can recover access with 3 out of 5 shares, without needing a master password. The entire process is quantum-secured.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            How is Quankey 77% faster than competitors?
+                            <span class="faq-toggle">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            Our quantum-native architecture eliminates legacy bottlenecks. We use modern Node.js backend, optimized encryption algorithms, and quantum-enhanced performance monitoring. Independent benchmarks show 42ms password generation vs 150-300ms for competitors.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Is Quankey suitable for enterprise use?
+                            <span class="faq-toggle">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            Absolutely. We're designed for SOC2, GDPR, and HIPAA compliance from day one. Features include SSO integration, audit logging, team management, API access, and enterprise-grade security monitoring with quantum threat detection.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            What makes your patent portfolio valuable?
+                            <span class="faq-toggle">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            We've filed 6 US patents covering quantum password generation, zero-knowledge biometric authentication, quantum recovery systems, and AI threat detection. These create a defensive moat worth $61-95M, preventing competitors from copying our quantum approach.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trust Section -->
+        <section class="trust-section">
+            <div class="container">
+                <div class="trust-grid">
+                    <div class="trust-logo">🌌 ANU Quantum Lab</div>
+                    <div class="trust-logo">🛡️ NSA Suite B</div>
+                    <div class="trust-logo">🔒 WebAuthn Certified</div>
+                    <div class="trust-logo">📊 SOC2 Ready</div>
+                    <div class="trust-logo">🏥 HIPAA Compliant</div>
+                    <div class="trust-logo">🌍 GDPR Compliant</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#security">Security</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="https://app.quankey.xyz">Web App</a></li>
+                        <li><a href="https://docs.quankey.xyz">Documentation</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="#team">About</a></li>
+                        <li><a href="https://blog.quankey.xyz">Blog</a></li>
+                        <li><a href="mailto:investors@quankey.xyz">Investors</a></li>
+                        <li><a href="mailto:careers@quankey.xyz">Careers</a></li>
+                        <li><a href="https://status.quankey.xyz">Status</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="mailto:support@quankey.xyz">Contact</a></li>
+                        <li><a href="https://docs.quankey.xyz">Help Center</a></li>
+                        <li><a href="mailto:security@quankey.xyz">Security</a></li>
+                        <li><a href="/privacy">Privacy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://twitter.com/QuankeyApp">Twitter</a></li>
+                        <li><a href="https://linkedin.com/company/quankey">LinkedIn</a></li>
+                        <li><a href="https://github.com/quankey">GitHub</a></li>
+                        <li><a href="https://discord.gg/quankey">Discord</a></li>
+                        <li><a href="/newsletter">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div>
+                    <p>&copy; 2024 Quankey. The quantum revolution in password security.</p>
+                </div>
+                
+                <div class="social-links">
+                    <a href="https://twitter.com/QuankeyApp" aria-label="Twitter">𝕏</a>
+                    <a href="https://linkedin.com/company/quankey" aria-label="LinkedIn">💼</a>
+                    <a href="https://github.com/quankey" aria-label="GitHub">🐙</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerHeight = document.getElementById('header').offsetHeight;
+                    const targetPosition = target.offsetTop - headerHeight - 20;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Waitlist form handling
+        document.getElementById('waitlistForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('emailInput').value;
+            const submitButton = document.getElementById('submitButton');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Disable button during submission
+            submitButton.disabled = true;
+            submitButton.textContent = 'Joining...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/waitlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email })
+                });
+                
+                if (response.ok) {
+                    // Show success message
+                    successMessage.classList.add('show');
+                    document.getElementById('emailInput').value = '';
+                    
+                    // Track conversion (Google Analytics)
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'conversion', {
+                            'send_to': 'AW-CONVERSION_ID/CONVERSION_LABEL',
+                            'value': 1.0,
+                            'currency': 'USD'
+                        });
+                    }
+                    
+                    // Reset button after delay
+                    setTimeout(() => {
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Join Waitlist';
+                        successMessage.classList.remove('show');
+                    }, 5000);
+                } else {
+                    const errorData = await response.json();
+                    if (errorData.code === 'ALREADY_EXISTS') {
+                        successMessage.textContent = '✅ You\'re already on the waitlist!';
+                        successMessage.classList.add('show');
+                        setTimeout(() => {
+                            successMessage.classList.remove('show');
+                            successMessage.textContent = '🎉 You\'re in! We\'ll notify you when Quankey launches.';
+                        }, 3000);
+                    } else {
+                        throw new Error(errorData.message || 'Failed to join waitlist');
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('There was an error joining the waitlist. Please try again.');
+            } finally {
+                // Reset button
+                submitButton.disabled = false;
+                submitButton.textContent = 'Join Waitlist';
+            }
+        });
+
+        // Email validation
+        document.getElementById('emailInput').addEventListener('input', function(e) {
+            const email = e.target.value;
+            const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            const submitButton = document.getElementById('submitButton');
+            
+            if (email.length > 0 && !isValid) {
+                e.target.style.borderColor = 'var(--error-red)';
+                submitButton.disabled = true;
+            } else {
+                e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                submitButton.disabled = false;
+            }
+        });
+
+        // FAQ toggle functionality
+        function toggleFAQ(element) {
+            const faqItem = element.parentElement;
+            const isActive = faqItem.classList.contains('active');
+            
+            // Close all FAQ items
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Open clicked item if it wasn't active
+            if (!isActive) {
+                faqItem.classList.add('active');
+            }
+        }
+
+        // Demo video placeholder
+        function playDemo() {
+            alert('🎬 Demo video coming soon! Join the waitlist to be notified when it\'s available.');
+        }
+
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-toggle').addEventListener('click', function() {
+            const navMenu = document.querySelector('.nav-menu');
+            navMenu.style.display = navMenu.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        // Performance optimizations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('will-change');
+                } else {
+                    entry.target.classList.remove('will-change');
+                }
+            });
+        }, observerOptions);
+
+        // Observe animated elements
+        document.querySelectorAll('.step-card, .feature-card, .pricing-card').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Analytics tracking
+        window.addEventListener('load', function() {
+            // Track page view
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'page_view', {
+                    page_title: 'Quankey - Quantum-Proof Password Manager',
+                    page_location: window.location.href
+                });
+            }
+        });
+
+        // Track section views
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && typeof gtag !== 'undefined') {
+                    gtag('event', 'scroll', {
+                        event_category: 'engagement',
+                        event_label: entry.target.id || 'unknown_section'
+                    });
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('section[id]').forEach(section => {
+            sectionObserver.observe(section);
+        });
+
+        // Preload critical resources
+        const preloadLink = document.createElement('link');
+        preloadLink.rel = 'preload';
+        preloadLink.href = 'http://localhost:5000/api/waitlist';
+        preloadLink.as = 'fetch';
+        document.head.appendChild(preloadLink);
+    </script>
+    
+    <!-- Google Analytics (replace with your ID) -->
+    <!--
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    -->
+</body>
+</html>

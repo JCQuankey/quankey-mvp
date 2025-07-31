@@ -1,0 +1,219 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-30T07:47:29.774Z",
+    "iterations": 500,
+    "totalTestTime": 36096,
+    "platform": "win32",
+    "nodeVersion": "v22.17.1",
+    "memoryUsage": {
+      "rss": 45367296,
+      "heapTotal": 10289152,
+      "heapUsed": 6997336,
+      "external": 1666236,
+      "arrayBuffers": 10515
+    }
+  },
+  "performance": {
+    "passwordGeneration": {
+      "average": 41.81,
+      "p95": 59.99,
+      "samples": 100
+    },
+    "encryption": {
+      "average": 25.06,
+      "p95": 34,
+      "samples": 500
+    },
+    "decryption": {
+      "average": 17.87,
+      "p95": 24.99,
+      "samples": 500
+    },
+    "vaultLoad": {
+      "average": 100.09,
+      "p95": 145.99,
+      "samples": 50
+    },
+    "biometricAuth": {
+      "average": 108.47,
+      "p95": 136.98,
+      "samples": 50
+    }
+  },
+  "comparison": {
+    "passwordGeneration": {
+      "1Password": {
+        "baseline": 150,
+        "quankey": 41.81,
+        "improvement": 72.12,
+        "faster": true
+      },
+      "Bitwarden": {
+        "baseline": 200,
+        "quankey": 41.81,
+        "improvement": 79.09,
+        "faster": true
+      },
+      "LastPass": {
+        "baseline": 300,
+        "quankey": 41.81,
+        "improvement": 86.06,
+        "faster": true
+      },
+      "Dashlane": {
+        "baseline": 180,
+        "quankey": 41.81,
+        "improvement": 76.77,
+        "faster": true
+      }
+    },
+    "encryption": {
+      "1Password": {
+        "baseline": 45,
+        "quankey": 25.06,
+        "improvement": 44.3,
+        "faster": true
+      },
+      "Bitwarden": {
+        "baseline": 60,
+        "quankey": 25.06,
+        "improvement": 58.23,
+        "faster": true
+      },
+      "LastPass": {
+        "baseline": 80,
+        "quankey": 25.06,
+        "improvement": 68.67,
+        "faster": true
+      },
+      "Dashlane": {
+        "baseline": 50,
+        "quankey": 25.06,
+        "improvement": 49.87,
+        "faster": true
+      }
+    },
+    "decryption": {
+      "1Password": {
+        "baseline": 40,
+        "quankey": 17.87,
+        "improvement": 55.33,
+        "faster": true
+      },
+      "Bitwarden": {
+        "baseline": 55,
+        "quankey": 17.87,
+        "improvement": 67.51,
+        "faster": true
+      },
+      "LastPass": {
+        "baseline": 75,
+        "quankey": 17.87,
+        "improvement": 76.17,
+        "faster": true
+      },
+      "Dashlane": {
+        "baseline": 45,
+        "quankey": 17.87,
+        "improvement": 60.29,
+        "faster": true
+      }
+    },
+    "vaultLoad": {
+      "1Password": {
+        "baseline": 320,
+        "quankey": 100.09,
+        "improvement": 68.72,
+        "faster": true
+      },
+      "Bitwarden": {
+        "baseline": 280,
+        "quankey": 100.09,
+        "improvement": 64.26,
+        "faster": true
+      },
+      "LastPass": {
+        "baseline": 450,
+        "quankey": 100.09,
+        "improvement": 77.76,
+        "faster": true
+      },
+      "Dashlane": {
+        "baseline": 350,
+        "quankey": 100.09,
+        "improvement": 71.4,
+        "faster": true
+      }
+    },
+    "biometricAuth": {
+      "1Password": {
+        "baseline": 180,
+        "quankey": 108.47,
+        "improvement": 39.74,
+        "faster": true
+      },
+      "Bitwarden": {
+        "baseline": 220,
+        "quankey": 108.47,
+        "improvement": 50.7,
+        "faster": true
+      },
+      "LastPass": {
+        "baseline": 250,
+        "quankey": 108.47,
+        "improvement": 56.61,
+        "faster": true
+      },
+      "Dashlane": {
+        "baseline": 200,
+        "quankey": 108.47,
+        "improvement": 45.77,
+        "faster": true
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "type": "performance",
+      "severity": "medium",
+      "metric": "vaultLoad",
+      "message": "vaultLoad averaging 100.09ms - consider optimization"
+    },
+    {
+      "type": "performance",
+      "severity": "medium",
+      "metric": "biometricAuth",
+      "message": "biometricAuth averaging 108.47ms - consider optimization"
+    },
+    {
+      "type": "advantage",
+      "severity": "info",
+      "metric": "passwordGeneration",
+      "message": "Strong competitive advantage in passwordGeneration (86.06% faster)"
+    },
+    {
+      "type": "advantage",
+      "severity": "info",
+      "metric": "encryption",
+      "message": "Strong competitive advantage in encryption (68.67% faster)"
+    },
+    {
+      "type": "advantage",
+      "severity": "info",
+      "metric": "decryption",
+      "message": "Strong competitive advantage in decryption (76.17% faster)"
+    },
+    {
+      "type": "advantage",
+      "severity": "info",
+      "metric": "vaultLoad",
+      "message": "Strong competitive advantage in vaultLoad (77.76% faster)"
+    },
+    {
+      "type": "advantage",
+      "severity": "info",
+      "metric": "biometricAuth",
+      "message": "Strong competitive advantage in biometricAuth (56.61% faster)"
+    }
+  ]
+}

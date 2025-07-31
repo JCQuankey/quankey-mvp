@@ -1,0 +1,69 @@
+{
+  "manifest_version": 3,
+  "name": "Quankey - Quantum-Proof Password Manager",
+  "version": "1.0.0",
+  "description": "The world's first quantum-proof password manager with zero master passwords and true quantum entropy.",
+  
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "nativeMessaging"
+  ],
+  
+  "host_permissions": [
+    "http://localhost:5000/*",
+    "https://api.quankey.xyz/*"
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["quankey-extension.css"],
+      "run_at": "document_start"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Quankey - Quantum Security",
+    "default_icon": {
+      "16": "icons/quankey-16.png",
+      "32": "icons/quankey-32.png",
+      "48": "icons/quankey-48.png",
+      "128": "icons/quankey-128.png"
+    }
+  },
+  
+  "icons": {
+    "16": "icons/quankey-16.png",
+    "32": "icons/quankey-32.png",
+    "48": "icons/quankey-48.png",
+    "128": "icons/quankey-128.png"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js", "icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://localhost:5000 https://api.quankey.xyz"
+  },
+  
+  "externally_connectable": {
+    "matches": [
+      "http://localhost:3000/*",
+      "http://localhost:3001/*",
+      "https://app.quankey.xyz/*"
+    ]
+  }
+}

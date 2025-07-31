@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quankey - Quantum Security</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="quankey-popup">
+        <!-- Header -->
+        <div class="popup-header">
+            <div class="logo">
+                <span class="quantum-icon">🌌</span>
+                <span class="logo-text">Quankey</span>
+            </div>
+            <div class="status-indicator" id="statusIndicator">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
+        </div>
+
+        <!-- Authentication Section -->
+        <div class="auth-section" id="authSection">
+            <div class="auth-form">
+                <h3>Sign in to Quankey</h3>
+                <p>Access your quantum-secured passwords</p>
+                
+                <form id="loginForm">
+                    <div class="input-group">
+                        <input type="email" id="emailInput" placeholder="Email" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="password" id="passwordInput" placeholder="Password" required>
+                    </div>
+                    
+                    <button type="submit" id="loginButton" class="primary-button">
+                        <span class="button-text">Sign In</span>
+                        <span class="loading-spinner" style="display: none;">⚡</span>
+                    </button>
+                </form>
+                
+                <div class="auth-links">
+                    <a href="#" id="openAppLink">Open Quankey App</a>
+                    <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div class="dashboard-section" id="dashboardSection" style="display: none;">
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="user-avatar">
+                    <span id="userInitials">QK</span>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">User Name</div>
+                    <div class="user-email" id="userEmail">user@example.com</div>
+                </div>
+                <button class="settings-button" id="settingsButton">⚙️</button>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalPasswords">0</div>
+                    <div class="stat-label">Passwords</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="quantumPasswords">0</div>
+                    <div class="stat-label">Quantum</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="securityScore">0</div>
+                    <div class="stat-label">Score</div>
+                </div>
+            </div>
+
+            <!-- Current Site -->
+            <div class="current-site" id="currentSite">
+                <div class="site-header">
+                    <div class="site-info">
+                        <div class="site-favicon" id="siteFavicon">🌐</div>
+                        <div class="site-details">
+                            <div class="site-name" id="siteName">Current Site</div>
+                            <div class="site-url" id="siteUrl">example.com</div>
+                        </div>
+                    </div>
+                    <div class="site-status" id="siteStatus">
+                        <span class="security-level">🔒</span>
+                    </div>
+                </div>
+
+                <!-- Site Credentials -->
+                <div class="site-credentials" id="siteCredentials">
+                    <div class="no-credentials" id="noCredentials">
+                        <p>No saved passwords for this site</p>
+                        <button class="secondary-button" id="addPasswordButton">
+                            <span>➕ Add Password</span>
+                        </button>
+                    </div>
+                    
+                    <div class="credentials-list" id="credentialsList" style="display: none;">
+                        <!-- Credentials will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="action-button" id="generatePasswordButton">
+                    <span class="action-icon">🌌</span>
+                    <span>Generate Quantum Password</span>
+                </button>
+                
+                <button class="action-button" id="openVaultButton">
+                    <span class="action-icon">🔐</span>
+                    <span>Open Vault</span>
+                </button>
+                
+                <button class="action-button" id="securityCheckButton">
+                    <span class="action-icon">🛡️</span>
+                    <span>Security Check</span>
+                </button>
+            </div>
+
+            <!-- Security Status -->
+            <div class="security-status">
+                <div class="security-header">
+                    <h4>Security Status</h4>
+                    <span class="last-sync" id="lastSync">Last sync: Never</span>
+                </div>
+                
+                <div class="security-metrics">
+                    <div class="metric-item">
+                        <span class="metric-label">Quantum Entropy</span>
+                        <span class="metric-value" id="quantumEntropy">99.9%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Vault Status</span>
+                        <span class="metric-value vault-secure" id="vaultStatus">Secure</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Last Backup</span>
+                        <span class="metric-value" id="lastBackup">Today</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-section" id="loadingSection" style="display: none;">
+            <div class="loading-animation">
+                <div class="quantum-spinner">🌌</div>
+                <p>Connecting to quantum security...</p>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div class="error-section" id="errorSection" style="display: none;">
+            <div class="error-content">
+                <div class="error-icon">⚠️</div>
+                <h4>Connection Error</h4>
+                <p id="errorMessage">Unable to connect to Quankey service</p>
+                <button class="primary-button" id="retryButton">Retry</button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="popup-footer">
+            <div class="footer-links">
+                <a href="#" id="helpLink">Help</a>
+                <a href="#" id="feedbackLink">Feedback</a>
+                <a href="#" id="logoutLink" style="display: none;">Logout</a>
+            </div>
+            <div class="version-info">
+                <span>v1.0.0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

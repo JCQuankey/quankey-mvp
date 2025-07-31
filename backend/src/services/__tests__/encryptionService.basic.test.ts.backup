@@ -1,0 +1,203 @@
+/**
+ * ===============================================================================
+ * BASIC ENCRYPTION SERVICE TESTS - INVESTOR DEMO
+ * ===============================================================================
+ * 
+ * Critical zero-knowledge encryption tests for >60% coverage requirement
+ * Focus on essential security validations without heavy performance tests
+ */
+
+import { describe, test, expect, beforeEach } from '@jest/globals';
+import { EncryptionService } from '../encryptionService';
+
+describe('🔐 EncryptionService - BASIC INVESTOR TESTS', () => {
+  let userCredential: string;
+  const testPassword = 'TestPassword123!';
+
+  beforeEach(() => {
+    userCredential = EncryptionService.generateUserCredential('test-user', 'test-webauthn');
+  });
+
+  describe('🔑 User Credential Generation', () => {
+    test('generates consistent credentials for same user', () => {
+      const cred1 = EncryptionService.generateUserCredential('user1', 'webauthn1');
+      const cred2 = EncryptionService.generateUserCredential('user1', 'webauthn1');
+      expect(cred1).toBe(cred2);
+    });
+
+    test('generates different credentials for different users', () => {
+      const cred1 = EncryptionService.generateUserCredential('user1', 'webauthn1');
+      const cred2 = EncryptionService.generateUserCredential('user2', 'webauthn2');
+      expect(cred1).not.toBe(cred2);
+    });
+
+    test('credentials have sufficient length', () => {
+      const credential = EncryptionService.generateUserCredential('test', 'test');
+      expect(credential.length).toBeGreaterThan(10);
+      expect(typeof credential).toBe('string');
+    });
+  });
+
+  describe('🔒 Basic Encryption/Decryption', () => {
+    test('encrypts and decrypts correctly', async () => {
+      const encrypted = await EncryptionService.encrypt(testPassword, userCredential);
+      const decrypted = EncryptionService.decrypt(encrypted, userCredential);
+      
+      expect(decrypted).toBe(testPassword);
+    });
+
+    test('produces different outputs for same input', async () => {
+      const encrypted1 = await EncryptionService.encrypt(testPassword, userCredential);
+      const encrypted2 = await EncryptionService.encrypt(testPassword, userCredential);
+      
+      expect(encrypted1.encryptedData).not.toBe(encrypted2.encryptedData);
+      expect(encrypted1.iv).not.toBe(encrypted2.iv);
+    });
+
+    test('encrypted data structure is correct', async () => {
+      const encrypted = await EncryptionService.encrypt(testPassword, userCredential);
+      
+      expect(encrypted).toHaveProperty('encryptedData');
+      expect(encrypted).toHaveProperty('iv');
+      expect(encrypted).toHaveProperty('salt');
+      expect(encrypted).toHaveProperty('authTag');
+      expect(encrypted).toHaveProperty('metadata');
+    });
+  });
+
+  describe('🚨 Zero-Knowledge Validation', () => {
+    test('different users cannot decrypt each others data', async () => {
+      const user1Cred = EncryptionService.generateUserCredential('user1', 'webauthn1');
+      const user2Cred = EncryptionService.generateUserCredential('user2', 'webauthn2');
+      
+      const encrypted = await EncryptionService.encrypt(testPassword, user1Cred);
+      
+      // User1 can decrypt
+      const decrypted1 = EncryptionService.decrypt(encrypted, user1Cred);
+      expect(decrypted1).toBe(testPassword);
+      
+      // User2 cannot decrypt
+      expect(() => {
+        EncryptionService.decrypt(encrypted, user2Cred);
+      }).toThrow();
+    });
+
+    test('wrong credentials fail decryption', async () => {
+      const encrypted = await EncryptionService.encrypt(testPassword, userCredential);
+      const wrongCredential = 'wrong-credential';
+      
+      expect(() => {
+        EncryptionService.decrypt(encrypted, wrongCredential);
+      }).toThrow();
+    });
+
+    test('encrypted data does not contain plaintext', async () => {
+      const encrypted = await EncryptionService.encrypt(testPassword, userCredential);
+      
+      const serialized = JSON.stringify(encrypted);
+      expect(serialized).not.toContain(testPassword);
+      expect(encrypted.encryptedData).not.toContain(testPassword);
+    });
+  });
+
+  describe('🛡️ Tampering Detection', () => {
+    test('detects tampered encrypted data', async () => {
+      const encrypted = await EncryptionService.encrypt(testPassword, userCredential);
+      
+      // Tamper with data
+      const tampered = {
+        ...encrypted,
+        encryptedData: encrypted.encryptedData.substring(0, 10) + 'TAMPERED' + encrypted.encryptedData.substring(17)
+      };
+      
+      expect(() => {
+        EncryptionService.decrypt(tampered, userCredential);
+      }).toThrow();
+    });
+
+    test('detects tampered auth tag', async () => {
+      const encrypted = await EncryptionService.encrypt(testPassword, userCredential);
+      
+      const tampered = {
+        ...encrypted,
+        authTag: 'tampered-tag'
+      };
+      
+      expect(() => {
+        EncryptionService.decrypt(tampered, userCredential);
+      }).toThrow();
+    });
+  });
+
+  describe('🧮 Cryptographic Parameters', () => {
+    test('uses correct encryption metadata', async () => {
+      const encrypted = await EncryptionService.encrypt(testPassword, userCredential);
+      
+      expect(encrypted.metadata.algorithm).toBe('AES-256-GCM');
+      expect(encrypted.metadata.keyDerivation).toBe('Argon2id');
+      expect(encrypted.metadata.version).toBe('1.0');
+    });
+
+    test('IV has correct length', async () => {
+      const encrypted = await EncryptionService.encrypt(testPassword, userCredential);
+      const ivBuffer = Buffer.from(encrypted.iv, 'base64');
+      expect(ivBuffer.length).toBe(12); // 12 bytes for GCM
+    });
+
+    test('salt has correct length', async () => {
+      const encrypted = await EncryptionService.encrypt(testPassword, userCredential);
+      const saltBuffer = Buffer.from(encrypted.salt, 'base64');
+      expect(saltBuffer.length).toBe(32); // 32 bytes
+    });
+  });
+
+  describe('🔍 Error Handling', () => {
+    test('handles empty password', async () => {
+      const encrypted = await EncryptionService.encrypt('', userCredential);
+      const decrypted = EncryptionService.decrypt(encrypted, userCredential);
+      expect(decrypted).toBe('');
+    });
+
+    test('throws on invalid encrypted data structure', () => {
+      const invalidData = {
+        encryptedData: 'invalid',
+        iv: 'invalid',
+        salt: 'invalid', 
+        authTag: 'invalid',
+        metadata: {
+          algorithm: 'AES-256-GCM',
+          keyDerivation: 'Argon2id',
+          version: '1.0',
+          timestamp: new Date().toISOString()
+        }
+      };
+      
+      expect(() => {
+        EncryptionService.decrypt(invalidData, userCredential);
+      }).toThrow();
+    });
+  });
+
+  describe('⚡ Basic Performance', () => {
+    test('encrypts in reasonable time', async () => {
+      const start = performance.now();
+      await EncryptionService.encrypt(testPassword, userCredential);
+      const time = performance.now() - start;
+      
+      expect(time).toBeLessThan(1000); // 1 second
+    });
+
+    test('decrypts in reasonable time', async () => {
+      const encrypted = await EncryptionService.encrypt(testPassword, userCredential);
+      
+      const start = performance.now();
+      EncryptionService.decrypt(encrypted, userCredential);
+      const time = performance.now() - start;
+      
+      expect(time).toBeLessThan(500); // 0.5 seconds
+    });
+  });
+});
+
+// Export for coverage
+export { };

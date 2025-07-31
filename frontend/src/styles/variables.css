@@ -1,0 +1,47 @@
+:root {
+  /* Colores Principales */
+  --quankey-primary: #00A6FB;
+  --quankey-cyan: #00D4FF;
+  --quankey-dark: #0A1628;
+  --quankey-navy: #1E3A5F;
+  
+  /* Gradientes */
+  --quankey-gradient: linear-gradient(135deg, #00A6FB 0%, #00D4FF 100%);
+  --quankey-gradient-hover: linear-gradient(135deg, #0095E8 0%, #00C3ED 100%);
+  
+  /* Colores Neutros */
+  --quankey-white: #FFFFFF;
+  --quankey-gray-light: #E8E8F0;
+  --quankey-gray: #8B8CA5;
+  --quankey-gray-dark: #4A4B5C;
+  
+  /* Estados */
+  --quankey-success: #00FF88;
+  --quankey-warning: #FFB800;
+  --quankey-error: #FF3B30;
+  --quankey-premium: #6B5FFF;
+  
+  /* Espaciado */
+  --quankey-space-xs: 4px;
+  --quankey-space-sm: 8px;
+  --quankey-space-md: 16px;
+  --quankey-space-lg: 24px;
+  --quankey-space-xl: 32px;
+  --quankey-space-2xl: 48px;
+  --quankey-space-3xl: 64px;
+  
+  /* Border Radius */
+  --quankey-radius-sm: 4px;
+  --quankey-radius-md: 8px;
+  --quankey-radius-lg: 12px;
+  --quankey-radius-xl: 16px;
+  
+  /* Sombras */
+  --quankey-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --quankey-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --quankey-shadow-lg: 0 8px 32px rgba(0, 166, 251, 0.2);
+  --quankey-shadow-glow: 0 0 20px rgba(0, 166, 251, 0.5);
+  
+  /* Transiciones */
+  --quankey-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

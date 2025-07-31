@@ -1,3 +1,5 @@
+/* frontend/src/App.css */
+
 .App {
   text-align: center;
 }
@@ -14,18 +16,18 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: var(--quankey-dark);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: var(--quankey-white);
 }
 
 .App-link {
-  color: #61dafb;
+  color: var(--quankey-cyan);
 }
 
 @keyframes App-logo-spin {
@@ -35,4 +37,216 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Actualización de estilos para los componentes inline en App.tsx */
+
+/* Override para los botones de navegación cuando están activos */
+.nav-tab-active {
+  background-color: var(--quankey-primary) !important;
+}
+
+/* Mejorar la apariencia de los botones de copia y guardar */
+.copy-button {
+  background: var(--quankey-gradient) !important;
+  transition: var(--quankey-transition);
+}
+
+.copy-button:hover {
+  background: var(--quankey-gradient-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: var(--quankey-shadow-lg);
+}
+
+/* Estilos para el botón de quantum que ya existe en index.css pero con colores Quankey */
+.btn-quantum {
+  background: var(--quankey-gradient) !important;
+}
+
+.btn-quantum:hover {
+  background: var(--quankey-gradient-hover) !important;
+}
+
+/* Status indicator con colores Quankey */
+.status-indicator {
+  background: rgba(0, 255, 136, 0.1) !important;
+  border-color: rgba(0, 255, 136, 0.3) !important;
+}
+
+/* Ajustes para el logo */
+.logo-img {
+  filter: drop-shadow(0 0 20px rgba(0, 166, 251, 0.5)) !important;
+}
+
+/* User info box */
+.user-info-box {
+  background: rgba(0, 255, 136, 0.1) !important;
+  border: 1px solid rgba(0, 255, 136, 0.3) !important;
+}
+
+/* Navigation tabs container */
+.nav-tabs-container {
+  background: rgba(10, 22, 40, 0.5) !important;
+  border: 1px solid rgba(0, 166, 251, 0.2) !important;
+}
+
+/* Error message styling */
+.error-message {
+  background-color: rgba(255, 59, 48, 0.1) !important;
+  border: 1px solid rgba(255, 59, 48, 0.3) !important;
+  color: var(--quankey-error) !important;
+}
+
+/* Logout button hover state */
+.logout-button:hover {
+  color: var(--quankey-white) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Quantum indicator override */
+.quantum-indicator {
+  background: rgba(0, 255, 136, 0.1) !important;
+  border: 1px solid rgba(0, 255, 136, 0.3) !important;
+}
+
+.quantum-text {
+  color: var(--quankey-success) !important;
+}
+
+/* Animations mejoradas */
+@keyframes quantum-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 166, 251, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.8);
+  }
+}
+
+.logo-container:hover .logo-img {
+  animation: quantum-glow 2s ease-in-out infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-quantum {
+    padding: var(--quankey-space-lg) !important;
+  }
+  
+  .main-title {
+    font-size: 2.5rem !important;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--quankey-space-md) !important;
+  }
+}
+
+/* Loading state improvements */
+.loading-spinner {
+  border-top-color: var(--quankey-cyan) !important;
+}
+
+/* Tab buttons styling */
+.tab-button {
+  background: transparent;
+  color: var(--quankey-gray);
+  transition: all 0.3s ease;
+}
+
+.tab-button:hover:not(.active) {
+  background: rgba(0, 166, 251, 0.1) !important;
+  color: var(--quankey-gray-light) !important;
+}
+
+.tab-button.active {
+  background: var(--quankey-primary) !important;
+  color: var(--quankey-white) !important;
+}
+
+/* Mejoras para los controles del generador */
+.control-label {
+  color: var(--quankey-cyan) !important;
+  font-weight: 600;
+}
+
+.checkbox-container {
+  background: rgba(10, 22, 40, 0.6) !important;
+  border: 1px solid rgba(0, 166, 251, 0.3) !important;
+  transition: var(--quankey-transition);
+}
+
+.checkbox-container:hover {
+  border-color: var(--quankey-cyan) !important;
+  box-shadow: 0 0 10px rgba(0, 166, 251, 0.2);
+}
+
+/* Password display enhancement */
+.password-display {
+  background: linear-gradient(135deg, rgba(10, 22, 40, 0.9), rgba(30, 58, 95, 0.9)) !important;
+  border: 1px solid rgba(0, 166, 251, 0.4) !important;
+  box-shadow: var(--quankey-shadow-lg);
+}
+
+.password-text {
+  color: var(--quankey-cyan) !important;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+/* Stat cards improvement */
+.stat-card {
+  transition: var(--quankey-transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--quankey-shadow-lg);
+  border-color: var(--quankey-cyan) !important;
+}
+
+.stat-value {
+  color: var(--quankey-cyan) !important;
+}
+
+/* Footer styling */
+.footer {
+  color: var(--quankey-gray) !important;
+  border-top: 1px solid rgba(0, 166, 251, 0.1);
+  padding-top: var(--quankey-space-lg);
+}
+
+/* Smooth transitions for all interactive elements */
+button, input, .stat-card, .checkbox-container {
+  transition: var(--quankey-transition);
+}
+
+/* Focus states */
+button:focus, input:focus {
+  outline: 2px solid var(--quankey-cyan);
+  outline-offset: 2px;
+}
+
+/* Disabled states */
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Success animation for copy button */
+@keyframes success-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.copy-button.copied {
+  animation: success-pulse 0.3s ease-out;
+  background: var(--quankey-success) !important;
 }

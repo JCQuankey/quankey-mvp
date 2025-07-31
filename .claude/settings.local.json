@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(timeout 10 npm start)",
+      "Bash(mv:*)",
+      "Bash(npm install:*)",
+      "Bash(grep:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(rm:*)",
+      "Bash(timeout 15 npm test -- --testTimeout=10000 --maxWorkers=1)",
+      "Bash(npx jest:*)",
+      "Bash(node:*)",
+      "Bash(npm run test:coverage:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm run demo:run:*)",
+      "Bash(npm run demo:investor:*)",
+      "Bash(npm start)",
+      "Bash(npx kill-port:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:cainmani.com)",
+      "Bash(taskkill:*)",
+      "Bash(cmd //c:*)",
+      "Bash(ls:*)",
+      "Bash(pg_isready:*)",
+      "Bash(npx prisma:*)",
+      "Bash(pkill:*)"
+    ],
+    "deny": []
+  }
+}
