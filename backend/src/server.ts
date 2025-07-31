@@ -4,6 +4,8 @@ import express from 'express';
 import dotenv from 'dotenv';
 import quantumRouter from './routes/quantum';
 import { authRouter } from './routes/auth';
+// SECURITY RECOVERY: Real WebAuthn routes
+import { authRealRouter } from './routes/authReal';
 import { DatabaseService } from './services/databaseService';
 import passwordRoutes from './routes/passwords';
 const dashboardRoutes = require('./routes/dashboard');
@@ -66,6 +68,13 @@ app.use('/api/auth',
   createRateLimiter('authentication'), 
   auditMiddleware(AuditEventType.USER_LOGIN, 'Authentication Request', RiskLevel.MEDIUM),
   authRouter
+);
+
+// SECURITY RECOVERY: Real WebAuthn routes
+app.use('/api/auth-real', 
+  createRateLimiter('authentication'), 
+  auditMiddleware(AuditEventType.USER_LOGIN, 'Real WebAuthn Authentication', RiskLevel.HIGH),
+  authRealRouter
 );
 
 app.use('/api/quantum', 

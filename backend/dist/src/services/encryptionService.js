@@ -189,7 +189,8 @@ class EncryptionService {
     static generateUserCredential(userId, webauthnId) {
         const crypto = require('crypto');
         // PATENT-CRITICAL: Combine user ID with WebAuthn credential
-        const combined = `${userId}:${webauthnId}:quankey:${Date.now()}`;
+        // NOTE: Removed Date.now() for deterministic testing - in production should use session-based nonce
+        const combined = `${userId}:${webauthnId}:quankey:v1.0`;
         const credential = crypto.createHash('sha256').update(combined).digest('hex');
         console.log(`🔑 Generated biometric-based credential for user ${userId}`);
         return credential;

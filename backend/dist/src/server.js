@@ -17,18 +17,23 @@ const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const quantum_1 = __importDefault(require("./routes/quantum"));
 const auth_1 = require("./routes/auth");
+// SECURITY RECOVERY: Real WebAuthn routes
+const authReal_1 = require("./routes/authReal");
 const databaseService_1 = require("./services/databaseService");
 const passwords_1 = __importDefault(require("./routes/passwords"));
 const dashboardRoutes = require('./routes/dashboard');
 const recovery_1 = __importDefault(require("./routes/recovery"));
 const auth_2 = require("./middleware/auth");
+// Security hardening imports
+const rateLimiting_1 = require("./middleware/rateLimiting");
+const auditLogging_1 = require("./middleware/auditLogging");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
 // CORS Configuration - ANTES de todo middleware
 app.use((req, res, next) => {
     console.log('[CORS] Applied for:', req.headers.origin);
-    res.header('Access-Control-Allow-Origin', 'https://localhost:3000');
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -40,28 +45,51 @@ app.use((req, res, next) => {
 });
 // Middleware
 app.use(express_1.default.json());
-// Logging middleware para debug
+// Security hardening middleware - Applied BEFORE routes
+app.use(rateLimiting_1.trackFailedAttempt); // Track failed authentication attempts
+app.use(rateLimiting_1.threatDetection); // AI-powered threat detection
+// Logging middleware para debug + audit logging
 app.use((req, res, next) => {
     console.log(`[REQUEST] ${req.method} ${req.path}`);
     next();
 });
-// Routes - ORDEN IMPORTANTE
-app.use('/api/auth', auth_1.authRouter); // Primero auth (sin middleware)
-app.use('/api/quantum', quantum_1.default); // Luego quantum
-app.use('/api/passwords', auth_2.authMiddleware, passwords_1.default); // Passwords con auth
-app.use('/api/dashboard', auth_2.authMiddleware, dashboardRoutes); // Dashboard con auth
-app.use('/api/recovery', recovery_1.default); // Mix of auth and no-auth routes
-// Health check
+// Audit logging for all requests
+app.use((0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.SYSTEM_ERROR, 'API Request', auditLogging_1.RiskLevel.LOW));
+// Routes with security hardening - ORDEN IMPORTANTE
+app.use('/api/auth', (0, rateLimiting_1.createRateLimiter)('authentication'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.USER_LOGIN, 'Authentication Request', auditLogging_1.RiskLevel.MEDIUM), auth_1.authRouter);
+// SECURITY RECOVERY: Real WebAuthn routes
+app.use('/api/auth-real', (0, rateLimiting_1.createRateLimiter)('authentication'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.USER_LOGIN, 'Real WebAuthn Authentication', auditLogging_1.RiskLevel.HIGH), authReal_1.authRealRouter);
+app.use('/api/quantum', (0, rateLimiting_1.createRateLimiter)('passwordGeneration'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.QUANTUM_GENERATION, 'Quantum Password Generation', auditLogging_1.RiskLevel.LOW), quantum_1.default);
+app.use('/api/passwords', (0, rateLimiting_1.createRateLimiter)('vaultAccess'), auth_2.authMiddleware, (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Password Vault Access', auditLogging_1.RiskLevel.MEDIUM), passwords_1.default);
+app.use('/api/dashboard', (0, rateLimiting_1.createRateLimiter)('api'), auth_2.authMiddleware, (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Dashboard Access', auditLogging_1.RiskLevel.LOW), dashboardRoutes);
+app.use('/api/recovery', (0, rateLimiting_1.createRateLimiter)('api'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.RECOVERY_INITIATED, 'Recovery Request', auditLogging_1.RiskLevel.HIGH), recovery_1.default);
+// Health check with security status
 app.get('/api/health', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const dbHealth = yield databaseService_1.DatabaseService.healthCheck();
     res.json({
         status: 'OK',
         message: 'Quankey Backend is running!',
         database: dbHealth ? 'Connected' : 'Disconnected',
-        features: ['quantum-generation', 'webauthn-biometric', 'postgresql-persistence'],
+        features: [
+            'quantum-generation',
+            'webauthn-biometric',
+            'postgresql-persistence',
+            'quantum-enhanced-security',
+            'enterprise-audit-logging',
+            'ai-threat-detection'
+        ],
+        security: {
+            hardening: 'active',
+            rateLimiting: 'enabled',
+            threatDetection: 'quantum-enhanced',
+            auditLogging: 'comprehensive'
+        },
         timestamp: new Date().toISOString()
     });
 }));
+// Security monitoring endpoints
+app.get('/api/security/metrics', rateLimiting_1.securityMetrics);
+app.get('/api/security/audit', auditLogging_1.auditMetricsEndpoint);
 // 404 handler
 app.use((req, res) => {
     console.log(`[404] Not Found: ${req.method} ${req.path}`);

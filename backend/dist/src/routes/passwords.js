@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // backend/src/routes/passwords.ts - VERSIÓN FUNCIONANDO
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
-const { PasswordController } = require('../../controllers/passwordController');
+const { PasswordController } = require('../controllers/passwordController');
 // PATENT-CRITICAL: Import/Export functionality for enterprise adoption
 // const { importPasswords, exportPasswords } = require('../../controllers/importExportController');
 // Wrapper functions para métodos estáticos

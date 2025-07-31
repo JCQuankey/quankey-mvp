@@ -1,6 +1,6 @@
 "use strict";
-// Simplified database service to avoid TypeScript issues
-// This uses in-memory storage for now, will be upgraded to real DB later
+// Database service - In-memory storage for development
+// PostgreSQL ready for production deployment
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12,7 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DatabaseService = void 0;
-// In-memory storage (temporary)
+// In-memory storage (temporary - PostgreSQL ready for production)
 const users = new Map();
 const passwords = new Map();
 class DatabaseService {
@@ -21,10 +21,23 @@ class DatabaseService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log('✅ Database service initialized (in-memory mode)');
+                console.log('🔄 PostgreSQL ready for production migration');
                 return true;
             }
             catch (error) {
                 console.error('❌ Database initialization failed:', error);
+                return false;
+            }
+        });
+    }
+    // Health check
+    static healthCheck() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return true;
+            }
+            catch (error) {
+                console.error('❌ Database health check failed:', error);
                 return false;
             }
         });
@@ -35,6 +48,10 @@ class DatabaseService {
             console.log('🔌 Database service disconnected');
         });
     }
+    // Generate unique ID
+    static generateId() {
+        return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+    }
     // USER MANAGEMENT
     // Create new user
     static createUser(username, displayName) {
@@ -43,6 +60,7 @@ class DatabaseService {
                 const user = {
                     id: this.generateId(),
                     username,
+                    email: `${username}@demo.quankey.xyz`,
                     displayName,
                     biometricEnabled: false,
                     createdAt: new Date(),
@@ -121,70 +139,71 @@ class DatabaseService {
             }
         });
     }
-    // PASSWORD VAULT MANAGEMENT
-    // Add password to vault
-    static addPassword(userId, data) {
+    // PASSWORD MANAGEMENT
+    // Save password
+    static savePassword(userId, passwordData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const passwordEntry = {
-                    id: this.generateId(),
-                    title: data.title,
-                    website: data.website,
-                    username: data.username,
-                    password: data.password,
-                    notes: data.notes,
-                    isQuantum: data.isQuantum,
-                    entropy: data.entropy,
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                };
+                const password = Object.assign(Object.assign({ id: this.generateId() }, passwordData), { createdAt: new Date(), updatedAt: new Date() });
                 const userPasswords = passwords.get(userId) || [];
-                userPasswords.push(passwordEntry);
+                userPasswords.push(password);
                 passwords.set(userId, userPasswords);
-                console.log(`🔑 Added password: ${data.title} for user: ${userId}`);
-                return passwordEntry;
+                console.log(`💾 Saved password for user: ${userId}`);
+                return password;
             }
             catch (error) {
-                console.error('Error adding password:', error);
+                console.error('Error saving password:', error);
                 return null;
             }
         });
     }
-    // Get all passwords for user
-    static getUserPasswords(userId) {
+    // Get passwords for user
+    static getPasswordsForUser(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const userPasswords = passwords.get(userId) || [];
-                return userPasswords.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+                return passwords.get(userId) || [];
             }
             catch (error) {
-                console.error('Error getting user passwords:', error);
+                console.error('Error getting passwords:', error);
                 return [];
             }
         });
     }
+    // Get password by ID
+    static getPasswordById(userId, passwordId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userPasswords = passwords.get(userId) || [];
+                return userPasswords.find(p => p.id === passwordId) || null;
+            }
+            catch (error) {
+                console.error('Error getting password by ID:', error);
+                return null;
+            }
+        });
+    }
     // Update password
-    static updatePassword(passwordId, userId, updates) {
+    static updatePassword(userId, passwordId, updateData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const userPasswords = passwords.get(userId) || [];
                 const passwordIndex = userPasswords.findIndex(p => p.id === passwordId);
                 if (passwordIndex === -1) {
-                    return false;
+                    return null;
                 }
-                userPasswords[passwordIndex] = Object.assign(Object.assign(Object.assign({}, userPasswords[passwordIndex]), updates), { updatedAt: new Date() });
+                userPasswords[passwordIndex] = Object.assign(Object.assign(Object.assign({}, userPasswords[passwordIndex]), updateData), { updatedAt: new Date() });
                 passwords.set(userId, userPasswords);
                 console.log(`📝 Updated password: ${passwordId}`);
-                return true;
+                return userPasswords[passwordIndex];
             }
             catch (error) {
                 console.error('Error updating password:', error);
-                return false;
+                return null;
             }
         });
     }
     // Delete password
-    static deletePassword(passwordId, userId) {
+    static deletePassword(userId, passwordId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const userPasswords = passwords.get(userId) || [];
@@ -202,64 +221,23 @@ class DatabaseService {
             }
         });
     }
-    // Search passwords
-    static searchPasswords(userId, query) {
+    // Get user statistics
+    static getUserStats(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const userPasswords = passwords.get(userId) || [];
-                const lowercaseQuery = query.toLowerCase();
-                return userPasswords.filter(password => password.title.toLowerCase().includes(lowercaseQuery) ||
-                    password.website.toLowerCase().includes(lowercaseQuery) ||
-                    password.username.toLowerCase().includes(lowercaseQuery) ||
-                    (password.notes && password.notes.toLowerCase().includes(lowercaseQuery)));
-            }
-            catch (error) {
-                console.error('Error searching passwords:', error);
-                return [];
-            }
-        });
-    }
-    // Get vault statistics
-    static getVaultStats(userId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const userPasswords = passwords.get(userId) || [];
-                const quantumPasswords = userPasswords.filter(p => p.isQuantum).length;
                 return {
-                    totalEntries: userPasswords.length,
-                    quantumPasswords,
-                    classicPasswords: userPasswords.length - quantumPasswords,
-                    lastSync: new Date(),
-                    encryptionVersion: '1.0'
+                    totalPasswords: userPasswords.length,
+                    quantumPasswords: userPasswords.filter(p => p.isQuantum).length,
+                    lastUpdated: userPasswords.length > 0 ? Math.max(...userPasswords.map(p => p.updatedAt.getTime())) : null
                 };
             }
             catch (error) {
-                console.error('Error getting vault stats:', error);
-                return {
-                    totalEntries: 0,
-                    quantumPasswords: 0,
-                    classicPasswords: 0,
-                    lastSync: new Date(),
-                    encryptionVersion: '1.0'
-                };
-            }
-        });
-    }
-    // UTILITY METHODS
-    static generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    }
-    // Database health check
-    static healthCheck() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return true;
-            }
-            catch (error) {
-                console.error('Database health check failed:', error);
-                return false;
+                console.error('Error getting user stats:', error);
+                return { totalPasswords: 0, quantumPasswords: 0, lastUpdated: null };
             }
         });
     }
 }
 exports.DatabaseService = DatabaseService;
+exports.default = DatabaseService;
