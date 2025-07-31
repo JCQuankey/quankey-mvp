@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/server.ts",
-    "start": "ts-node src/server.ts",
+    "start": "node dist/server.js",
     "build": "echo 'Starting build...' && tsc --project . --outDir dist --skipLibCheck",
     "start:prod": "npm run build && echo 'Build complete, starting server...' && node dist/server.js",
     "clean": "rmdir /s /q dist && echo 'Cleaned dist directory'",
