@@ -4,8 +4,8 @@ services:
     name: quankey-backend
     env: node
     rootDir: backend
-    buildCommand: "npm ci && npm run build"
-    startCommand: "node dist/server.js"
+    buildCommand: "npm install && npm run build"
+    startCommand: "npm start"
     plan: starter
     region: oregon
     healthCheckPath: /api/health
