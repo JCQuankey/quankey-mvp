@@ -1,0 +1,46 @@
+services:
+  # Quankey Backend API Service
+  - type: web
+    name: quankey-backend
+    env: node
+    buildCommand: "cd backend && npm ci && npm run build"
+    startCommand: "cd backend && npm start"
+    plan: starter
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        sync: false  # Must be configured in Render Dashboard
+      - key: JWT_SECRET
+        sync: false  # Must be configured in Render Dashboard
+      - key: IBM_QUANTUM_TOKEN
+        sync: false  # Must be configured in Render Dashboard
+      - key: AUDIT_SECRET_KEY
+        sync: false  # Must be configured in Render Dashboard
+      - key: FRONTEND_URL
+        value: https://quankey-frontend.onrender.com
+      - key: API_URL
+        value: https://quankey-backend.onrender.com
+
+  # Quankey Frontend Static Site
+  - type: static
+    name: quankey-frontend
+    buildCommand: "cd frontend && npm ci && npm run build"
+    staticPublishPath: ./frontend/build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://quankey-backend.onrender.com
+      - key: REACT_APP_ENVIRONMENT
+        value: production
+
+  # PostgreSQL Database
+databases:
+  - name: quankey-database
+    databaseName: quankey_prod
+    user: quankey_user
+    plan: starter
+    region: oregon
