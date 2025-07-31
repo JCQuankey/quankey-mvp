@@ -3,11 +3,10 @@ services:
   - type: web
     name: quankey-backend
     env: node
-    rootDir: backend
-    buildCommand: "npm install && npm run build"
-    startCommand: "npm start"
-    plan: starter
     region: oregon
+    buildCommand: "cd backend && npm install && npm run build"
+    startCommand: "cd backend && npm start"
+    plan: starter
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -30,9 +29,8 @@ services:
   # Quankey Frontend Static Site
   - type: static
     name: quankey-frontend
-    rootDir: frontend
-    buildCommand: "npm ci && npm run build"
-    staticPublishPath: ./build
+    buildCommand: "cd frontend && npm ci && npm run build"
+    staticPublishPath: ./frontend/build
     routes:
       - type: rewrite
         source: /*
