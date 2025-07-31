@@ -31,7 +31,8 @@
       "Bash(npm run test:*)",
       "Bash(cmd /c:*)",
       "Bash(powershell:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }
