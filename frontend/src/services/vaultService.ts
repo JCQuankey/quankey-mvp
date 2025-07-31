@@ -271,7 +271,7 @@ export const EncryptedVaultService = {
   // Función helper para obtener token de autenticación
   getAuthToken() {
     // Primero buscar token simple
-    let token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
     if (token) return token;
     
     // Si no, buscar en los vault tokens

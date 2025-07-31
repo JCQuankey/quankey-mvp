@@ -25,7 +25,10 @@
       "Bash(ls:*)",
       "Bash(pg_isready:*)",
       "Bash(npx prisma:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm run test:*)"
     ],
     "deny": []
   }

@@ -8,8 +8,7 @@ import {
   PlusIcon,
   CloseIcon,
   QuantumIcon,
-  SaveIcon,
-  WarningIcon
+  SaveIcon
 } from './QuankeyIcons';
 
 /**

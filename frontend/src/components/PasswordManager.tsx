@@ -8,29 +8,7 @@ import Logo from './LogoComp';
 import { User } from '../services/authService';
 import { VaultService } from '../services/vaultService';
 
-// Import professional icons
-import { 
-  ShieldIcon, 
-  FingerprintIcon, 
-  CopyIcon, 
-  FolderIcon, 
-  QuantumIcon, 
-  SaveIcon, 
-  PlusIcon, 
-  DeleteIcon, 
-  UserIcon, 
-  LogoutIcon, 
-  ClockIcon, 
-  UnlockIcon, 
-  EyeIcon, 
-  EyeOffIcon, 
-  TargetIcon, 
-  CheckIcon, 
-  WarningIcon, 
-  GlobeIcon, 
-  SearchIcon, 
-  CloseIcon 
-} from './QuankeyIcons';
+// Icons are imported where needed by individual components
 
 // CSS imports
 import '../styles/variables.css';

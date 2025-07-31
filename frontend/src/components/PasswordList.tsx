@@ -61,7 +61,7 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
   const loadEntries = () => {
     console.log(`📂 Loading vault entries for user: ${userId}`);
     
-    let allEntries = VaultService.getAllEntries(userId);
+    const allEntries = VaultService.getAllEntries(userId);
     
     // Apply sorting
     switch (sortBy) {

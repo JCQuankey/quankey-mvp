@@ -8,9 +8,7 @@ import {
   FingerprintIcon, 
   UserIcon, 
   UnlockIcon, 
-  WarningIcon,
-  SearchIcon,
-  CheckIcon
+  WarningIcon
 } from './QuankeyIcons';
 
 /**
@@ -23,8 +21,8 @@ import {
  */
 
 interface BiometricAuthProps {
-  onAuthenticated: (user: User) => void;
-  onError: (error: string) => void;
+  onAuthenticated: (_user: User) => void;
+  onError: (_error: string) => void;
 }
 
 /**

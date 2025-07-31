@@ -29,7 +29,7 @@ interface RecoveryShare {
 }
 
 interface RecoveryProcessProps {
-  onRecoveryComplete?: (success: boolean, message: string) => void;
+  onRecoveryComplete?: (_success: boolean, _message: string) => void;
 }
 
 /**
