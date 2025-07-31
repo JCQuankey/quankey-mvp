@@ -39,11 +39,11 @@ const DeviceDetection = {
   },
   
   getDeviceIcon(): string {
-    if (this.isIOS) return '📱';
-    if (this.isAndroid) return '🤖';
-    if (this.isWindows) return '🖥️';
-    if (this.isMac) return '💻';
-    return '🔐';
+    if (this.isIOS) return '[iOS]';
+    if (this.isAndroid) return '[Android]';
+    if (this.isWindows) return '[Windows]';
+    if (this.isMac) return '[Mac]';
+    return '[Device]';
   }
 };
 
@@ -93,12 +93,12 @@ export class AuthService {
     const registrationId = `webauthn_reg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     try {
-      console.log(`🔐 [${registrationId}] Starting PASSWORDLESS registration for: ${username}`);
-      console.log(`🚫 [${registrationId}] NO master password will be created`);
+      console.log(`[SECURE] [${registrationId}] Starting PASSWORDLESS registration for: ${username}`);
+      console.log(`[NO-PASS] [${registrationId}] NO master password will be created`);
       
       // PATENT-CRITICAL: Check WebAuthn support
       if (!window.PublicKeyCredential) {
-        console.log(`⚠️ [${registrationId}] WebAuthn not supported, using simulation`);
+        console.log(`[WARN] [${registrationId}] WebAuthn not supported, using simulation`);
         return AuthService.simulateBiometricPrompt('register', username, displayName);
       }
 
@@ -106,16 +106,16 @@ export class AuthService {
       try {
         const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
         if (!available) {
-          console.log(`⚠️ [${registrationId}] Platform authenticator not available`);
+          console.log(`[WARN] [${registrationId}] Platform authenticator not available`);
           return AuthService.simulateBiometricPrompt('register', username, displayName);
         }
       } catch (error) {
-        console.log(`⚠️ [${registrationId}] Authenticator check failed`);
+        console.log(`[WARN] [${registrationId}] Authenticator check failed`);
         return AuthService.simulateBiometricPrompt('register', username, displayName);
       }
 
       // PATENT-CRITICAL: Get registration options from server
-      console.log(`📡 [${registrationId}] Requesting WebAuthn registration options...`);
+      console.log(`[API] [${registrationId}] Requesting WebAuthn registration options...`);
       const optionsResponse = await axios.post(`${API_BASE}/auth/register/begin`, {
         username,
         displayName
@@ -128,11 +128,11 @@ export class AuthService {
         };
       }
 
-      console.log(`📱 [${registrationId}] Prompting for biometric enrollment...`);
+      console.log(`[BIOMETRIC] [${registrationId}] Prompting for biometric enrollment...`);
       
       // PATENT-CRITICAL: Real WebAuthn registration
       try {
-        console.log(`🔮 [${registrationId}] Creating WebAuthn credential...`);
+        console.log(`[CRYPTO] [${registrationId}] Creating WebAuthn credential...`);
         
         // Convert server options for WebAuthn API
         const processedOptions = {
@@ -150,11 +150,11 @@ export class AuthService {
         }) as PublicKeyCredential;
 
         if (!credential) {
-          console.log(`⚠️ [${registrationId}] No credential created`);
+          console.log(`[WARN] [${registrationId}] No credential created`);
           return AuthService.simulateBiometricPrompt('register', username, displayName);
         }
 
-        console.log(`✅ [${registrationId}] WebAuthn credential created successfully!`);
+        console.log(`[SUCCESS] [${registrationId}] WebAuthn credential created successfully!`);
 
         // PATENT-CRITICAL: Complete registration - NO PASSWORD
         const verificationResponse = await axios.post(`${API_BASE}/auth/register/finish`, {
@@ -172,8 +172,8 @@ export class AuthService {
         });
 
         if (verificationResponse.data.success) {
-          console.log(`🎉 [${registrationId}] PASSWORDLESS registration successful!`);
-          console.log(`🔐 [${registrationId}] User registered with ZERO passwords`);
+          console.log(`[SUCCESS] [${registrationId}] PASSWORDLESS registration successful!`);
+          console.log(`[SECURE] [${registrationId}] User registered with ZERO passwords`);
           
           // Store token for subsequent API calls
           if (verificationResponse.data.token) {
@@ -186,17 +186,17 @@ export class AuthService {
             message: 'Passwordless biometric authentication registered successfully'
           };
         } else {
-          console.log(`⚠️ [${registrationId}] Server verification failed`);
+          console.log(`[WARN] [${registrationId}] Server verification failed`);
           return AuthService.simulateBiometricPrompt('register', username, displayName);
         }
         
       } catch (error: any) {
-        console.error(`❌ [${registrationId}] WebAuthn error:`, error);
+        console.error(`[ERROR] [${registrationId}] WebAuthn error:`, error);
         return AuthService.simulateBiometricPrompt('register', username, displayName);
       }
 
     } catch (error) {
-      console.error(`❌ [${registrationId}] Registration error:`, error);
+      console.error(`[ERROR] [${registrationId}] Registration error:`, error);
       return {
         success: false,
         error: 'Failed to register biometric authentication'
@@ -226,25 +226,25 @@ export class AuthService {
       
       // PATENT-CRITICAL: Check WebAuthn support
       if (!window.PublicKeyCredential) {
-        console.log(`⚠️ [${authId}] WebAuthn not supported, using simulation`);
+        console.log(`[WARN] [${authId}] WebAuthn not supported, using simulation`);
         return AuthService.simulateBiometricPrompt('authenticate', username);
       }
 
       // PATENT-CRITICAL: Get authentication options from server
-      console.log(`📡 [${authId}] Requesting WebAuthn authentication options...`);
+      console.log(`[API] [${authId}] Requesting WebAuthn authentication options...`);
       const optionsResponse = await axios.post(`${API_BASE}/auth/authenticate/begin`, {
         username
       });
 
       if (!optionsResponse.data.success) {
-        console.log(`⚠️ [${authId}] Failed to get auth options, using simulation`);
+        console.log(`[WARN] [${authId}] Failed to get auth options, using simulation`);
         return AuthService.simulateBiometricPrompt('authenticate', username);
       }
 
-      console.log(`📱 [${authId}] Prompting for biometric authentication...`);
+      console.log(`[BIOMETRIC] [${authId}] Prompting for biometric authentication...`);
 
       try {
-        console.log(`🔮 [${authId}] Getting WebAuthn credential...`);
+        console.log(`[CRYPTO] [${authId}] Getting WebAuthn credential...`);
         
         // Convert challenge for WebAuthn API
         const processedOptions = {
@@ -258,11 +258,11 @@ export class AuthService {
         }) as PublicKeyCredential;
 
         if (!credential) {
-          console.log(`⚠️ [${authId}] No credential received`);
+          console.log(`[WARN] [${authId}] No credential received`);
           return AuthService.simulateBiometricPrompt('authenticate', username);
         }
 
-        console.log(`✅ [${authId}] WebAuthn credential received!`);
+        console.log(`[SUCCESS] [${authId}] WebAuthn credential received!`);
 
         // PATENT-CRITICAL: Complete authentication - NO PASSWORD
         const verificationResponse = await axios.post(`${API_BASE}/auth/authenticate/complete`, {
@@ -280,8 +280,8 @@ export class AuthService {
         });
 
         if (verificationResponse.data.success) {
-          console.log(`🎉 [${authId}] PASSWORDLESS authentication successful!`);
-          console.log(`🔐 [${authId}] User authenticated with ZERO passwords`);
+          console.log(`[SUCCESS] [${authId}] PASSWORDLESS authentication successful!`);
+          console.log(`[SECURE] [${authId}] User authenticated with ZERO passwords`);
           
           // Store token
           if (verificationResponse.data.token) {
@@ -294,17 +294,17 @@ export class AuthService {
             message: 'Passwordless authentication successful'
           };
         } else {
-          console.log(`⚠️ [${authId}] Server verification failed`);
+          console.log(`[WARN] [${authId}] Server verification failed`);
           return AuthService.simulateBiometricPrompt('authenticate', username);
         }
 
       } catch (error: any) {
-        console.error(`❌ [${authId}] WebAuthn authentication error:`, error);
+        console.error(`[ERROR] [${authId}] WebAuthn authentication error:`, error);
         return AuthService.simulateBiometricPrompt('authenticate', username);
       }
 
     } catch (error) {
-      console.error(`❌ [${authId}] Authentication error:`, error);
+      console.error(`[ERROR] [${authId}] Authentication error:`, error);
       return {
         success: false,
         error: 'Failed to authenticate with biometrics'
@@ -321,7 +321,7 @@ export class AuthService {
   static async isBiometricSupported(): Promise<boolean> {
     try {
       if (!window.PublicKeyCredential) {
-        console.log('⚠️ WebAuthn not supported - simulation mode available');
+        console.log('[WARN] WebAuthn not supported - simulation mode available');
         return true; // PATENT-CRITICAL: Always true - no password fallback
       }
 
@@ -330,7 +330,7 @@ export class AuthService {
         console.log(`🔍 Platform authenticator available: ${available}`);
         return true; // PATENT-CRITICAL: Always true - no password option
       } catch (error) {
-        console.log('⚠️ Error checking biometric support:', error);
+        console.log('[WARN] Error checking biometric support:', error);
         return true; // PATENT-CRITICAL: Always true - passwordless only
       }
     } catch (error) {
@@ -401,7 +401,7 @@ export class AuthService {
         });
 
         if (response.data.success) {
-          console.log(`✅ [${simulationId}] Passwordless registration successful!`);
+          console.log(`[SUCCESS] [${simulationId}] Passwordless registration successful!`);
           
           // Store token
           if (response.data.token) {
@@ -436,7 +436,7 @@ export class AuthService {
         });
 
         if (response.data.success) {
-          console.log(`✅ [${simulationId}] Passwordless authentication successful!`);
+          console.log(`[SUCCESS] [${simulationId}] Passwordless authentication successful!`);
           
           // Store token
           if (response.data.token) {
@@ -456,7 +456,7 @@ export class AuthService {
         }
       }
     } catch (error) {
-      console.error(`❌ [${simulationId}] Simulation error:`, error);
+      console.error(`[ERROR] [${simulationId}] Simulation error:`, error);
       return {
         success: false,
         error: 'Passwordless operation failed'
