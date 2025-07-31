@@ -50,7 +50,7 @@ describe('🔐 EncryptionService - MINIMAL COVERAGE TEST', () => {
     expect(encrypted.encryptedData).not.toContain(testData);
     
     // Decrypt and verify
-    const decrypted = EncryptionService.decrypt(encrypted, userCredential);
+    const decrypted = await EncryptionService.decrypt(encrypted, userCredential);
     expect(decrypted).toBe(testData);
   });
 
@@ -62,9 +62,9 @@ describe('🔐 EncryptionService - MINIMAL COVERAGE TEST', () => {
     const encrypted = await EncryptionService.encrypt(testData, userCredential);
     
     // Wrong credential should fail
-    expect(() => {
-      EncryptionService.decrypt(encrypted, wrongCredential);
-    }).toThrow();
+    await expect(async () => {
+      await EncryptionService.decrypt(encrypted, wrongCredential);
+    }).rejects.toThrow();
   });
 
 });
