@@ -8,7 +8,7 @@ import { authRouter } from './routes/auth';
 import { authRealRouter } from './routes/authReal';
 import { DatabaseService } from './services/databaseService';
 import passwordRoutes from './routes/passwords';
-const dashboardRoutes = require('./routes/dashboard');
+import dashboardRoutes from './routes/dashboard';
 import recoveryRoutes from './routes/recovery';
 import { authMiddleware } from './middleware/auth';
 
@@ -30,6 +30,8 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+app.use('/dashboard', dashboardRoutes);
 
 // CORS Configuration - ANTES de todo middleware
 app.use((req, res, next) => {
