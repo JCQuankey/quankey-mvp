@@ -6,7 +6,8 @@
   "scripts": {
     "start:prod": "node dist/server.js",
     "start": "ts-node src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc -p tsconfig.prod.json",
+    "postinstall": "prisma generate",
     "dev": "nodemon src/server.ts",
     "clean": "rmdir /s /q dist && echo 'Cleaned dist directory'",
     "test": "jest",
@@ -31,6 +32,7 @@
     "node": "18.x"
   },
   "dependencies": {
+    "@prisma/client": "^6.13.0",
     "@simplewebauthn/browser": "^13.1.2",
     "@simplewebauthn/server": "^13.1.2",
     "@simplewebauthn/types": "^12.0.0",
@@ -60,7 +62,6 @@
   },
   "devDependencies": {
     "@jest/globals": "^30.0.5",
-    "@prisma/client": "^6.12.0",
     "@types/cors": "^2.8.19",
     "@types/csv-parse": "^1.1.12",
     "@types/jest": "^30.0.0",
@@ -69,7 +70,7 @@
     "@types/supertest": "^6.0.3",
     "jest": "^30.0.5",
     "nodemon": "^3.1.10",
-    "prisma": "^6.12.0",
+    "prisma": "^6.13.0",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.0"
   }
