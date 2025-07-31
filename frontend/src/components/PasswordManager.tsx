@@ -8,7 +8,15 @@ import Logo from './LogoComp';
 import { User } from '../services/authService';
 import { VaultService } from '../services/vaultService';
 
-// Icons are imported where needed by individual components
+import { 
+  WarningIcon,
+  LogoutIcon,
+  FolderIcon,
+  QuantumIcon,
+  CheckIcon,
+  CopyIcon,
+  SaveIcon
+} from './QuankeyIcons';
 
 // CSS imports
 import '../styles/variables.css';

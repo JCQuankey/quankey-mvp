@@ -28,7 +28,10 @@
       "Bash(pkill:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(npm run test:*)"
+      "Bash(npm run test:*)",
+      "Bash(cmd /c:*)",
+      "Bash(powershell:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

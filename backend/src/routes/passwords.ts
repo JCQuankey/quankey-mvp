@@ -3,7 +3,7 @@ import express from 'express';
 
 const router = express.Router();
 
-const { PasswordController } = require('../controllers/passwordController');
+import { PasswordController } from '../controllers/passwordController';
 // PATENT-CRITICAL: Import/Export functionality for enterprise adoption
 // const { importPasswords, exportPasswords } = require('../../controllers/importExportController');
 
