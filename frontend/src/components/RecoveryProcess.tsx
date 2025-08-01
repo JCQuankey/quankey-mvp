@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 
+// API Configuration
+const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+
 // Simple icon components
 const UploadIcon: React.FC<{ size?: number; color?: string }> = ({ size = 20, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
@@ -116,7 +119,7 @@ const RecoveryProcess: React.FC<RecoveryProcessProps> = ({ onRecoveryComplete })
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/recovery/recover', {
+      const response = await fetch(`${API_URL}/api/recovery/recover`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

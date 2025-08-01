@@ -126,7 +126,8 @@ const ProfessionalLandingPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/demo-request', {
+      const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+      const response = await fetch(`${API_URL}/api/demo-request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

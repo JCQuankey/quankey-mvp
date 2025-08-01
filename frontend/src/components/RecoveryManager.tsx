@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/RecoveryManager.css';
 
+// API Configuration
+const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+
 // Import icons from QuankeyIcons - using the correct export names
 interface IconProps {
   className?: string;
@@ -102,7 +105,7 @@ const RecoveryManager: React.FC<RecoveryManagerProps> = ({ userId = 'demo-user' 
       if (!authData) return;
       
       const { token } = JSON.parse(authData);
-      const response = await fetch('http://localhost:5000/api/recovery/status', {
+      const response = await fetch(`${API_URL}/api/recovery/status`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -127,7 +130,7 @@ const RecoveryManager: React.FC<RecoveryManagerProps> = ({ userId = 'demo-user' 
       if (!authData) throw new Error('Not authenticated');
       
       const { token } = JSON.parse(authData);
-      const response = await fetch('http://localhost:5000/api/recovery/generate-kit', {
+      const response = await fetch(`${API_URL}/api/recovery/generate-kit`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -157,7 +160,7 @@ const RecoveryManager: React.FC<RecoveryManagerProps> = ({ userId = 'demo-user' 
       if (!authData) return;
       
       const { token } = JSON.parse(authData);
-      const response = await fetch(`http://localhost:5000/api/recovery/share/${shareId}/download`, {
+      const response = await fetch(`${API_URL}/api/recovery/share/${shareId}/download`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -1,3 +1,6 @@
+// API Configuration
+const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+
 export interface VaultEntry {
   id: string;
   title: string;
@@ -305,7 +308,7 @@ export const EncryptedVaultService = {
     }
 
     // CAMBIO IMPORTANTE: Usar la ruta quantum correcta
-    const response = await fetch('http://localhost:5000/api/quantum/password', {
+    const response = await fetch(`${API_URL}/api/quantum/password`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ length, includeSymbols }),
@@ -327,7 +330,7 @@ export const EncryptedVaultService = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch('http://localhost:5000/api/passwords/', {
+    const response = await fetch(`${API_URL}/api/passwords/`, {
       headers,
       credentials: 'include'
     });
@@ -355,7 +358,7 @@ export const EncryptedVaultService = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch('http://localhost:5000/api/passwords/save', {
+    const response = await fetch(`${API_URL}/api/passwords/save`, {
       method: 'POST',
       headers,
       body: JSON.stringify(data),
