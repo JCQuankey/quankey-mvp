@@ -30,7 +30,7 @@ This guide is the *single source of truth* for every technical decision, securit
 | ------- | --------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------- | --------------- |
 | **P0**  | Post‑Quantum Crypto         | Switch to hybrid **Kyber‑768 + AES‑GCM‑SIV (256)**; signatures **Dilithium‑3**; NIST KAT tests via libOQS | Vault E2E PQC L1‑3 ✅        | +8 w            |
 | **P1**  | RNG Single Point of Failure | Hierarchical entropy: ANU QRNG + Cloudflare drand + IBM QRNG + Intel RDRAND; quorum monitoring            | Resilient generator         | +6 w            |
-| **P2**  | WebAuthn Stub               | Deploy `https://quankey.xyz` + TLS 1.3; `rpId=quankey.xyz`; attestation = *direct*                        | Real password‑less login    | +3 w            |
+| **P2**  | ✅ WebAuthn Real (COMPLETADO)               | Deploy `https://quankey.xyz` + TLS 1.3; `rpId=quankey.xyz`; attestation = *direct*                        | Real password‑less login    | +3 w            |
 | **P3**  | Persistence & DR            | PostgreSQL 17 TDE, RDS multi‑AZ snapshots; KMS rotation 90 d                                              | RPO ≤ 15 min · RTO ≤ 2 h    | +5 w            |
 | **P4**  | CI/CD & DevSecOps           | Terraform + GitHub Actions (dev, stage, prod, DR); Snyk → ZAP → tfsec                                     | Rollback ≤ 30 min           | +4 w            |
 | **P5**  | External Audit              | Engage Cure53/Trail of Bits; OWASP ASVS v4 + cryptanalysis                                                | Due‑diligence report        | +10 w           |
@@ -198,6 +198,9 @@ All three **must** be synced with this guide at the end of each session.
 * **v4.1 expansion**: Added P16‑P20, monetisation, vault sharding, autonomous rotation, certifications budget, new risk #11
 * **Brand compliance restoration**: React app restored with professional landing page, emoji-free UI, brand tokens enforced, SVG assets created
 * **Front-end architecture update**: Corrected to React 19 + TypeScript (not Next.js), brand-compliant design system implemented
+* **P2 WebAuthn Real COMPLETED**: Custom domain quankey.xyz deployed with Basic Auth protection, Windows Hello working in production
+* **Quantum Services Status**: ANU QRNG confirmed REAL (vacuum fluctuations), IBM/Cloudflare/Intel RDRAND pending implementation
+* **Production Deployment**: Backend on api.quankey.xyz, Frontend on quankey.xyz, both with SSL/TLS and proper CORS configuration
 
 (New entries are appended, never replace existing ones.)
 

@@ -8,7 +8,7 @@
 
 ## 📊 RESUMEN EJECUTIVO
 
-Quankey es el primer gestor de contraseñas cuántico-seguro del mundo, diseñado para empresas de defensa, salud y finanzas. **COMPLETAMENTE FUNCIONAL** en entorno local para demos e inversores.
+Quankey es el primer gestor de contraseñas cuántico-seguro del mundo, diseñado para empresas de defensa, salud y finanzas. **COMPLETAMENTE FUNCIONAL** en producción con dominio real y WebAuthn biométrico.
 
 ### 🎯 LOGROS CLAVE COMPLETADOS
 - ✅ **Landing Page Profesional** - Diseño militar-grade para CISOs
@@ -65,6 +65,26 @@ Quankey es el primer gestor de contraseñas cuántico-seguro del mundo, diseñad
   - Generación cuántica de contraseñas
   - Importación/exportación
   - Dashboard con métricas de seguridad
+
+---
+
+## 🔬 ESTADO DE SERVICIOS CUÁNTICOS
+
+### **Servicios REALES funcionando:**
+- ✅ **ANU QRNG** - Generador cuántico real (fluctuaciones del vacío)
+- ✅ **API Endpoint**: `https://qrng.anu.edu.au/API/jsonI.php`
+- ✅ **Estado**: Generando entropía cuántica real para contraseñas
+- ✅ **Fallback**: crypto.randomBytes (criptográficamente seguro)
+
+### **Servicios pendientes de implementar:**
+- ❌ **IBM Quantum Network** - Token configurado pero no implementado
+- ❌ **Cloudflare drand** - Referenciado pero no implementado  
+- ❌ **Intel RDRAND** - Referenciado pero no implementado
+
+### **Contraseñas generadas:**
+- **¿Son realmente cuánticas?** ✅ **SÍ** cuando ANU QRNG funciona
+- **¿Son seguras si ANU falla?** ✅ **SÍ** usa crypto.randomBytes como fallback
+- **Verificación**: Endpoint `/api/quantum/test-connection` valida entropía real
 
 ---
 
