@@ -749,3 +749,4 @@ export class QuantumRecoveryController {
  * 
  * ===============================================================================
  */
+export { QuantumRecoveryController as RecoveryController };
