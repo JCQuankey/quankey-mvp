@@ -12,7 +12,7 @@ export class WebAuthnService {
         challenge: Date.now().toString(),
         rp: { 
           name: 'Quankey', 
-          id: process.env.NODE_ENV === 'production' ? 'quankey-frontend.onrender.com' : 'localhost'
+          id: process.env.NODE_ENV === 'production' ? (process.env.WEBAUTHN_DOMAIN || 'quankey.xyz') : 'localhost'
         },
         user: {
           id: username,
@@ -86,7 +86,7 @@ export class WebAuthnService {
         success: true,
         challenge: Date.now().toString(),
         timeout: 60000,
-        rpID: process.env.NODE_ENV === 'production' ? 'quankey-frontend.onrender.com' : 'localhost',
+        rpID: process.env.NODE_ENV === 'production' ? (process.env.WEBAUTHN_DOMAIN || 'quankey.xyz') : 'localhost',
         allowCredentials: [],
         userVerification: 'preferred'
       };

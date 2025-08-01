@@ -33,6 +33,8 @@ services:
         sync: false  # Must be configured in Render Dashboard
       - key: BASIC_AUTH_REALM
         value: Quankey Staging
+      - key: WEBAUTHN_DOMAIN
+        value: quankey.xyz
 
   # Quankey Frontend Static Site
   - type: static
