@@ -281,8 +281,8 @@ BASIC_AUTH_REALM="Quankey Staging"
 - ✅ **NIST 800-171** - CUI protection ready
 - ✅ **HIPAA** - ePHI protection capable
 - ✅ **SOX** - Financial audit trails
-- 🔄 **FIPS 140-2 Level 3** - En progreso
-- 🔄 **CMMC 2.0** - Assessment ready
+- ⚠️ **SOC 2 Type I** - Realistic 60-day timeline (replacing false FIPS claims)
+- 🔄 **CMMC 2.0** - Gap analysis required (Q2-2026 target)
 
 ---
 
