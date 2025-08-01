@@ -259,8 +259,7 @@ const ProfessionalLandingPage: React.FC = () => {
           marginBottom: '1.5rem',
           color: '#ffffff'
         }}>
-          The Last Time You'll Ever Worry<br />
-          About Password Security
+          Quantum-Ready Password Security
         </h1>
         
         <p style={{
