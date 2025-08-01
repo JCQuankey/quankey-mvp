@@ -1,6 +1,7 @@
 // backend/src/server.ts
 
 import express from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import quantumRouter from './routes/quantum';
 import { authRouter } from './routes/auth';
@@ -37,34 +38,38 @@ app.use(basicAuthMiddleware);
 
 app.use('/dashboard', dashboardRoutes);
 
-// CORS Configuration - ANTES de todo middleware
-app.use((req, res, next) => {
-  console.log('[CORS] Applied for:', req.headers.origin);
-  
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'https://localhost:3000', 
-    'https://quankey.xyz',
-    'https://www.quankey.xyz',
-    'https://quankey-mvp.onrender.com'
-  ];
-  
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
-  
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
-  if (req.method === 'OPTIONS') {
-    console.log('[CORS] Handling preflight request');
-    return res.status(200).end();
-  }
-  
-  next();
-});
+// CORS Configuration - CRITICAL for production domains
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://localhost:3000', 
+  'https://quankey.xyz',           // ← CRITICAL: Frontend domain
+  'https://www.quankey.xyz',       // ← CRITICAL: WWW domain  
+  'https://api.quankey.xyz',       // ← CRITICAL: API domain
+  'https://quankey-mvp.onrender.com'
+];
+
+console.log('🌐 [CORS] Configured for origins:', allowedOrigins);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    console.log('🌐 [CORS] Request from origin:', origin || 'no-origin');
+    
+    // Allow requests with no origin (mobile apps, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      console.log('✅ [CORS] Origin allowed:', origin);
+      return callback(null, true);
+    }
+    
+    console.log('❌ [CORS] Origin blocked:', origin);
+    return callback(new Error('CORS policy violation'), false);
+  },
+  credentials: true,               // ← IMPORTANT for auth
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
+}));
 
 // Middleware
 app.use(express.json());
