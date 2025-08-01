@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/",
   "dependencies": {
     "@simplewebauthn/browser": "^13.1.2",
     "@tailwindcss/postcss": "^4.1.11",
