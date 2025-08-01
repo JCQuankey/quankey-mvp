@@ -1,8 +1,30 @@
-# 🔐 QUANKEY MVP - ESTADO ACTUAL DEL PROYECTO
+# 🔐 QUANKEY MVP - DUAL TRACK PARALLEL EXECUTION
 
 **Fecha última actualización:** 01 Agosto 2025  
-**Versión:** MVP Production + Custom Domain + WebAuthn Production Ready + Multi-Source Quantum REAL + PostgreSQL Hybrid + CORS Fixed + Frontend URLs Fixed  
-**Estado:** ✅ PRODUCCIÓN COMPLETA + FRONTEND-BACKEND COMMUNICATION 100% + TODAS LAS FUNCIONES OPERATIVAS
+**Versión:** DUAL TRACK PARALLEL EXECUTION - Foundation + PQC Implementation  
+**Estado:** 🎯 DUAL TRACK STRATEGY ACTIVE - 12 weeks to investment readiness  
+**Budget:** €42K allocated (€21K Track A + €21K Track B)
+
+## 🎯 DUAL TRACK EXECUTION STATUS
+
+### **TRACK A: FOUNDATION + COMPLIANCE** - 25% Complete
+- ✅ **Infrastructure Base**: WebAuthn real, PostgreSQL hybrid, production domains
+- ✅ **False Claims Identified**: FIPS/ISO/PCI compliance theater flagged
+- 🔄 **SOC 2 Type I**: Vendor selection in progress
+- ❌ **Penetration Testing**: Vendor contracting pending
+- ❌ **Real Certifications**: None active yet
+
+### **TRACK B: PQC IMPLEMENTATION** - 15% Complete  
+- ✅ **Multi-Source Quantum RNG**: 4 sources implemented and working
+- ✅ **Architecture Planning**: libOQS integration designed
+- ❌ **Kyber-768**: Implementation starting Week 7
+- ❌ **Dilithium-3**: Implementation starting Week 8
+- ❌ **WebAuthn Hybrid**: ECDSA-P256 still quantum-vulnerable
+
+### **OVERALL PROGRESS: 20% Complete**
+- **Timeline**: 11 weeks remaining to investment readiness
+- **Budget**: €42K allocated across both tracks
+- **Risk Level**: 🟡 MODERATE (aggressive 12-week timeline)
 
 ---
 
@@ -345,36 +367,52 @@ BASIC_AUTH_REALM="Quankey Staging"
 - **Compatibility**: Seamless migration for existing users
 - **Standards Compliance**: NIST Post-Quantum Cryptography approved algorithms
 
-### **📋 PLAN A→B→C EXECUTION STRATEGY (AGREED WITH INVESTOR)**:
+### **🎯 DUAL TRACK PARALLEL EXECUTION STRATEGY (NEW)**:
 
-#### **PLAN A: COMPLIANCE FOUNDATION (Weeks 1-4)**
-- **P0B Priority**: SOC 2 Type I vendor selection and kickoff
-- **Objective**: Replace compliance theater with real certifications
-- **Actions**: 
-  - Remove all unsupported FIPS/ISO claims immediately
-  - Contract pen-test vendor (NCC Group recommended)
-  - Begin SOC 2 Type I documentation and controls
-- **Success Criteria**: SOC 2 kickoff completed, audit timeline confirmed
+#### **TRACK A: FOUNDATION + COMPLIANCE** (Parallel execution, 12 weeks)
+- **Priority**: Investment credibility through real certifications
+- **Budget**: €21K allocated
+- **Timeline**: Week 1-12 parallel with Track B
+- **Target**: 95% complete by Week 10
 
-#### **PLAN B: PQC IMPLEMENTATION (Weeks 5-8)**  
-- **P0A Priority**: Hybrid ECDSA + ML-DSA WebAuthn implementation
-- **Critical Timeline**:
-  - **Week 5-6**: Hybrid WebAuthn authentication (ECDSA + ML-DSA)
-  - **Week 7**: Kyber-768 vault encryption implementation  
-  - **Week 8**: Dilithium-3 digital signatures integration
-- **Success Criteria**: Real quantum-resistant authentication deployed
+**Immediate Actions (Week 1):**
+1. Remove all unsupported FIPS/ISO/PCI claims from documentation
+2. Research and contact SOC 2 Type I audit firms  
+3. Contract penetration testing vendor (NCC Group recommended)
+4. Document current infrastructure gaps and production readiness
 
-#### **PLAN C: USER TRACTION (Weeks 9-12)**
-- **P0C Priority**: 100+ real beta users with retention metrics
-- **Metrics Implementation**:
-  - D1/D7/D30 retention dashboard
-  - Daily active user tracking
-  - Password generation volume monitoring
-  - Enterprise design partners (3 LOIs minimum)
-- **Success Criteria**: Investment validation through real user data
+**Key Milestones:**
+- **Week 2**: SOC 2 vendor selected and contract signed
+- **Week 4**: Penetration testing initiated  
+- **Week 6**: SOC 2 documentation 50% complete
+- **Week 10**: All compliance foundation work 95% complete
 
-### **⏰ DEPRECATED ROADMAP** (Post-Investor Feedback):
-Previous sprints 2-4 replaced with P0A-P0D critical gaps prioritized as Plan A→B→C.
+#### **TRACK B: PQC IMPLEMENTATION** (Parallel execution, 12 weeks)  
+- **Priority**: Technical excellence through quantum-resistant cryptography
+- **Budget**: €21K allocated
+- **Timeline**: Week 1-12 parallel with Track A
+- **Target**: 90% complete by Week 8
+
+**Immediate Actions (Week 1):**
+1. Set up libOQS development environment
+2. Research Kyber-768 integration approach and performance testing
+3. Design WebAuthn hybrid ML-DSA + ECDSA architecture
+4. Create NIST KAT testing framework for algorithm validation
+
+**Key Milestones:**
+- **Week 3**: libOQS environment fully configured and tested
+- **Week 5-6**: WebAuthn hybrid implementation (ECDSA + ML-DSA)
+- **Week 7**: Kyber-768 vault encryption implementation
+- **Week 8**: Dilithium-3 digital signatures integration
+
+#### **USER TRACTION (Weeks 9-12)**
+Integrated into both tracks for investment validation:
+- **Metrics Implementation**: D1/D7/D30 retention dashboard
+- **Target**: 100+ real beta users with enterprise design partners
+- **Success Criteria**: Investment justification through measurable traction
+
+### **⏰ STRATEGIC PIVOT RATIONALE**:
+Sequential Plan A→B→C replaced with parallel dual track execution to optimize 12-week timeline to investment readiness while maintaining quality and reducing timeline risk.
 
 ---
 

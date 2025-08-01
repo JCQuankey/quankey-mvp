@@ -242,8 +242,59 @@ All three **must** be synced with this guide at the end of each session.
 * **EXECUTION TIMELINE REALISTIC**: 30-60-90 day milestones with specific deliverables identified
 * **PLAN A→B→C EXECUTION STRATEGY**: Compliance (P0B) → PQC Implementation (P0A) → User Traction (P0C) prioritization agreed
 * **KYBER-768 + DILITHIUM-3 TIMELINE**: Week 7-8 implementation scheduled as critical PQC milestone
+* **DUAL TRACK PARALLEL EXECUTION**: Strategic pivot from sequential to parallel dual track execution for 12-week investment readiness
+* **DUAL TRACK BUDGET ALLOCATION**: €42K total (€21K Foundation/Compliance + €21K PQC Implementation) approved
 
 (New entries are appended, never replace existing ones.)
+
+---
+
+## 🎯 DUAL TRACK PARALLEL EXECUTION STRATEGY
+
+### **CRITICAL STRATEGY CHANGE** 
+Sequential Plan A→B→C **REPLACED** with parallel dual track execution for optimized 12-week timeline to investment readiness.
+
+| **TRACK A: FOUNDATION + COMPLIANCE** | **TRACK B: PQC IMPLEMENTATION** |
+|---------------------------------------|----------------------------------|
+| Investment credibility through real certifications | Technical excellence through quantum-resistant crypto |
+| SOC 2 Type I, pen-testing, infrastructure | Kyber-768, Dilithium-3, WebAuthn hybrid |
+| **Budget**: €21K | **Budget**: €21K |
+| **Target**: 95% complete by Week 10 | **Target**: 90% complete by Week 8 |
+
+### 📊 **CURRENT DUAL TRACK STATUS (Week 1)**
+- **Track A Completion**: 25% ✅ (Infrastructure base, WebAuthn real)
+- **Track B Completion**: 15% ✅ (Multi-source QRNG, architecture planning)
+- **Overall Progress**: 20% ✅
+- **Weeks Remaining**: 11 weeks to investment readiness
+- **Budget Allocated**: €42K total (€21K per track)
+
+### 📋 **DUAL TRACK WEEKLY PRIORITIES**
+
+#### **TRACK A: Foundation + Compliance (Week 1)**
+1. **Remove False Claims**: Eliminate unsupported FIPS/ISO certifications from all docs
+2. **SOC 2 Vendor Selection**: Research and contact Type I audit firms  
+3. **Penetration Testing**: Contract NCC Group or equivalent security firm
+4. **Infrastructure Audit**: Document current production readiness gaps
+
+#### **TRACK B: PQC Implementation (Week 1)**
+1. **libOQS Setup**: Development environment for post-quantum algorithms
+2. **Kyber-768 Research**: Integration approach and performance testing
+3. **WebAuthn Hybrid Planning**: ML-DSA + ECDSA architecture design
+4. **NIST KAT Framework**: Testing infrastructure for algorithm validation
+
+### 🚨 **DUAL TRACK BLOCKERS & DEPENDENCIES**
+- **Budget Approval**: €42K dual track budget confirmation required
+- **Vendor Decisions**: SOC 2 and pen-test vendor selection needed
+- **Resource Allocation**: PQC development requires dedicated focus time
+- **Timeline Risk**: 12-week investment readiness timeline is aggressive
+
+### 📈 **SESSION START PROTOCOL**
+Every session must output:
+1. Track A completion percentage and current priorities
+2. Track B completion percentage and current priorities  
+3. Any blockers, dependencies, or timeline risks
+4. Resource allocation and budget tracking
+5. Updated timeline to investment readiness
 
 ---
 
