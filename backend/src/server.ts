@@ -40,7 +40,20 @@ app.use('/dashboard', dashboardRoutes);
 // CORS Configuration - ANTES de todo middleware
 app.use((req, res, next) => {
   console.log('[CORS] Applied for:', req.headers.origin);
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'https://localhost:3000', 
+    'https://quankey.xyz',
+    'https://www.quankey.xyz',
+    'https://quankey-mvp.onrender.com'
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');

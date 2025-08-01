@@ -35,6 +35,12 @@ services:
         value: Quankey Staging
       - key: WEBAUTHN_DOMAIN
         value: quankey.xyz
+      - key: WEBAUTHN_RP_ID
+        value: quankey.xyz
+      - key: WEBAUTHN_RP_NAME
+        value: Quankey
+      - key: WEBAUTHN_ORIGIN
+        value: https://quankey.xyz
 
   # Quankey Frontend Static Site
   - type: static

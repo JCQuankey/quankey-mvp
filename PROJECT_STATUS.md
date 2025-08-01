@@ -1,8 +1,8 @@
 # 🔐 QUANKEY MVP - ESTADO ACTUAL DEL PROYECTO
 
-**Fecha última actualización:** 31 Julio 2024  
-**Versión:** MVP Post-Demo + Production Build  
-**Estado:** ✅ PRODUCCIÓN LOCAL LISTA + BUILD OPTIMIZADO
+**Fecha última actualización:** 01 Agosto 2025  
+**Versión:** MVP Production + Custom Domain + WebAuthn Real  
+**Estado:** ✅ PRODUCCIÓN COMPLETA + WEBAUTHN REAL + DOMINIO PERSONALIZADO
 
 ---
 
@@ -12,10 +12,14 @@ Quankey es el primer gestor de contraseñas cuántico-seguro del mundo, diseñad
 
 ### 🎯 LOGROS CLAVE COMPLETADOS
 - ✅ **Landing Page Profesional** - Diseño militar-grade para CISOs
-- ✅ **Sistema WebAuthn** - Autenticación biométrica sin contraseñas
+- ✅ **Sistema WebAuthn REAL** - Windows Hello funcionando en producción
 - ✅ **Generación Cuántica** - Contraseñas con entropía ANU QRNG
 - ✅ **Arquitectura Completa** - Backend + Frontend + Browser Extension
-- ✅ **Build de Producción** - TypeScript compilation optimizada para deployment
+- ✅ **Dominio Personalizado** - quankey.xyz con SSL/TLS automático
+- ✅ **Basic Auth Protection** - Sitio completamente protegido para staging
+- ✅ **Backend Deployment** - Fixed and pushed (commit 3f49f08)
+- ✅ **Frontend Web Service** - quankey-mvp.onrender.com deployed
+- ✅ **P2 WebAuthn Real** - Completado según GUIDE_QUANKEY.md
 - ✅ **Cumplimiento Legal** - GDPR, NIST, HIPAA, SOX ready
 
 ---
@@ -23,8 +27,10 @@ Quankey es el primer gestor de contraseñas cuántico-seguro del mundo, diseñad
 ## 🌐 SERVICIOS ACTIVOS Y PROBADOS
 
 ### **Frontend Professional Landing Page** ✅ FUNCIONANDO
-- **URL:** http://localhost:3000
-- **Estado:** ✅ Totalmente funcional y probado
+- **URL Local:** http://localhost:3000
+- **URL Producción:** https://quankey.xyz 
+- **URL Backup:** https://quankey-mvp.onrender.com
+- **Estado:** ✅ Totalmente funcional y probado (local + producción + dominio real)
 - **Características:**
   - Diseño profesional para defensa/gobierno
   - Comparativa quantum vs tradicional
@@ -34,8 +40,10 @@ Quankey es el primer gestor de contraseñas cuántico-seguro del mundo, diseñad
   - Responsive design optimizado
 
 ### **Backend API Services** ✅ FUNCIONANDO
-- **URL:** http://localhost:5000
-- **Estado:** ✅ Totalmente funcional y probado
+- **URL Local:** http://localhost:5000
+- **URL Producción:** https://api.quankey.xyz
+- **URL Backup:** https://quankey-backend.onrender.com
+- **Estado:** ✅ Totalmente funcional y probado (local + producción + dominio real)
 - **Endpoints activos:**
   ```
   ✅ POST /api/auth/register/begin     - Inicio registro biométrico
