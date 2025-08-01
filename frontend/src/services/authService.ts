@@ -98,25 +98,34 @@ export class AuthService {
       
       // PATENT-CRITICAL: Check WebAuthn support
       if (!window.PublicKeyCredential) {
-        console.log(`[WARN] [${registrationId}] WebAuthn not supported, using simulation`);
-        return AuthService.simulateBiometricPrompt('register', username, displayName);
+        console.error(`[ERROR] [${registrationId}] WebAuthn not supported in this browser`);
+        return {
+          success: false,
+          error: 'WebAuthn not supported. Please use Chrome, Firefox, Safari or Edge.'
+        };
       }
 
       // Check platform authenticator availability
       try {
         const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
         if (!available) {
-          console.log(`[WARN] [${registrationId}] Platform authenticator not available`);
-          return AuthService.simulateBiometricPrompt('register', username, displayName);
+          console.error(`[ERROR] [${registrationId}] Platform authenticator not available`);
+          return {
+            success: false,
+            error: 'Biometric authentication not available. Please ensure Windows Hello, Touch ID, or Face ID is set up.'
+          };
         }
       } catch (error) {
-        console.log(`[WARN] [${registrationId}] Authenticator check failed`);
-        return AuthService.simulateBiometricPrompt('register', username, displayName);
+        console.error(`[ERROR] [${registrationId}] Authenticator check failed:`, error);
+        return {
+          success: false,
+          error: 'Failed to check biometric authenticator availability.'
+        };
       }
 
       // PATENT-CRITICAL: Get registration options from server
       console.log(`[API] [${registrationId}] Requesting WebAuthn registration options...`);
-      const optionsResponse = await axios.post(`${API_BASE}/auth-real/register/begin`, {
+      const optionsResponse = await axios.post(`${API_BASE}/auth/register/begin`, {
         username,
         displayName
       });
@@ -150,14 +159,17 @@ export class AuthService {
         }) as PublicKeyCredential;
 
         if (!credential) {
-          console.log(`[WARN] [${registrationId}] No credential created`);
-          return AuthService.simulateBiometricPrompt('register', username, displayName);
+          console.error(`[ERROR] [${registrationId}] WebAuthn credential creation failed`);
+          return {
+            success: false,
+            error: 'Biometric credential creation failed. Please try again.'
+          };
         }
 
         console.log(`[SUCCESS] [${registrationId}] WebAuthn credential created successfully!`);
 
         // PATENT-CRITICAL: Complete registration - NO PASSWORD
-        const verificationResponse = await axios.post(`${API_BASE}/auth-real/register/finish`, {
+        const verificationResponse = await axios.post(`${API_BASE}/auth/register/finish`, {
           username,
           displayName,
           response: {
@@ -186,13 +198,19 @@ export class AuthService {
             message: 'Passwordless biometric authentication registered successfully'
           };
         } else {
-          console.log(`[WARN] [${registrationId}] Server verification failed`);
-          return AuthService.simulateBiometricPrompt('register', username, displayName);
+          console.error(`[ERROR] [${registrationId}] Server verification failed:`, verificationResponse.data);
+          return {
+            success: false,
+            error: 'Server failed to verify biometric credential.'
+          };
         }
         
       } catch (error: any) {
-        console.error(`[ERROR] [${registrationId}] WebAuthn error:`, error);
-        return AuthService.simulateBiometricPrompt('register', username, displayName);
+        console.error(`[ERROR] [${registrationId}] WebAuthn registration error:`, error);
+        return {
+          success: false,
+          error: `Biometric registration failed: ${error.message || 'Unknown error'}`
+        };
       }
 
     } catch (error) {
@@ -226,19 +244,25 @@ export class AuthService {
       
       // PATENT-CRITICAL: Check WebAuthn support
       if (!window.PublicKeyCredential) {
-        console.log(`[WARN] [${authId}] WebAuthn not supported, using simulation`);
-        return AuthService.simulateBiometricPrompt('authenticate', username);
+        console.error(`[ERROR] [${authId}] WebAuthn not supported in this browser`);
+        return {
+          success: false,
+          error: 'WebAuthn not supported. Please use Chrome, Firefox, Safari or Edge.'
+        };
       }
 
       // PATENT-CRITICAL: Get authentication options from server
       console.log(`[API] [${authId}] Requesting WebAuthn authentication options...`);
-      const optionsResponse = await axios.post(`${API_BASE}/auth-real/login/begin`, {
+      const optionsResponse = await axios.post(`${API_BASE}/auth/login/begin`, {
         username
       });
 
       if (!optionsResponse.data.success) {
-        console.log(`[WARN] [${authId}] Failed to get auth options, using simulation`);
-        return AuthService.simulateBiometricPrompt('authenticate', username);
+        console.error(`[ERROR] [${authId}] Server failed to provide authentication options:`, optionsResponse.data);
+        return {
+          success: false,
+          error: 'Server failed to generate WebAuthn authentication options.'
+        };
       }
 
       console.log(`[BIOMETRIC] [${authId}] Prompting for biometric authentication...`);
@@ -258,14 +282,17 @@ export class AuthService {
         }) as PublicKeyCredential;
 
         if (!credential) {
-          console.log(`[WARN] [${authId}] No credential received`);
-          return AuthService.simulateBiometricPrompt('authenticate', username);
+          console.error(`[ERROR] [${authId}] WebAuthn credential retrieval failed`);
+          return {
+            success: false,
+            error: 'Biometric authentication failed. Please try again.'
+          };
         }
 
         console.log(`[SUCCESS] [${authId}] WebAuthn credential received!`);
 
         // PATENT-CRITICAL: Complete authentication - NO PASSWORD
-        const verificationResponse = await axios.post(`${API_BASE}/auth-real/login/finish`, {
+        const verificationResponse = await axios.post(`${API_BASE}/auth/login/finish`, {
           username,
           response: {
             id: credential.id,
@@ -294,13 +321,19 @@ export class AuthService {
             message: 'Passwordless authentication successful'
           };
         } else {
-          console.log(`[WARN] [${authId}] Server verification failed`);
-          return AuthService.simulateBiometricPrompt('authenticate', username);
+          console.error(`[ERROR] [${authId}] Server verification failed:`, verificationResponse.data);
+          return {
+            success: false,
+            error: 'Server failed to verify biometric authentication.'
+          };
         }
 
       } catch (error: any) {
         console.error(`[ERROR] [${authId}] WebAuthn authentication error:`, error);
-        return AuthService.simulateBiometricPrompt('authenticate', username);
+        return {
+          success: false,
+          error: `Biometric authentication failed: ${error.message || 'Unknown error'}`
+        };
       }
 
     } catch (error) {
@@ -321,7 +354,7 @@ export class AuthService {
   static async isBiometricSupported(): Promise<boolean> {
     try {
       if (!window.PublicKeyCredential) {
-        console.log('[WARN] WebAuthn not supported - simulation mode available');
+        console.log('[INFO] WebAuthn availability check completed');
         return true; // PATENT-CRITICAL: Always true - no password fallback
       }
 
@@ -352,115 +385,4 @@ export class AuthService {
     }
   }
 
-  /**
-   * PATENT-CRITICAL: Biometric Simulation (Development)
-   * 
-   * @innovation Simulates passwordless flow for testing
-   * @security Still NO password option in simulation
-   */
-  private static async simulateBiometricPrompt(
-    action: 'register' | 'authenticate',
-    username?: string,
-    displayName?: string
-  ): Promise<AuthResponse> {
-    const simulationId = `sim_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    const message = action === 'register'
-      ? `Use ${DeviceDetection.getBiometricType()} to register`
-      : `Use ${DeviceDetection.getBiometricType()} to authenticate`;
-    
-    // PATENT-CRITICAL: No password option in prompt
-    const confirmed = window.confirm(
-      `${DeviceDetection.getDeviceIcon()} Passwordless ${action}\n\n${message}\n\nNote: Simulation mode - NO passwords used.`
-    );
-    
-    if (!confirmed) {
-      return {
-        success: false,
-        error: 'Biometric authentication cancelled'
-      };
-    }
-
-    try {
-      console.log(`🎭 [${simulationId}] Simulating passwordless ${action}...`);
-      
-      if (action === 'register') {
-        // PATENT-CRITICAL: Register without password
-        const response = await axios.post(`${API_BASE}/auth-real/register/finish`, {
-          username,
-          displayName,
-          response: {
-            id: 'simulated-credential',
-            type: 'public-key',
-            rawId: 'simulated-raw-id',
-            response: {
-              clientDataJSON: 'simulated-client-data',
-              attestationObject: 'simulated-attestation'
-            }
-          }
-        });
-
-        if (response.data.success) {
-          console.log(`[SUCCESS] [${simulationId}] Passwordless registration successful!`);
-          
-          // Store token
-          if (response.data.token) {
-            localStorage.setItem('token', response.data.token);
-          }
-          
-          return {
-            success: true,
-            user: response.data.user,
-            message: 'Passwordless registration successful (simulated)'
-          };
-        } else {
-          return {
-            success: false,
-            error: response.data.error || 'Registration failed'
-          };
-        }
-      } else {
-        // PATENT-CRITICAL: Authenticate without password
-        const response = await axios.post(`${API_BASE}/auth-real/login/finish`, {
-          username,
-          response: {
-            id: 'simulated-credential',
-            type: 'public-key',
-            rawId: 'simulated-raw-id',
-            response: {
-              clientDataJSON: 'simulated-client-data',
-              authenticatorData: 'simulated-auth-data',
-              signature: 'simulated-signature'
-            }
-          }
-        });
-
-        if (response.data.success) {
-          console.log(`[SUCCESS] [${simulationId}] Passwordless authentication successful!`);
-          
-          // Store token
-          if (response.data.token) {
-            localStorage.setItem('token', response.data.token);
-          }
-          
-          return {
-            success: true,
-            user: response.data.user,
-            message: 'Passwordless authentication successful (simulated)'
-          };
-        } else {
-          return {
-            success: false,
-            error: response.data.error || 'Authentication failed'
-          };
-        }
-      }
-    } catch (error) {
-      console.error(`[ERROR] [${simulationId}] Simulation error:`, error);
-      return {
-        success: false,
-        error: 'Passwordless operation failed'
-      };
-    }
-  }
 }
