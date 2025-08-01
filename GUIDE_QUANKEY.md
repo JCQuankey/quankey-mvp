@@ -28,6 +28,10 @@ This guide is the *single source of truth* for every technical decision, securit
 
 | ID      | Critical Area               | Corrective Action                                                                                         | Expected Outcome            | Target Deadline |
 | ------- | --------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------- | --------------- |
+| **P0A** | **PQC Hybrid Critical Gap**     | Implement hybrid ECDSA + ML-DSA en credentialPublicKey WebAuthn                | Quantum-resistant auth      | +14 días |
+| **P0B** | **Compliance Reality Check**    | Remove "FIPS ready" claims, SOC 2 Type I only, contract pen-test vendor         | Real certifications         | +21 días |
+| **P0C** | **Real User Metrics Required**  | 100+ beta users (no demo), D1/D7/D30 retention tracking dashboard               | Traction validation         | +45 días |
+| **P0D** | **Infrastructure SPOF Fix**     | AWS EKS + CloudHSM migration plan, multi-AZ deployment architecture             | Production-grade hosting    | +60 días |
 | **P0**  | Post‑Quantum Crypto         | Switch to hybrid **Kyber‑768 + AES‑GCM‑SIV (256)**; signatures **Dilithium‑3**; NIST KAT tests via libOQS | Vault E2E PQC L1‑3 ✅        | +8 w            |
 | **P1**  | RNG Single Point of Failure | Hierarchical entropy: ANU QRNG + Cloudflare drand + IBM QRNG + Intel RDRAND; quorum monitoring            | Resilient generator         | +6 w            |
 | **P2**  | ✅ WebAuthn Real (COMPLETADO)               | Deploy `https://quankey.xyz` + TLS 1.3; `rpId=quankey.xyz`; attestation = *direct*                        | Real password‑less login    | +3 w            |
@@ -67,10 +71,18 @@ This guide is the *single source of truth* for every technical decision, securit
 | 9  | Patent challenges       | Big Tech IPR attacks            | CIP filings, LOT Network, defensive pubs |
 | 10 | Community trust gap     | Closed stack suspicion          | OSS SDK + public roadmap                 |
 | 11 | Chargeback & PCI breach | Liability for fraud             | Stripe Radar + PCI continuous scan       |
+| 12 | **Investor credibility gap**    | **Technical excellence ≠ business traction** | **Real metrics + enterprise pilots + SOC 2** |
 
 ---
 
 ## 3. Cryptography
+
+**🚨 INVESTOR FEEDBACK - IMPLEMENTATION STATUS UPDATE:**
+* **Hybrid PQC** — Kyber‑768 + AES‑GCM‑SIV ⚠️ **IMPLEMENTATION PENDING**
+* **WebAuthn Hybrid** — ECDSA-P256 + ML-DSA-65 🚨 **CRITICAL GAP IDENTIFIED**  
+* **Signatures** — Dilithium‑3 ⚠️ **PLANNED, NOT IMPLEMENTED**
+
+**ORIGINAL ROADMAP (PENDING IMPLEMENTATION):**
 
 * **Hybrid PQC**  Kyber‑768 + AES‑GCM‑SIV (256‑bit key, 128‑bit post‑Grover).
 * **Signatures**  Dilithium‑3; passkeys PQC beta Q4‑2025.
@@ -221,8 +233,36 @@ All three **must** be synced with this guide at the end of each session.
 * **Frontend Services Updated**: vaultService.ts, authService.ts, LandingPage.tsx, PasswordManager.tsx, RecoveryManager.tsx, RecoveryProcess.tsx
 * **Production Communication ENABLED**: Frontend-backend communication fully operational with dynamic API_URL configuration
 * **Password Save Feature FIXED**: Critical /api/passwords/save endpoint now correctly points to production API
+* **INVESTOR FEEDBACK INTEGRATION 2025-08-01**: Critical red flags identified and roadmap corrected
+* **PQC HYBRID GAP IDENTIFIED**: WebAuthn uses quantum-vulnerable ECDSA-P256, requires hybrid implementation  
+* **COMPLIANCE THEATER CORRECTION**: Removed unsupported "FIPS ready" claims, realistic SOC 2 Type I timeline
+* **INFRASTRUCTURE SPOF FIX**: Render hosting inadequate for enterprise, AWS migration planned
+* **REAL METRICS REQUIREMENT**: D1/D7/D30 retention tracking mandated for investment validation
+* **INVESTMENT TERMS UPDATED**: $1.5M vs $2M requested, milestone-based tranche structure accepted
+* **EXECUTION TIMELINE REALISTIC**: 30-60-90 day milestones with specific deliverables identified
 
 (New entries are appended, never replace existing ones.)
+
+---
+
+## 14. Investment Status & Critical Corrections
+
+### 🚨 **Investor Feedback Integration (Aug 1, 2025)**
+- **Feedback Source**: Technical investor with deep crypto knowledge
+- **Credibility Status**: Real product confirmed, technical gaps identified  
+- **Investment Terms**: $1.5M @ $8M post-money, 50/50 milestone structure
+
+### **Critical Gaps Identified**:
+1. **PQC Implementation**: Kyber/Dilithium planned but not implemented
+2. **WebAuthn Vulnerability**: ECDSA-P256 quantum-vulnerable
+3. **Compliance Theater**: Unsupported certification claims
+4. **Infrastructure SPOF**: Render hosting inadequate for enterprise
+
+### **Deal Breakers (90-day window)**:
+- Real user metrics implementation
+- SOC 2 Type I completion  
+- Enterprise design partners signed
+- Hybrid PQC implementation validated
 
 ---
 
