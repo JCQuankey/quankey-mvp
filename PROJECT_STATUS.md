@@ -323,8 +323,58 @@ BASIC_AUTH_REALM="Quankey Staging"
 - **Valuation**: $8M post-money
 - **Structure**: 50% upfront, 50% at milestones
 
+### **🔐 KYBER-768 + DILITHIUM-3 IMPLEMENTATION ROADMAP**:
+
+#### **Week 7: Kyber-768 Vault Encryption**
+- **libOQS Integration**: Compile libOQS with Kyber-768 support
+- **Key Encapsulation Module**: Replace AES-GCM-SIV with hybrid approach
+- **Vault Migration**: Update existing passwords with post-quantum encryption
+- **Testing**: NIST KAT (Known Answer Tests) validation
+- **Backwards Compatibility**: Dual encryption during transition period
+
+#### **Week 8: Dilithium-3 Digital Signatures**  
+- **Signature Integration**: Replace ECDSA with Dilithium-3 for vault integrity
+- **WebAuthn Hybrid**: Implement ML-DSA-65 alongside ECDSA-P256
+- **Recovery System**: Update quantum shares with post-quantum signatures
+- **Performance Optimization**: AVX-512 instructions for signature speed
+- **Security Audit**: Cryptographic implementation review
+
+#### **Success Metrics**:
+- **Quantum Resistance**: Full protection against Shor's algorithm
+- **Performance**: <500ms additional latency for PQC operations
+- **Compatibility**: Seamless migration for existing users
+- **Standards Compliance**: NIST Post-Quantum Cryptography approved algorithms
+
+### **📋 PLAN A→B→C EXECUTION STRATEGY (AGREED WITH INVESTOR)**:
+
+#### **PLAN A: COMPLIANCE FOUNDATION (Weeks 1-4)**
+- **P0B Priority**: SOC 2 Type I vendor selection and kickoff
+- **Objective**: Replace compliance theater with real certifications
+- **Actions**: 
+  - Remove all unsupported FIPS/ISO claims immediately
+  - Contract pen-test vendor (NCC Group recommended)
+  - Begin SOC 2 Type I documentation and controls
+- **Success Criteria**: SOC 2 kickoff completed, audit timeline confirmed
+
+#### **PLAN B: PQC IMPLEMENTATION (Weeks 5-8)**  
+- **P0A Priority**: Hybrid ECDSA + ML-DSA WebAuthn implementation
+- **Critical Timeline**:
+  - **Week 5-6**: Hybrid WebAuthn authentication (ECDSA + ML-DSA)
+  - **Week 7**: Kyber-768 vault encryption implementation  
+  - **Week 8**: Dilithium-3 digital signatures integration
+- **Success Criteria**: Real quantum-resistant authentication deployed
+
+#### **PLAN C: USER TRACTION (Weeks 9-12)**
+- **P0C Priority**: 100+ real beta users with retention metrics
+- **Metrics Implementation**:
+  - D1/D7/D30 retention dashboard
+  - Daily active user tracking
+  - Password generation volume monitoring
+  - Enterprise design partners (3 LOIs minimum)
+- **Success Criteria**: Investment validation through real user data
+
 ### **⏰ DEPRECATED ROADMAP** (Post-Investor Feedback):
-Previous sprints 2-4 replaced with P0A-P0D critical gaps. Chrome extension, NIST compliance, and PostgreSQL production remain important but secondary to addressing red flags.
+Previous sprints 2-4 replaced with P0A-P0D critical gaps prioritized as Plan A→B→C.
 
 ---
 

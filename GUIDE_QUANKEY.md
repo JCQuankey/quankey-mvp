@@ -28,10 +28,10 @@ This guide is the *single source of truth* for every technical decision, securit
 
 | ID      | Critical Area               | Corrective Action                                                                                         | Expected Outcome            | Target Deadline |
 | ------- | --------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------- | --------------- |
-| **P0A** | **PQC Hybrid Critical Gap**     | Implement hybrid ECDSA + ML-DSA en credentialPublicKey WebAuthn                | Quantum-resistant auth      | +14 días |
-| **P0B** | **Compliance Reality Check**    | Remove "FIPS ready" claims, SOC 2 Type I only, contract pen-test vendor         | Real certifications         | +21 días |
-| **P0C** | **Real User Metrics Required**  | 100+ beta users (no demo), D1/D7/D30 retention tracking dashboard               | Traction validation         | +45 días |
-| **P0D** | **Infrastructure SPOF Fix**     | AWS EKS + CloudHSM migration plan, multi-AZ deployment architecture             | Production-grade hosting    | +60 días |
+| **P0A** | **PQC Hybrid Critical Gap**     | **Week 5-6**: Hybrid ECDSA + ML-DSA WebAuthn implementation                    | Quantum-resistant auth      | Semanas 5-6 |
+| **P0B** | **Compliance Reality Check**    | **Week 1-4**: SOC 2 Type I kickoff, pen-test vendor contract                   | Real certifications         | Semanas 1-4 |
+| **P0C** | **Real User Metrics Required**  | **Week 9-12**: 100+ beta users, D1/D7/D30 retention dashboard                  | Traction validation         | Semanas 9-12 |
+| **P0D** | **Infrastructure SPOF Fix**     | **Week 11-12**: AWS EKS + CloudHSM migration plan                              | Production-grade hosting    | Semanas 11-12 |
 | **P0**  | Post‑Quantum Crypto         | Switch to hybrid **Kyber‑768 + AES‑GCM‑SIV (256)**; signatures **Dilithium‑3**; NIST KAT tests via libOQS | Vault E2E PQC L1‑3 ✅        | +8 w            |
 | **P1**  | RNG Single Point of Failure | Hierarchical entropy: ANU QRNG + Cloudflare drand + IBM QRNG + Intel RDRAND; quorum monitoring            | Resilient generator         | +6 w            |
 | **P2**  | ✅ WebAuthn Real (COMPLETADO)               | Deploy `https://quankey.xyz` + TLS 1.3; `rpId=quankey.xyz`; attestation = *direct*                        | Real password‑less login    | +3 w            |
@@ -240,6 +240,8 @@ All three **must** be synced with this guide at the end of each session.
 * **REAL METRICS REQUIREMENT**: D1/D7/D30 retention tracking mandated for investment validation
 * **INVESTMENT TERMS UPDATED**: $1.5M vs $2M requested, milestone-based tranche structure accepted
 * **EXECUTION TIMELINE REALISTIC**: 30-60-90 day milestones with specific deliverables identified
+* **PLAN A→B→C EXECUTION STRATEGY**: Compliance (P0B) → PQC Implementation (P0A) → User Traction (P0C) prioritization agreed
+* **KYBER-768 + DILITHIUM-3 TIMELINE**: Week 7-8 implementation scheduled as critical PQC milestone
 
 (New entries are appended, never replace existing ones.)
 
