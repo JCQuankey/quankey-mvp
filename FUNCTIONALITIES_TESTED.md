@@ -303,6 +303,26 @@
 - ✅ **Von Neumann Debiasing:** Algoritmo implementado para fuentes hardware
 - ✅ **Enterprise Storage:** Audit logs, sessions, recovery systems desplegados
 
-**Próximos pasos críticos:**
+## 🚨 CRITICAL IMPLEMENTATION GAPS IDENTIFIED
+
+### **PQC Implementation Status**:
+- ❌ **Kyber-768**: Planned in roadmap, NOT implemented
+- ❌ **Dilithium-3**: Planned in roadmap, NOT implemented  
+- ❌ **WebAuthn Hybrid**: ECDSA-P256 quantum-vulnerable, needs ML-DSA
+- ✅ **Multi-source Quantum**: ANU QRNG + IBM + Cloudflare + Intel implemented
+
+### **Compliance Reality Check**:
+- ❌ **FIPS 140-2 Level 3**: FALSE CLAIM - not certified
+- ❌ **ISO 27001**: FALSE CLAIM - not certified
+- ❌ **PCI-DSS**: FALSE CLAIM - not certified
+- 🔄 **SOC 2 Type I**: Realistic 60-day timeline planned
+
+### **Next Actions Required (P0A-P0D)**:
+1. **Week 1-2**: Remove fake claims, Chrome extension submission
+2. **Week 3-4**: SOC 2 vendor selection, pen-test contracting  
+3. **Month 2**: Hybrid PQC implementation, user metrics dashboard
+4. **Month 3**: Enterprise pilots, AWS migration planning
+
+**Próximos pasos críticos (DEPRECATED - replaced by P0A-P0D):**
 1. **P7 Chrome Extension:** Publicar en Chrome Web Store
 2. **P4 CI/CD & DevSecOps:** GitHub Actions + Terraform automation
