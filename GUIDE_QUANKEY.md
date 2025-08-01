@@ -217,6 +217,10 @@ All three **must** be synced with this guide at the end of each session.
 * **Frontend API URLs Updated**: React frontend configured to communicate with https://api.quankey.xyz for production deployment
 * **Basic Auth Frontend Protection VERIFIED**: Express server with middleware working, credentials quankey_admin/Quantum2025!Secure active
 * **Backend API Clean**: No Basic Auth on API endpoints (BASIC_AUTH_ENABLED=false), only frontend protected for staging access
+* **Frontend API URLs CRITICAL FIX**: Replaced ALL hardcoded localhost:5000 URLs with production https://api.quankey.xyz endpoints
+* **Frontend Services Updated**: vaultService.ts, authService.ts, LandingPage.tsx, PasswordManager.tsx, RecoveryManager.tsx, RecoveryProcess.tsx
+* **Production Communication ENABLED**: Frontend-backend communication fully operational with dynamic API_URL configuration
+* **Password Save Feature FIXED**: Critical /api/passwords/save endpoint now correctly points to production API
 
 (New entries are appended, never replace existing ones.)
 
