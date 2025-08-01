@@ -5,14 +5,17 @@ export class WebAuthnService {
   // Generate registration options (optimized for all devices)
   static async generateRegistrationOptions(username: string, displayName: string) {
     try {
-      console.log(`🔐 Generating registration options for: ${username}`);
+      const rpId = process.env.NODE_ENV === 'production' ? (process.env.WEBAUTHN_RP_ID || 'quankey.xyz') : 'localhost';
+      console.log(`🔐 [WEBAUTHN] Generating registration options for: ${username}`);
+      console.log(`🔐 [WEBAUTHN] Environment: ${process.env.NODE_ENV}`);
+      console.log(`🔐 [WEBAUTHN] RP ID: ${rpId}`);
       
       return {
         success: true,
         challenge: Date.now().toString(),
         rp: { 
-          name: 'Quankey', 
-          id: process.env.NODE_ENV === 'production' ? (process.env.WEBAUTHN_DOMAIN || 'quankey.xyz') : 'localhost'
+          name: process.env.WEBAUTHN_RP_NAME || 'Quankey', 
+          id: rpId
         },
         user: {
           id: username,
@@ -80,13 +83,16 @@ export class WebAuthnService {
   // Generate authentication options (completely simplified)
   static async generateAuthenticationOptions(username?: string) {
     try {
-      console.log(`🔍 Generating authentication options for: ${username || 'any user'}`);
+      const rpId = process.env.NODE_ENV === 'production' ? (process.env.WEBAUTHN_RP_ID || 'quankey.xyz') : 'localhost';
+      console.log(`🔍 [WEBAUTHN] Generating authentication options for: ${username || 'any user'}`);
+      console.log(`🔍 [WEBAUTHN] Environment: ${process.env.NODE_ENV}`);
+      console.log(`🔍 [WEBAUTHN] RP ID: ${rpId}`);
       
       return {
         success: true,
         challenge: Date.now().toString(),
         timeout: 60000,
-        rpID: process.env.NODE_ENV === 'production' ? (process.env.WEBAUTHN_DOMAIN || 'quankey.xyz') : 'localhost',
+        rpID: rpId,
         allowCredentials: [],
         userVerification: 'preferred'
       };
