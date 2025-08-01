@@ -25,11 +25,15 @@ import {
   AuditEventType, 
   RiskLevel 
 } from './middleware/auditLogging';
+import basicAuthMiddleware from './middleware/basicAuth';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Basic Auth Protection (when enabled)
+app.use(basicAuthMiddleware);
 
 app.use('/dashboard', dashboardRoutes);
 

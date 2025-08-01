@@ -25,6 +25,14 @@ services:
         value: https://quankey-frontend.onrender.com
       - key: API_URL
         value: https://quankey-backend.onrender.com
+      - key: BASIC_AUTH_ENABLED
+        value: true
+      - key: BASIC_AUTH_USERNAME
+        sync: false  # Must be configured in Render Dashboard
+      - key: BASIC_AUTH_PASSWORD
+        sync: false  # Must be configured in Render Dashboard
+      - key: BASIC_AUTH_REALM
+        value: Quankey Staging
 
   # Quankey Frontend Static Site
   - type: static
