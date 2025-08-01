@@ -286,34 +286,45 @@ BASIC_AUTH_REALM="Quankey Staging"
 
 ---
 
-## 🎯 PRÓXIMOS PASOS CRÍTICOS
+## 🎯 PRÓXIMOS PASOS CRÍTICOS - POST-INVESTOR FEEDBACK
 
-### **✅ COMPLETADO - Production Configuration & Communication**
-- ✅ **Backend deployment:** Production-ready en api.quankey.xyz
-- ✅ **Frontend deployment:** Production-ready en quankey.xyz  
-- ✅ **CORS configuration:** Standard middleware con https://quankey.xyz support
-- ✅ **WebAuthn production:** RP ID y environment variables configurados
-- ✅ **Basic Auth protection:** Frontend protegido, API libre para comunicación
-- ✅ **Frontend API URLs:** TODAS las URLs hardcodeadas eliminadas y usando producción
-- ✅ **Password Save Working:** Endpoint crítico /api/passwords/save funcionando
-- ✅ **Frontend-Backend Communication:** 100% funcional con variables de entorno
-- ✅ **Build configuration:** Fixed con tsconfig.prod.json
-- ✅ **TypeScript compilation:** Working correctamente
+### **✅ CONFIRMADO POR INVERSOR**:
+- **Technical execution real**: 4 fuentes quantum + failover automático  
+- **WebAuthn funcionando**: Biométrico en producción real
+- **$25/mes operational cost**: Frugalidad confirmada
+- **PostgreSQL + audit logging**: Enterprise-ready architecture
 
-### **Sprint 2: Browser Extension** (PRIORIDAD)
-- 🚀 Chrome Web Store submission
-- 🔧 Auto-takeover de contraseñas existentes
-- 🔄 Testing en sitios reales
+### **🚨 RED FLAGS CRÍTICOS IDENTIFICADOS**:
 
-### **Sprint 3: NIST Compliance** (DEFENSA)
-- 📋 Certificación FIPS 140-2 Level 3
-- 🛡️ CMMC 2.0 assessment
-- 📄 Documentación compliance completa
+#### **1. PQC HYBRID GAP** ⚠️ CRÍTICO
+- **Problema**: WebAuthn usa ECDSA-P256 (vulnerable a quantum)
+- **Fix requerido**: Hybrid ECDSA + ML-DSA en credentialPublicKey  
+- **Timeline**: <90 días o pierdes credibilidad PQC
+- **Acción**: P0A - Implementación híbrida inmediata
 
-### **Sprint 4: PostgreSQL Production**
-- 🗄️ Migración de in-memory a PostgreSQL
-- 🔒 Cifrado at-rest completo
-- 📊 Backup y disaster recovery
+#### **2. COMPLIANCE THEATER** ⚠️ CRÍTICO
+- **Problema**: "FIPS 140-2 Level 3 ready" sin evidencia
+- **Fix requerido**: Eliminar claims sin respaldo
+- **Acciones**: SOC 2 Type I en 60 días, pen-test NCC Group en 90 días
+
+#### **3. INFRASTRUCTURE SPOF** ⚠️ CRÍTICO  
+- **Problema**: Render hosting para enterprise = no serio
+- **Fix requerido**: AWS EKS + CloudHSM migration plan
+- **Acción**: Multi-AZ deployment + HSM para QRNG
+
+### **📊 MÉTRICAS REQUERIDAS - D1/D7/D30 RETENTION**
+- **100+ real beta users** (no friends/family)
+- **Daily active usage metrics** 
+- **Password generation volume**
+- **Enterprise traction**: 3 design partners + LOIs
+
+### **💰 INVESTMENT TERMS ACTUALIZADOS**:
+- **Cheque**: $1.5M (vs $2M solicitado)
+- **Valuation**: $8M post-money
+- **Structure**: 50% upfront, 50% at milestones
+
+### **⏰ DEPRECATED ROADMAP** (Post-Investor Feedback):
+Previous sprints 2-4 replaced with P0A-P0D critical gaps. Chrome extension, NIST compliance, and PostgreSQL production remain important but secondary to addressing red flags.
 
 ---
 
