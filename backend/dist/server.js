@@ -12,7 +12,7 @@ const auth_1 = require("./routes/auth");
 const authReal_1 = require("./routes/authReal");
 const databaseService_1 = require("./services/databaseService");
 const passwords_1 = __importDefault(require("./routes/passwords"));
-const dashboardRoutes = require('./routes/dashboard');
+const dashboard_1 = __importDefault(require("./routes/dashboard"));
 const recovery_1 = __importDefault(require("./routes/recovery"));
 const auth_2 = require("./middleware/auth");
 // Security hardening imports
@@ -21,6 +21,7 @@ const auditLogging_1 = require("./middleware/auditLogging");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
+app.use('/dashboard', dashboard_1.default);
 // CORS Configuration - ANTES de todo middleware
 app.use((req, res, next) => {
     console.log('[CORS] Applied for:', req.headers.origin);
@@ -52,7 +53,7 @@ app.use('/api/auth', (0, rateLimiting_1.createRateLimiter)('authentication'), (0
 app.use('/api/auth-real', (0, rateLimiting_1.createRateLimiter)('authentication'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.USER_LOGIN, 'Real WebAuthn Authentication', auditLogging_1.RiskLevel.HIGH), authReal_1.authRealRouter);
 app.use('/api/quantum', (0, rateLimiting_1.createRateLimiter)('passwordGeneration'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.QUANTUM_GENERATION, 'Quantum Password Generation', auditLogging_1.RiskLevel.LOW), quantum_1.default);
 app.use('/api/passwords', (0, rateLimiting_1.createRateLimiter)('vaultAccess'), auth_2.authMiddleware, (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Password Vault Access', auditLogging_1.RiskLevel.MEDIUM), passwords_1.default);
-app.use('/api/dashboard', (0, rateLimiting_1.createRateLimiter)('api'), auth_2.authMiddleware, (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Dashboard Access', auditLogging_1.RiskLevel.LOW), dashboardRoutes);
+app.use('/api/dashboard', (0, rateLimiting_1.createRateLimiter)('api'), auth_2.authMiddleware, (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Dashboard Access', auditLogging_1.RiskLevel.LOW), dashboard_1.default);
 app.use('/api/recovery', (0, rateLimiting_1.createRateLimiter)('api'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.RECOVERY_INITIATED, 'Recovery Request', auditLogging_1.RiskLevel.HIGH), recovery_1.default);
 // Health check with security status
 app.get('/api/health', async (req, res) => {

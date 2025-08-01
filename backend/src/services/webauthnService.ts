@@ -1,4 +1,4 @@
-import { DatabaseService } from './databaseService';
+import { HybridDatabaseService } from './hybridDatabaseService';
 
 export class WebAuthnService {
   
@@ -51,14 +51,14 @@ export class WebAuthnService {
       console.log(`🔐 Verifying registration for: ${username}`);
       
       // Create user in database
-      const user = await DatabaseService.createUser(username, response.displayName || username);
+      const user = await HybridDatabaseService.createUser(username, response.displayName || username);
       
       if (!user) {
         throw new Error('Failed to create user');
       }
 
       // Enable biometric authentication
-      await DatabaseService.enableBiometric(user.id);
+      await HybridDatabaseService.enableBiometric(user.id);
       
       console.log(`✅ User ${username} registered successfully`);
       
@@ -102,7 +102,7 @@ export class WebAuthnService {
     try {
       console.log(`🔍 Verifying authentication for: ${username || 'credential-based'}`);
       
-      const users = await DatabaseService.getAllUsers();
+      const users = await HybridDatabaseService.getAllUsers();
       const user = username 
         ? users.find(u => u.username === username && u.biometricEnabled)
         : users.find(u => u.biometricEnabled);
@@ -131,7 +131,7 @@ export class WebAuthnService {
   // Check if user exists in database
   static async userExists(username: string): Promise<boolean> {
     try {
-      const user = await DatabaseService.getUserByUsername(username);
+      const user = await HybridDatabaseService.getUserByUsername(username);
       return !!user;
     } catch (error) {
       console.error('Error checking user existence:', error);
@@ -142,7 +142,7 @@ export class WebAuthnService {
   // Get user info from database
   static async getUser(username: string) {
     try {
-      return await DatabaseService.getUserByUsername(username);
+      return await HybridDatabaseService.getUserByUsername(username);
     } catch (error) {
       console.error('Error getting user:', error);
       return null;
@@ -152,7 +152,7 @@ export class WebAuthnService {
   // Get all users from database
   static async getAllUsers() {
     try {
-      return await DatabaseService.getAllUsers();
+      return await HybridDatabaseService.getAllUsers();
     } catch (error) {
       console.error('Error getting all users:', error);
       return [];
@@ -162,7 +162,7 @@ export class WebAuthnService {
   // Check if user has biometric enabled
   static async hasBiometric(username: string): Promise<boolean> {
     try {
-      const user = await DatabaseService.getUserByUsername(username);
+      const user = await HybridDatabaseService.getUserByUsername(username);
       return user ? user.biometricEnabled : false;
     } catch (error) {
       console.error('Error checking biometric status:', error);

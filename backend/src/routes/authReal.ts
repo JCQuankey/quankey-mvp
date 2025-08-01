@@ -8,7 +8,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { WebAuthnService } from '../services/webauthnServiceSimple';
-import { DatabaseService } from '../services/databaseService';
+import { HybridDatabaseService } from '../services/hybridDatabaseService';
 
 export const authRealRouter = express.Router();
 

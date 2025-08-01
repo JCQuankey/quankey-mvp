@@ -115,8 +115,6 @@ export class MultiSourceQuantumService {
         'https://api.quantum-computing.ibm.com/api/v1/jobs',
         {
           backend: 'ibm_qasm_simulator', // Use simulator for reliability
-          shots: circuit.shots,
-          qubits: circuit.qubits,
           ...circuit
         },
         {

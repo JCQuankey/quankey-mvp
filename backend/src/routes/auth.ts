@@ -1,7 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { WebAuthnService } from '../services/webauthnService';
-import { DatabaseService } from '../services/databaseService';
+import { HybridDatabaseService } from '../services/hybridDatabaseService';
 
 export const authRouter = express.Router();
 
@@ -366,7 +366,7 @@ authRouter.post('/extension-login', async (req, res) => {
     console.log('🔑 Extension login attempt for:', email);
     
     // Check if user exists (simplified for MVP)
-    const user = await DatabaseService.getUserById('1'); // Temporary fix - will need proper getUserByEmail method
+    const user = await HybridDatabaseService.getUserById('1'); // Temporary fix - will need proper getUserByEmail method
     
     if (!user) {
       return res.status(401).json({

@@ -6,7 +6,7 @@ import quantumRouter from './routes/quantum';
 import { authRouter } from './routes/auth';
 // SECURITY RECOVERY: Real WebAuthn routes
 import { authRealRouter } from './routes/authReal';
-import { DatabaseService } from './services/databaseService';
+import { HybridDatabaseService } from './services/hybridDatabaseService';
 import passwordRoutes from './routes/passwords';
 import dashboardRoutes from './routes/dashboard';
 import recoveryRoutes from './routes/recovery';
@@ -50,7 +50,7 @@ app.use((req, res, next) => {
   ];
   
   const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
+  if (origin && allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
   }
   
@@ -124,7 +124,7 @@ app.use('/api/recovery',
 
 // Health check with security status
 app.get('/api/health', async (req, res) => {
-  const dbHealth = await DatabaseService.healthCheck();
+  const dbHealth = await HybridDatabaseService.healthCheck();
   
   res.json({
     status: 'OK',
@@ -164,14 +164,23 @@ app.use((req, res) => {
 
 // Initialize database and start server
 async function startServer() {
-  console.log('[DB] Database service initialized (in-memory mode)');
+  // Initialize hybrid database service
+  const dbInitialized = await HybridDatabaseService.initialize();
+  if (!dbInitialized) {
+    console.error('❌ Failed to initialize database service');
+    process.exit(1);
+  }
+
+  const dbInfo = HybridDatabaseService.getDatabaseInfo();
+  console.log(`[DB] Database service initialized: ${dbInfo.type} (${dbInfo.persistent ? 'persistent' : 'temporary'})`);
+  console.log(`[DB] Features: ${dbInfo.features.join(', ')}`);
   
   app.listen(PORT, () => {
     console.log(`[SERVER] Quankey Backend running on port ${PORT}`);
     console.log(`[HEALTH] Check: http://localhost:${PORT}/api/health`);
     console.log('[AUTH] WebAuthn biometric auth ready');
-    console.log('[QUANTUM] Quantum password generation ready');
-    console.log('[DB] PostgreSQL database connected');
+    console.log('[QUANTUM] Multi-source quantum generation ready');
+    console.log(`[DB] Database: ${dbInfo.type} ${dbInfo.persistent ? '(persistent)' : '(in-memory)'}`);
     console.log('\n[ROUTES] Available endpoints:');
     console.log('   POST /api/auth/register');
     console.log('   POST /api/auth/login');
@@ -200,13 +209,13 @@ async function startServer() {
 // Graceful shutdown
 process.on('SIGINT', async () => {
   console.log('\n[SHUTDOWN] Shutting down gracefully...');
-  await DatabaseService.disconnect();
+  await HybridDatabaseService.disconnect();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
   console.log('\n[SHUTDOWN] Shutting down gracefully...');
-  await DatabaseService.disconnect();
+  await HybridDatabaseService.disconnect();
   process.exit(0);
 });
 

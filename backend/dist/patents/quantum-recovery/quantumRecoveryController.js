@@ -32,7 +32,7 @@
  * ===============================================================================
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.QuantumRecoveryController = void 0;
+exports.RecoveryController = exports.QuantumRecoveryController = void 0;
 const client_1 = require("@prisma/client");
 const quantumRecoverySystem_1 = require("./quantumRecoverySystem");
 const prisma = new client_1.PrismaClient();
@@ -632,36 +632,4 @@ class QuantumRecoveryController {
     }
 }
 exports.QuantumRecoveryController = QuantumRecoveryController;
-/**
- * ===============================================================================
- * PATENT DOCUMENTATION SUMMARY
- * ===============================================================================
- *
- * PATENT #4 API CLAIMS:
- * 1. HTTP API methods for quantum recovery kit generation and management
- * 2. RESTful endpoints for secure quantum share distribution
- * 3. Stateless quantum validation suitable for web applications
- * 4. Quantum audit trails integrated with HTTP request/response cycles
- * 5. Patent-marked API responses for quantum cryptographic operations
- *
- * 🚀 POTENTIAL PATENT #6 IDENTIFIED:
- * "QUANTUM-SECURED REST API ARCHITECTURE FOR CRYPTOGRAPHIC OPERATIONS"
- * - Novel method of exposing quantum cryptographic functions via HTTP APIs
- * - Quantum-aware HTTP headers for cryptographic metadata transport
- * - Stateless quantum validation in distributed web systems
- * - Quantum provenance tracking through HTTP protocols
- *
- * TECHNICAL ADVANTAGES OVER PRIOR ART:
- * - First REST API for quantum cryptographic password recovery
- * - Novel HTTP header system for quantum metadata transport
- * - Stateless quantum operations suitable for microservices
- * - Patent-marked responses enable IP protection tracking
- *
- * COMMERCIAL VALUE:
- * - Enables quantum recovery in any web application or mobile app
- * - Creates API-based moat around quantum recovery technology
- * - Allows licensing of quantum recovery API to other password managers
- * - Positions Quankey as quantum security infrastructure provider
- *
- * ===============================================================================
- */ 
+exports.RecoveryController = QuantumRecoveryController;
