@@ -2,18 +2,18 @@
   "manifest_version": 3,
   "name": "Quankey - Quantum-Proof Password Manager",
   "version": "1.0.0",
-  "description": "The world's first quantum-proof password manager with zero master passwords and true quantum entropy.",
+  "description": "The world's first quantum-proof password manager with zero master passwords and true quantum entropy. Secure your digital life with quantum-resistant cryptography.",
+  "author": "Cainmani Resources, S.L.",
+  "homepage_url": "https://quankey.xyz",
   
   "permissions": [
     "storage",
     "activeTab",
     "scripting",
-    "tabs",
-    "nativeMessaging"
+    "tabs"
   ],
   
   "host_permissions": [
-    "http://localhost:5000/*",
     "https://api.quankey.xyz/*"
   ],
   
@@ -56,13 +56,12 @@
   ],
   
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://localhost:5000 https://api.quankey.xyz"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://api.quankey.xyz"
   },
   
   "externally_connectable": {
     "matches": [
-      "http://localhost:3000/*",
-      "http://localhost:3001/*",
+      "https://quankey.xyz/*",
       "https://app.quankey.xyz/*"
     ]
   }

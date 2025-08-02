@@ -29,7 +29,7 @@ This guide is the *single source of truth* for every technical decision, securit
 | ID      | Critical Area               | Corrective Action                                                                                         | Expected Outcome            | Target Deadline |
 | ------- | --------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------- | --------------- |
 | **P0A** | **PQC Hybrid Critical Gap**     | **Week 5-6**: Hybrid ECDSA + ML-DSA WebAuthn implementation                    | Quantum-resistant auth      | Semanas 5-6 |
-| **P0B** | **Compliance Reality Check**    | **Week 1-4**: SOC 2 Type I kickoff, pen-test vendor contract                   | Real certifications         | Semanas 1-4 |
+| **P0B** | **Compliance Reality Check**    | **Phase 3**: SOC 2 Type I + pen-test (post-funding), compliance-ready architecture now | Compliance architecture built | Semanas 1-8 |
 | **P0C** | **Real User Metrics Required**  | **Week 9-12**: 100+ beta users, D1/D7/D30 retention dashboard                  | Traction validation         | Semanas 9-12 |
 | **P0D** | **Infrastructure SPOF Fix**     | **Week 11-12**: AWS EKS + CloudHSM migration plan                              | Production-grade hosting    | Semanas 11-12 |
 | **P0**  | Post‑Quantum Crypto         | Switch to hybrid **Kyber‑768 + AES‑GCM‑SIV (256)**; signatures **Dilithium‑3**; NIST KAT tests via libOQS | Vault E2E PQC L1‑3 ✅        | +8 w            |
@@ -135,6 +135,43 @@ This guide is the *single source of truth* for every technical decision, securit
   | SOC 2 Type II (opt) | €18 k       | €6 k       | Q1‑2026 draft   |
 * **FIPS 140‑3 module** (UL lab Q4‑2025); **CMMC 2.0** gap; ISO 42001 (AI pipeline).
 * **Live bug bounty dashboard** via HackerOne.
+
+### **📋 STRATEGIC PIVOT TO PRODUCT-FIRST - 02 Agosto 2025**
+
+**Philosophy**: Build bulletproof product first, then certify the perfection.
+**Cost Optimization**: €10K immediate vs €42K compliance-first (76% reduction)
+
+#### **📅 THREE-PHASE ROADMAP**
+
+**Phase 1 (Weeks 1-8): Product Excellence**
+- **Focus**: PQC implementation + core features + compliance-ready architecture
+- **Budget**: €5K internal tools and optimization  
+- **Status**: ✅ Hybrid WebAuthn implemented, continuing with libOQS
+
+**Phase 2 (Weeks 9-12): Internal Validation**
+- **Focus**: Internal security testing + 100+ real users + retention metrics
+- **Budget**: €5K security tools and monitoring
+- **Approach**: Self-audit with professional-grade tools
+
+**Phase 3 (Post-funding): Professional Certifications**
+- **Focus**: SOC 2 Type I + professional pen-testing + enterprise compliance
+- **Budget**: €37K (deferred to post-investment)
+- **Timeline**: Q1-Q2 2026 with funding secured
+
+#### **💰 REVISED CERTIFICATION BUDGET**
+
+| Standard              | Timing        | Cost  | Status              |
+| --------------------- | ------------- | ----- | ------------------- |
+| Internal Testing      | Week 9-12     | €5K   | 🔄 Phase 2 Planned  |
+| Compliance Architecture| Week 1-8      | €0    | ✅ Building Now     |
+| SOC 2 Type I         | Post-funding  | €15K  | 📅 Phase 3 Future  |
+| Professional Pen-test | Post-funding  | €25K  | 📅 Phase 3 Future  |
+
+#### **🎯 IMMEDIATE BENEFITS**
+- **Cash Flow**: €32K savings for product development
+- **Flexibility**: Can optimize product before certification  
+- **Quality**: Certifying a mature, tested product vs MVP
+- **Timeline**: No vendor dependencies for immediate progress
 
 ---
 
@@ -246,6 +283,7 @@ All three **must** be synced with this guide at the end of each session.
 * **DUAL TRACK BUDGET ALLOCATION**: €42K total (€21K Foundation/Compliance + €21K PQC Implementation) approved
 * **DUAL TRACK IMPLEMENTATION COMPLETE**: All 4 mandatory files updated, session protocols established, ready for execution
 * **NEXT SESSION PRIORITIES**: Week 1 actions - Remove false claims, SOC 2 vendor research, libOQS setup, WebAuthn hybrid planning
+* **PRODUCT-FIRST STRATEGIC PIVOT 2025-08-02**: Shifted from compliance-first to product excellence approach, deferred €37K certifications to post-funding Phase 3, focus on PQC implementation + compliance-ready architecture, 76% cost reduction for immediate execution
 
 (New entries are appended, never replace existing ones.)
 
