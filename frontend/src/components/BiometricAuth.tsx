@@ -35,7 +35,7 @@ interface BiometricAuthProps {
  * - Quantum-enhanced security challenges (future implementation)
  */
 export const BiometricAuth: React.FC<BiometricAuthProps> = ({ onAuthenticated, onError }) => {
-  const [isSupported, setIsSupported] = useState<boolean>(false);
+  const [isSupported, setIsSupported] = useState<boolean>(true); // Default true since we always support biometric
   const [loading, setLoading] = useState<boolean>(false);
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [username, setUsername] = useState<string>('');
@@ -55,13 +55,19 @@ export const BiometricAuth: React.FC<BiometricAuthProps> = ({ onAuthenticated, o
    */
   const checkBiometricSupport = async () => {
     console.log('🔍 Checking biometric support...');
-    const supported = await AuthService.isBiometricSupported();
-    setIsSupported(supported);
-    
-    if (supported) {
-      console.log('✅ Biometric authentication supported');
-    } else {
-      console.log('❌ Biometric authentication not supported');
+    try {
+      const supported = await AuthService.isBiometricSupported();
+      console.log('🔍 AuthService.isBiometricSupported() returned:', supported);
+      setIsSupported(supported);
+      
+      if (supported) {
+        console.log('✅ Biometric authentication supported');
+      } else {
+        console.log('❌ Biometric authentication not supported');
+      }
+    } catch (error) {
+      console.error('❌ Error in checkBiometricSupport:', error);
+      setIsSupported(false);
     }
   };
 
