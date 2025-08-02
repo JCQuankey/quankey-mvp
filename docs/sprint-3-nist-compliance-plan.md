@@ -57,7 +57,7 @@ const postQuantumKeyGen = async () => {
 };
 ```
 
-### **2. FIPS 140-2 Level 3 - Hardware Security**
+### **2. Hardware Security Module Support**
 **Status**: ❌ **NOT IMPLEMENTED**  
 **Priority**: 🟡 **HIGH**
 

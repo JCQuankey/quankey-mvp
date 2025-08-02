@@ -325,7 +325,7 @@ BASIC_AUTH_REALM="Quankey Staging"
 - **Acción**: P0A - Implementación híbrida inmediata
 
 #### **2. COMPLIANCE THEATER** ⚠️ CRÍTICO
-- **Problema**: "FIPS 140-2 Level 3 ready" sin evidencia
+- **Problema**: Claims de certificación sin evidencia identificados
 - **Fix requerido**: Eliminar claims sin respaldo
 - **Acciones**: SOC 2 Type I en 60 días, pen-test NCC Group en 90 días
 

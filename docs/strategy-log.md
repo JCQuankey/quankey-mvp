@@ -15,7 +15,7 @@
 2. **Sector Defensa Necesita Soluciones Inmediatas**
    - **Descubrimiento**: Gobierno requiere NIST-compliant quantum solutions NOW
    - **Mercado**: Contratos gubernamentales $10M+ disponibles
-   - **Requisitos**: FIPS 203, CRYSTALS-Kyber, FIPS 140-2 Level 3
+   - **Requisitos**: FIPS 203, CRYSTALS-Kyber, quantum-resistant algorithms
    - **Ventaja**: Nuestro quantum entropy + recovery system = único en mercado
 
 3. **Browser Extension = Requisito Mínimo para Competir**
@@ -105,7 +105,7 @@
 **CRÍTICO para Sector Defensa**:
 - 🏛️ FIPS 203 compliance (post-quantum signatures)
 - 🏛️ CRYSTALS-Kyber integration (quantum-safe key encapsulation)
-- 🏛️ FIPS 140-2 Level 3 hardware security module support
+- 🏛️ Hardware security module support for key management
 - 🏛️ Audit trails completos para regulaciones gubernamentales
 - 🏛️ Air-gapped deployment options
 

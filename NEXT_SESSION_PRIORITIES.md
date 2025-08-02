@@ -11,7 +11,7 @@
 
 ### **TRACK A: FOUNDATION + COMPLIANCE**
 1. ✅ **Remove False Claims** - PRIORIDAD MÁXIMA
-   - Eliminar todas las referencias a FIPS 140-2, ISO 27001, PCI-DSS de documentación
+   - Eliminar todas las referencias a certificaciones falsas de documentación
    - Buscar y reemplazar en todos los archivos .md
    - Actualizar landing page y marketing materials
 

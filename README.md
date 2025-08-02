@@ -11,7 +11,7 @@
 
 **World's first quantum-resistant password manager with zero-password biometric authentication.**
 
-> **🚀 ACTUALIZADO 30 JULIO 2024**: Professional landing page • Backend API functioning • Browser extension complete • Legal compliance ready
+> **🚀 ACTUALIZADO 30 JULIO 2024**: Professional landing page • Backend API functioning • Browser extension complete • SOC 2 Type I planned
 
 ---
 
@@ -104,7 +104,7 @@ Our benchmarks prove **77% average performance advantage** over all competitors:
 │ • AI-powered threat detection                              │
 │ • Quantum-enhanced rate limiting                           │
 │ • Comprehensive audit logging                              │
-│ • SOC2/GDPR/HIPAA compliance ready                         │
+│ • SOC 2 Type I planned, pen-test contracting               │
 └─────────────────────────────────────────────────────────────┘
 ```
 

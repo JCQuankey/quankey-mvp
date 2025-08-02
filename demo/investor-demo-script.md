@@ -283,7 +283,7 @@ File Format: MP4 H.264
 
 ### **Security Experts**:
 - **"Is this truly quantum-proof?"** → Yes, ANU QRNG + post-quantum crypto ready
-- **"What about compliance?"** → NIST-compliant, government-ready
+- **"What about compliance?"** → SOC 2 Type I planned, pen-test contracting in progress
 - **"Performance at scale?"** → Architecture tested for millions of users
 
 ---
