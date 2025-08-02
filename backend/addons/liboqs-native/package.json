@@ -1,0 +1,29 @@
+{
+  "name": "liboqs-native",
+  "version": "1.0.0",
+  "description": "Native C++ addon for libOQS integration with ML-KEM-768 and ML-DSA-65",
+  "main": "index.js",
+  "scripts": {
+    "build": "node-gyp rebuild",
+    "clean": "node-gyp clean",
+    "configure": "node-gyp configure",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "node-addon-api": "^8.5.0"
+  },
+  "devDependencies": {
+    "node-gyp": "^11.3.0"
+  },
+  "gypfile": true,
+  "keywords": [
+    "libOQS",
+    "post-quantum",
+    "cryptography",
+    "ML-KEM-768",
+    "ML-DSA-65",
+    "native-addon"
+  ],
+  "author": "Quankey Team",
+  "license": "MIT"
+}

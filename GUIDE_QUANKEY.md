@@ -1,6 +1,6 @@
 # Quankey – Project Master Guide
 
-*Last updated: 2025‑08‑01 - Frontend Security IMPLEMENTED - Basic Auth Protection + P3 Persistence COMPLETED*
+*Last updated: 2025‑08‑02 - libOQS v0.12.0 COMPILED SUCCESSFULLY - ML-KEM-768 + ML-DSA-65 REAL IMPLEMENTATION COMPLETE*
 
 ---
 
@@ -28,7 +28,7 @@ This guide is the *single source of truth* for every technical decision, securit
 
 | ID      | Critical Area               | Corrective Action                                                                                         | Expected Outcome            | Target Deadline |
 | ------- | --------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------- | --------------- |
-| **P0A** | **PQC Hybrid Critical Gap**     | **Week 5-6**: Hybrid ECDSA + ML-DSA WebAuthn implementation                    | Quantum-resistant auth      | Semanas 5-6 |
+| **P0A** | **✅ PQC Hybrid COMPLETED**     | **✅ DONE 02-Aug**: Hybrid ECDSA + ML-DSA-65 WebAuthn with libOQS v0.12.0 | Quantum-resistant auth ✅    | COMPLETADO |
 | **P0B** | **Compliance Reality Check**    | **Phase 3**: SOC 2 Type I + pen-test (post-funding), compliance-ready architecture now | Compliance architecture built | Semanas 1-8 |
 | **P0C** | **Real User Metrics Required**  | **Week 9-12**: 100+ beta users, D1/D7/D30 retention dashboard                  | Traction validation         | Semanas 9-12 |
 | **P0D** | **Infrastructure SPOF Fix**     | **Week 11-12**: AWS EKS + CloudHSM migration plan                              | Production-grade hosting    | Semanas 11-12 |

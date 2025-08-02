@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
       "Bash(npm run build:*)",
@@ -33,9 +34,16 @@
       "Bash(powershell:*)",
       "Bash(find:*)",
       "Bash(git push:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(cmake:*)",
+      "Bash(git clone:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" liboqs.sln /p:Configuration=Release /m:4)",
+      "Bash(msbuild:*)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" liboqs.sln -p:Configuration=Release -p:Platform=x64)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" srcoqs.vcxproj -p:Configuration=Release -p:Platform=x64)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" src/oqs.vcxproj -p:Configuration=Release -p:Platform=x64)"
     ],
     "deny": []
-  },
-  "$schema": "https://json.schemastore.org/claude-code-settings.json"
+  }
 }
