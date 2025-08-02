@@ -43,6 +43,12 @@ export interface UserData {
   counter?: bigint;
   credentials?: any;
   quantumSeed?: string;
+  // Quantum-resistant fields
+  quantumResistant?: boolean;
+  quantumAlgorithm?: string;
+  migrationStatus?: string;
+  credentialId?: string;
+  hybridId?: string;
 }
 
 export interface PasswordData {

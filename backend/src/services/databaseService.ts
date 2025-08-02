@@ -9,6 +9,12 @@ export interface UserData {
   biometricEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
+  // Quantum-resistant fields
+  quantumResistant?: boolean;
+  quantumAlgorithm?: string;
+  migrationStatus?: string;
+  credentialId?: string;
+  hybridId?: string;
 }
 
 export interface PasswordData {

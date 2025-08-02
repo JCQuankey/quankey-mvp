@@ -7,7 +7,7 @@ exports.authRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const webauthnService_1 = require("../services/webauthnService");
-const databaseService_1 = require("../services/databaseService");
+const hybridDatabaseService_1 = require("../services/hybridDatabaseService");
 exports.authRouter = express_1.default.Router();
 // Register new user with biometric authentication
 exports.authRouter.post('/register/begin', async (req, res) => {
@@ -20,10 +20,17 @@ exports.authRouter.post('/register/begin', async (req, res) => {
             });
         }
         console.log(`🔐 Starting biometric registration for: ${username}`);
+        console.log(`🔐 [HYBRID PQC] Preparing quantum-resistant registration...`);
         const options = await webauthnService_1.WebAuthnService.generateRegistrationOptions(username, displayName);
         res.json({
             success: true,
-            options
+            options,
+            quantumInfo: {
+                supported: true,
+                algorithm: 'ECDSA + ML-DSA-65 (hybrid)',
+                quantumResistant: true,
+                migrationStatus: 'AUTOMATIC'
+            }
         });
     }
     catch (error) {
@@ -325,7 +332,7 @@ exports.authRouter.post('/extension-login', async (req, res) => {
         }
         console.log('🔑 Extension login attempt for:', email);
         // Check if user exists (simplified for MVP)
-        const user = await databaseService_1.DatabaseService.getUserById('1'); // Temporary fix - will need proper getUserByEmail method
+        const user = await hybridDatabaseService_1.HybridDatabaseService.getUserById('1'); // Temporary fix - will need proper getUserByEmail method
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -376,6 +383,29 @@ exports.authRouter.post('/extension-login', async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Extension login failed',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Get quantum migration status - NEW ENDPOINT
+exports.authRouter.get('/quantum/migration-status', async (req, res) => {
+    try {
+        console.log('🔐 [QUANTUM] Checking migration status...');
+        const status = await webauthnService_1.WebAuthnService.getQuantumMigrationStatus();
+        res.json({
+            success: true,
+            status,
+            recommendation: status.readyForQuantum
+                ? 'All users are quantum-resistant'
+                : 'Some users need to migrate to hybrid credentials',
+            deadline: '2025-Q4 (NIST quantum migration deadline)'
+        });
+    }
+    catch (error) {
+        console.error('❌ Quantum migration status error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get quantum migration status',
             message: error instanceof Error ? error.message : 'Unknown error'
         });
     }

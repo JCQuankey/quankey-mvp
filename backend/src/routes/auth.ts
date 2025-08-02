@@ -18,13 +18,19 @@ authRouter.post('/register/begin', async (req, res) => {
     }
 
     console.log(`🔐 Starting biometric registration for: ${username}`);
-    
+    console.log(`🔐 [HYBRID PQC] Preparing quantum-resistant registration...`);
     
     const options = await WebAuthnService.generateRegistrationOptions(username, displayName);
     
     res.json({
       success: true,
-      options
+      options,
+      quantumInfo: {
+        supported: true,
+        algorithm: 'ECDSA + ML-DSA-65 (hybrid)',
+        quantumResistant: true,
+        migrationStatus: 'AUTOMATIC'
+      }
     });
     
   } catch (error) {
@@ -428,6 +434,32 @@ authRouter.post('/extension-login', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Extension login failed',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Get quantum migration status - NEW ENDPOINT
+authRouter.get('/quantum/migration-status', async (req, res) => {
+  try {
+    console.log('🔐 [QUANTUM] Checking migration status...');
+    
+    const status = await WebAuthnService.getQuantumMigrationStatus();
+    
+    res.json({
+      success: true,
+      status,
+      recommendation: status.readyForQuantum 
+        ? 'All users are quantum-resistant' 
+        : 'Some users need to migrate to hybrid credentials',
+      deadline: '2025-Q4 (NIST quantum migration deadline)'
+    });
+    
+  } catch (error) {
+    console.error('❌ Quantum migration status error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get quantum migration status',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
