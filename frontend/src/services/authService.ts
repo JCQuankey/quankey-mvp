@@ -144,12 +144,13 @@ export class AuthService {
         console.log(`[CRYPTO] [${registrationId}] Creating WebAuthn credential...`);
         
         // Convert server options for WebAuthn API
+        // Backend sends challenge and user.id as base64url strings
         const processedOptions = {
           ...optionsResponse.data.options,
-          challenge: new TextEncoder().encode(optionsResponse.data.options.challenge),
+          challenge: Uint8Array.from(atob(optionsResponse.data.options.challenge.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)),
           user: {
             ...optionsResponse.data.options.user,
-            id: new TextEncoder().encode(optionsResponse.data.options.user.id)
+            id: Uint8Array.from(atob(optionsResponse.data.options.user.id.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))
           }
         };
 
@@ -271,9 +272,10 @@ export class AuthService {
         console.log(`[CRYPTO] [${authId}] Getting WebAuthn credential...`);
         
         // Convert challenge for WebAuthn API
+        // Backend sends challenge as base64url string
         const processedOptions = {
           ...optionsResponse.data.options,
-          challenge: new TextEncoder().encode(optionsResponse.data.options.challenge)
+          challenge: Uint8Array.from(atob(optionsResponse.data.options.challenge.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))
         };
 
         // PATENT-CRITICAL: Get credential using WebAuthn - NO PASSWORD
