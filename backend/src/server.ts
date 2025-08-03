@@ -76,7 +76,10 @@ app.use(express.json());
 
 // Security hardening middleware - Applied BEFORE routes
 app.use(trackFailedAttempt); // Track failed authentication attempts
-app.use(threatDetection); // AI-powered threat detection
+// TEMPORARY: Disable threat detection in production due to false positives
+if (process.env.NODE_ENV !== 'production') {
+  app.use(threatDetection); // AI-powered threat detection
+}
 
 // Logging middleware para debug + audit logging
 app.use((req, res, next) => {
