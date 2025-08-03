@@ -43,7 +43,8 @@
       "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" liboqs.sln -p:Configuration=Release -p:Platform=x64)",
       "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" srcoqs.vcxproj -p:Configuration=Release -p:Platform=x64)",
       "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" src/oqs.vcxproj -p:Configuration=Release -p:Platform=x64)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(touch:*)"
     ],
     "deny": []
   }
