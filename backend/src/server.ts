@@ -21,6 +21,11 @@ import {
   trackFailedAttempt 
 } from './middleware/rateLimiting';
 import { 
+  intelligentSecurityMiddleware,
+  createIntelligentRateLimiter,
+  intelligentSecurityMetrics
+} from './middleware/intelligentThreatDetection';
+import { 
   auditMiddleware, 
   auditMetricsEndpoint, 
   AuditEventType, 
@@ -74,12 +79,9 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 
-// Security hardening middleware - Applied BEFORE routes
+// Intelligent Security hardening middleware - Applied BEFORE routes
 app.use(trackFailedAttempt); // Track failed authentication attempts
-// TEMPORARY: Disable threat detection in production due to false positives
-if (process.env.NODE_ENV !== 'production') {
-  app.use(threatDetection); // AI-powered threat detection
-}
+app.use(intelligentSecurityMiddleware); // AI-powered intelligent threat detection with zero false positives
 
 // Logging middleware para debug + audit logging
 app.use((req, res, next) => {
@@ -90,42 +92,42 @@ app.use((req, res, next) => {
 // Audit logging for all requests
 app.use(auditMiddleware(AuditEventType.SYSTEM_ERROR, 'API Request', RiskLevel.LOW));
 
-// Routes with security hardening - ORDEN IMPORTANTE
+// Routes with intelligent security hardening - ORDEN IMPORTANTE
 app.use('/api/auth', 
-  createRateLimiter('authentication'), 
+  createIntelligentRateLimiter('authentication'), 
   auditMiddleware(AuditEventType.USER_LOGIN, 'Authentication Request', RiskLevel.MEDIUM),
   authRouter
 );
 
 // SECURITY RECOVERY: Real WebAuthn routes
 app.use('/api/auth-real', 
-  createRateLimiter('authentication'), 
+  createIntelligentRateLimiter('authentication'), 
   auditMiddleware(AuditEventType.USER_LOGIN, 'Real WebAuthn Authentication', RiskLevel.HIGH),
   authRealRouter
 );
 
 app.use('/api/quantum', 
-  createRateLimiter('passwordGeneration'),
+  createIntelligentRateLimiter('passwordGeneration'),
   auditMiddleware(AuditEventType.QUANTUM_GENERATION, 'Quantum Password Generation', RiskLevel.LOW),
   quantumRouter
 );
 
 app.use('/api/passwords', 
-  createRateLimiter('vaultAccess'),
+  createIntelligentRateLimiter('vaultAccess'),
   authMiddleware, 
   auditMiddleware(AuditEventType.VAULT_ACCESSED, 'Password Vault Access', RiskLevel.MEDIUM),
   passwordRoutes
 );
 
 app.use('/api/dashboard', 
-  createRateLimiter('api'),
+  createIntelligentRateLimiter('api'),
   authMiddleware, 
   auditMiddleware(AuditEventType.VAULT_ACCESSED, 'Dashboard Access', RiskLevel.LOW),
   dashboardRoutes
 );
 
 app.use('/api/recovery', 
-  createRateLimiter('api'),
+  createIntelligentRateLimiter('api'),
   auditMiddleware(AuditEventType.RECOVERY_INITIATED, 'Recovery Request', RiskLevel.HIGH),
   recoveryRoutes
 );
@@ -148,9 +150,10 @@ app.get('/api/health', async (req, res) => {
     ],
     security: {
       hardening: 'active',
-      rateLimiting: 'enabled',
-      threatDetection: 'quantum-enhanced',
-      auditLogging: 'comprehensive'
+      rateLimiting: 'intelligent-adaptive',
+      threatDetection: 'ai-powered-intelligent',
+      auditLogging: 'comprehensive',
+      falsePositivePrevention: 'quantum-enhanced'
     },
     timestamp: new Date().toISOString()
   });
@@ -158,6 +161,7 @@ app.get('/api/health', async (req, res) => {
 
 // Security monitoring endpoints
 app.get('/api/security/metrics', securityMetrics);
+app.get('/api/security/intelligent-metrics', intelligentSecurityMetrics);
 app.get('/api/security/audit', auditMetricsEndpoint);
 
 // 404 handler

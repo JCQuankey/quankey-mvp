@@ -47,7 +47,8 @@
       "Bash(touch:*)",
       "Bash(npx tsc:*)",
       "Bash(npm run start:prod:*)",
-      "Bash(tsc:*)"
+      "Bash(tsc:*)",
+      "Bash(timeout 10 npm run start:prod)"
     ],
     "deny": []
   }

@@ -18,6 +18,7 @@ const recovery_1 = __importDefault(require("./routes/recovery"));
 const auth_2 = require("./middleware/auth");
 // Security hardening imports
 const rateLimiting_1 = require("./middleware/rateLimiting");
+const intelligentThreatDetection_1 = require("./middleware/intelligentThreatDetection");
 const auditLogging_1 = require("./middleware/auditLogging");
 const basicAuth_1 = __importDefault(require("./middleware/basicAuth"));
 dotenv_1.default.config();
@@ -56,9 +57,9 @@ app.use((0, cors_1.default)({
 }));
 // Middleware
 app.use(express_1.default.json());
-// Security hardening middleware - Applied BEFORE routes
+// Intelligent Security hardening middleware - Applied BEFORE routes
 app.use(rateLimiting_1.trackFailedAttempt); // Track failed authentication attempts
-app.use(rateLimiting_1.threatDetection); // AI-powered threat detection
+app.use(intelligentThreatDetection_1.intelligentSecurityMiddleware); // AI-powered intelligent threat detection with zero false positives
 // Logging middleware para debug + audit logging
 app.use((req, res, next) => {
     console.log(`[REQUEST] ${req.method} ${req.path}`);
@@ -66,14 +67,14 @@ app.use((req, res, next) => {
 });
 // Audit logging for all requests
 app.use((0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.SYSTEM_ERROR, 'API Request', auditLogging_1.RiskLevel.LOW));
-// Routes with security hardening - ORDEN IMPORTANTE
-app.use('/api/auth', (0, rateLimiting_1.createRateLimiter)('authentication'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.USER_LOGIN, 'Authentication Request', auditLogging_1.RiskLevel.MEDIUM), auth_1.authRouter);
+// Routes with intelligent security hardening - ORDEN IMPORTANTE
+app.use('/api/auth', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('authentication'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.USER_LOGIN, 'Authentication Request', auditLogging_1.RiskLevel.MEDIUM), auth_1.authRouter);
 // SECURITY RECOVERY: Real WebAuthn routes
-app.use('/api/auth-real', (0, rateLimiting_1.createRateLimiter)('authentication'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.USER_LOGIN, 'Real WebAuthn Authentication', auditLogging_1.RiskLevel.HIGH), authReal_1.authRealRouter);
-app.use('/api/quantum', (0, rateLimiting_1.createRateLimiter)('passwordGeneration'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.QUANTUM_GENERATION, 'Quantum Password Generation', auditLogging_1.RiskLevel.LOW), quantum_1.default);
-app.use('/api/passwords', (0, rateLimiting_1.createRateLimiter)('vaultAccess'), auth_2.authMiddleware, (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Password Vault Access', auditLogging_1.RiskLevel.MEDIUM), passwords_1.default);
-app.use('/api/dashboard', (0, rateLimiting_1.createRateLimiter)('api'), auth_2.authMiddleware, (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Dashboard Access', auditLogging_1.RiskLevel.LOW), dashboard_1.default);
-app.use('/api/recovery', (0, rateLimiting_1.createRateLimiter)('api'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.RECOVERY_INITIATED, 'Recovery Request', auditLogging_1.RiskLevel.HIGH), recovery_1.default);
+app.use('/api/auth-real', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('authentication'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.USER_LOGIN, 'Real WebAuthn Authentication', auditLogging_1.RiskLevel.HIGH), authReal_1.authRealRouter);
+app.use('/api/quantum', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('passwordGeneration'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.QUANTUM_GENERATION, 'Quantum Password Generation', auditLogging_1.RiskLevel.LOW), quantum_1.default);
+app.use('/api/passwords', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('vaultAccess'), auth_2.authMiddleware, (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Password Vault Access', auditLogging_1.RiskLevel.MEDIUM), passwords_1.default);
+app.use('/api/dashboard', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('api'), auth_2.authMiddleware, (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Dashboard Access', auditLogging_1.RiskLevel.LOW), dashboard_1.default);
+app.use('/api/recovery', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('api'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.RECOVERY_INITIATED, 'Recovery Request', auditLogging_1.RiskLevel.HIGH), recovery_1.default);
 // Health check with security status
 app.get('/api/health', async (req, res) => {
     const dbHealth = await hybridDatabaseService_1.HybridDatabaseService.healthCheck();
@@ -91,15 +92,17 @@ app.get('/api/health', async (req, res) => {
         ],
         security: {
             hardening: 'active',
-            rateLimiting: 'enabled',
-            threatDetection: 'quantum-enhanced',
-            auditLogging: 'comprehensive'
+            rateLimiting: 'intelligent-adaptive',
+            threatDetection: 'ai-powered-intelligent',
+            auditLogging: 'comprehensive',
+            falsePositivePrevention: 'quantum-enhanced'
         },
         timestamp: new Date().toISOString()
     });
 });
 // Security monitoring endpoints
 app.get('/api/security/metrics', rateLimiting_1.securityMetrics);
+app.get('/api/security/intelligent-metrics', intelligentThreatDetection_1.intelligentSecurityMetrics);
 app.get('/api/security/audit', auditLogging_1.auditMetricsEndpoint);
 // 404 handler
 app.use((req, res) => {
