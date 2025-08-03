@@ -145,12 +145,31 @@ export class AuthService {
         
         // Convert server options for WebAuthn API
         // Backend sends challenge and user.id as base64url strings
+        // Helper function to convert base64url to Uint8Array
+        const base64urlToUint8Array = (base64url: string) => {
+          // Replace URL-safe characters
+          const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+          // Pad with '=' if necessary
+          const padding = base64.length % 4;
+          const padded = padding === 0 ? base64 : base64 + '===='.substring(padding);
+          
+          try {
+            const binary = atob(padded);
+            return Uint8Array.from(binary, c => c.charCodeAt(0));
+          } catch (error) {
+            console.error('Base64 decode error:', error);
+            // Fallback: try without modifications
+            const binary = atob(base64url);
+            return Uint8Array.from(binary, c => c.charCodeAt(0));
+          }
+        };
+
         const processedOptions = {
           ...optionsResponse.data.options,
-          challenge: Uint8Array.from(atob(optionsResponse.data.options.challenge.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)),
+          challenge: base64urlToUint8Array(optionsResponse.data.options.challenge),
           user: {
             ...optionsResponse.data.options.user,
-            id: Uint8Array.from(atob(optionsResponse.data.options.user.id.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))
+            id: base64urlToUint8Array(optionsResponse.data.options.user.id)
           }
         };
 
@@ -273,9 +292,28 @@ export class AuthService {
         
         // Convert challenge for WebAuthn API
         // Backend sends challenge as base64url string
+        // Helper function to convert base64url to Uint8Array
+        const base64urlToUint8Array = (base64url: string) => {
+          // Replace URL-safe characters
+          const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+          // Pad with '=' if necessary
+          const padding = base64.length % 4;
+          const padded = padding === 0 ? base64 : base64 + '===='.substring(padding);
+          
+          try {
+            const binary = atob(padded);
+            return Uint8Array.from(binary, c => c.charCodeAt(0));
+          } catch (error) {
+            console.error('Base64 decode error:', error);
+            // Fallback: try without modifications
+            const binary = atob(base64url);
+            return Uint8Array.from(binary, c => c.charCodeAt(0));
+          }
+        };
+
         const processedOptions = {
           ...optionsResponse.data.options,
-          challenge: Uint8Array.from(atob(optionsResponse.data.options.challenge.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))
+          challenge: base64urlToUint8Array(optionsResponse.data.options.challenge)
         };
 
         // PATENT-CRITICAL: Get credential using WebAuthn - NO PASSWORD

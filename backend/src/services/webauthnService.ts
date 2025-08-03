@@ -182,4 +182,68 @@ export class WebAuthnService {
       };
     }
   }
+
+  // Check if user exists
+  static async userExists(username: string): Promise<boolean> {
+    try {
+      const user = await HybridDatabaseService.getUserByUsername(username);
+      return !!user;
+    } catch (error) {
+      console.error('Error checking user existence:', error);
+      return false;
+    }
+  }
+
+  // Get all users
+  static async getAllUsers() {
+    try {
+      const users = await HybridDatabaseService.getAllUsers();
+      return users.map(user => ({
+        id: user.id,
+        username: user.username,
+        displayName: user.displayName,
+        createdAt: user.createdAt
+      }));
+    } catch (error) {
+      console.error('Error getting all users:', error);
+      return [];
+    }
+  }
+
+  // Get quantum migration status
+  static async getQuantumMigrationStatus() {
+    try {
+      const users = await HybridDatabaseService.getAllUsers();
+      let quantumReady = 0;
+      let vulnerable = 0;
+
+      for (const user of users) {
+        // Check if user has quantum-ready credentials based on webauthn data
+        if (user.webauthnId && user.biometricEnabled) {
+          // For now, assume users with biometric enabled are quantum-ready
+          // In production, this would check actual credential types
+          quantumReady++;
+        } else {
+          vulnerable++;
+        }
+      }
+
+      return {
+        totalUsers: users.length,
+        quantumReady,
+        vulnerable,
+        migrationProgress: users.length > 0 ? (quantumReady / users.length) * 100 : 0,
+        readyForQuantum: quantumReady === users.length && users.length > 0
+      };
+    } catch (error) {
+      console.error('Error getting quantum migration status:', error);
+      return {
+        totalUsers: 0,
+        quantumReady: 0,
+        vulnerable: 0,
+        migrationProgress: 0,
+        readyForQuantum: false
+      };
+    }
+  }
 }
