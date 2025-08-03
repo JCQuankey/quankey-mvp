@@ -1,5 +1,17 @@
-// API Configuration
-const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+// API Configuration - FORCE CORRECT URL FOR PRODUCTION
+const getApiUrl = () => {
+  // Force production URL if hostname suggests we're in production
+  if (window.location.hostname.includes('onrender.com') || window.location.hostname.includes('quankey')) {
+    console.log('🌐 FORCED PRODUCTION API URL: https://api.quankey.xyz');
+    return 'https://api.quankey.xyz';
+  }
+  
+  const envUrl = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+  console.log('🌐 API URL from env:', envUrl);
+  return envUrl;
+};
+
+const API_URL = getApiUrl();
 
 export interface VaultEntry {
   id: string;

@@ -1,7 +1,16 @@
 // frontend/src/services/authService.ts
 import axios from 'axios';
 
-const API_BASE = `${process.env.REACT_APP_API_URL || 'https://api.quankey.xyz'}/api`;
+// Force correct API URL for production
+const getApiUrl = () => {
+  if (window.location.hostname.includes('onrender.com') || window.location.hostname.includes('quankey')) {
+    console.log('🌐 AUTH FORCED PRODUCTION API URL: https://api.quankey.xyz');
+    return 'https://api.quankey.xyz';
+  }
+  return process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+};
+
+const API_BASE = `${getApiUrl()}/api`;
 
 export interface User {
   id: string;
@@ -145,25 +154,6 @@ export class AuthService {
         
         // Convert server options for WebAuthn API
         // Backend sends challenge and user.id as base64url strings
-        // Helper function to convert base64url to Uint8Array
-        const base64urlToUint8Array = (base64url: string) => {
-          // Replace URL-safe characters
-          const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
-          // Pad with '=' if necessary
-          const padding = base64.length % 4;
-          const padded = padding === 0 ? base64 : base64 + '===='.substring(padding);
-          
-          try {
-            const binary = atob(padded);
-            return Uint8Array.from(binary, c => c.charCodeAt(0));
-          } catch (error) {
-            console.error('Base64 decode error:', error);
-            // Fallback: try without modifications
-            const binary = atob(base64url);
-            return Uint8Array.from(binary, c => c.charCodeAt(0));
-          }
-        };
-
         // Check response structure - backend may return { success: true, options: {...} }
         const options = optionsResponse.data.options || optionsResponse.data;
         console.log(`[DEBUG] [${registrationId}] Server response structure:`, Object.keys(optionsResponse.data));
@@ -171,10 +161,10 @@ export class AuthService {
         
         const processedOptions = {
           ...options,
-          challenge: base64urlToUint8Array(options.challenge),
+          challenge: AuthService.base64urlToUint8Array(options.challenge),
           user: {
             ...options.user,
-            id: base64urlToUint8Array(options.user.id)
+            id: AuthService.base64urlToUint8Array(options.user.id)
           }
         };
 
@@ -297,25 +287,6 @@ export class AuthService {
         
         // Convert challenge for WebAuthn API
         // Backend sends challenge as base64url string
-        // Helper function to convert base64url to Uint8Array
-        const base64urlToUint8Array = (base64url: string) => {
-          // Replace URL-safe characters
-          const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
-          // Pad with '=' if necessary
-          const padding = base64.length % 4;
-          const padded = padding === 0 ? base64 : base64 + '===='.substring(padding);
-          
-          try {
-            const binary = atob(padded);
-            return Uint8Array.from(binary, c => c.charCodeAt(0));
-          } catch (error) {
-            console.error('Base64 decode error:', error);
-            // Fallback: try without modifications
-            const binary = atob(base64url);
-            return Uint8Array.from(binary, c => c.charCodeAt(0));
-          }
-        };
-
         // Check response structure for authentication options
         const options = optionsResponse.data.options || optionsResponse.data;
         console.log(`[DEBUG] [${authId}] Auth server response structure:`, Object.keys(optionsResponse.data));
@@ -323,7 +294,7 @@ export class AuthService {
         
         const processedOptions = {
           ...options,
-          challenge: base64urlToUint8Array(options.challenge)
+          challenge: AuthService.base64urlToUint8Array(options.challenge)
         };
 
         // PATENT-CRITICAL: Get credential using WebAuthn - NO PASSWORD
@@ -432,6 +403,132 @@ export class AuthService {
     } catch (error) {
       console.error('Error getting users:', error);
       return [];
+    }
+  }
+
+  /**
+   * PATENT-CRITICAL: Check for Conditional UI Support
+   * 
+   * @patent-feature Auto-fill biometric credentials
+   * @innovation Seamless authentication without user interaction
+   * @advantage One-click login with biometric prompt
+   */
+  static async isConditionalMediationAvailable(): Promise<boolean> {
+    try {
+      if (!window.PublicKeyCredential) {
+        return false;
+      }
+      
+      // Type assertion for conditional mediation API (Level 3 feature)
+      const PKC = window.PublicKeyCredential as any;
+      if (!PKC.isConditionalMediationAvailable) {
+        return false;
+      }
+      
+      const available = await PKC.isConditionalMediationAvailable();
+      console.log(`🔍 Conditional mediation available: ${available}`);
+      return available;
+    } catch (error) {
+      console.error('Error checking conditional mediation:', error);
+      return false;
+    }
+  }
+
+  /**
+   * PATENT-CRITICAL: Auto-fill Authentication
+   * 
+   * @patent-feature Passwordless auto-fill with biometrics
+   * @innovation Zero-click authentication when possible
+   * @advantage Fastest possible secure authentication
+   */
+  static async authenticateConditional(): Promise<AuthResponse> {
+    const authId = `conditional_auth_${Date.now()}`;
+    
+    try {
+      console.log(`🔍 [${authId}] Starting conditional (auto-fill) authentication...`);
+      
+      // Get authentication options with conditional UI flag
+      const optionsResponse = await axios.post(`${API_BASE}/auth/login/begin`, {
+        conditional: true
+      });
+
+      if (!optionsResponse.data.success) {
+        return {
+          success: false,
+          error: 'Failed to get conditional authentication options'
+        };
+      }
+
+      const options = optionsResponse.data.options || optionsResponse.data;
+      const processedOptions = {
+        ...options,
+        challenge: AuthService.base64urlToUint8Array(options.challenge)
+      };
+
+      // Attempt conditional authentication (Level 3 WebAuthn feature)
+      const credential = await navigator.credentials.get({
+        publicKey: processedOptions,
+        mediation: 'conditional' as any
+      }) as PublicKeyCredential;
+
+      if (!credential) {
+        return {
+          success: false,
+          error: 'No credential selected'
+        };
+      }
+
+      // Complete authentication
+      const verificationResponse = await axios.post(`${API_BASE}/auth/login/finish`, {
+        response: {
+          id: credential.id,
+          rawId: Array.from(new Uint8Array(credential.rawId)),
+          response: {
+            clientDataJSON: Array.from(new Uint8Array(credential.response.clientDataJSON)),
+            authenticatorData: Array.from(new Uint8Array((credential.response as AuthenticatorAssertionResponse).authenticatorData)),
+            signature: Array.from(new Uint8Array((credential.response as AuthenticatorAssertionResponse).signature))
+          },
+          type: credential.type
+        }
+      });
+
+      if (verificationResponse.data.success) {
+        console.log(`✅ [${authId}] Conditional authentication successful!`);
+        return {
+          success: true,
+          user: verificationResponse.data.user,
+          message: 'Auto-fill authentication successful'
+        };
+      }
+
+      return {
+        success: false,
+        error: 'Conditional authentication verification failed'
+      };
+
+    } catch (error: any) {
+      console.error(`❌ [${authId}] Conditional authentication error:`, error);
+      return {
+        success: false,
+        error: error.message || 'Conditional authentication failed'
+      };
+    }
+  }
+
+  /**
+   * Helper function to convert base64url to Uint8Array
+   */
+  public static base64urlToUint8Array(base64url: string): Uint8Array {
+    const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+    const padding = base64.length % 4;
+    const padded = padding === 0 ? base64 : base64 + '===='.substring(padding);
+    
+    try {
+      const binary = atob(padded);
+      return Uint8Array.from(binary, c => c.charCodeAt(0));
+    } catch (error) {
+      const binary = atob(base64url);
+      return Uint8Array.from(binary, c => c.charCodeAt(0));
     }
   }
 
