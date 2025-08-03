@@ -142,6 +142,12 @@ export class WebAuthnService {
     try {
       console.log(`🔍 Verifying authentication for: ${username || 'credential-based'}`);
       console.log(`🔍 [HYBRID] Performing quantum-resistant authentication...`);
+      console.log(`🔍 [DEBUG] Response credential ID: ${response?.id}`);
+      
+      // DEBUG: Check database state
+      const allUsers = await HybridDatabaseService.getAllUsers();
+      console.log(`🔍 [DEBUG] Total users in database: ${allUsers.length}`);
+      console.log(`🔍 [DEBUG] All users:`, allUsers.map(u => ({ username: u.username, biometricEnabled: u.biometricEnabled, id: u.id })));
       
       // In a real implementation, you would:
       // 1. Verify the signature against the stored public key
@@ -153,14 +159,20 @@ export class WebAuthnService {
         // Try to find user by credential or username
         let user;
         if (username) {
+          console.log(`🔍 [DEBUG] Looking up user by username: ${username}`);
           user = await HybridDatabaseService.getUserByUsername(username);
+          console.log(`🔍 [DEBUG] User found by username:`, user ? { username: user.username, biometricEnabled: user.biometricEnabled } : 'null');
         } else {
           // In a real implementation, you would look up by credential ID
+          console.log(`🔍 [DEBUG] Looking up user by credential ID: ${response.id}`);
           const users = await HybridDatabaseService.getAllUsers();
-          user = users.find(u => u.biometricEnabled);
+          const biometricUsers = users.filter(u => u.biometricEnabled);
+          console.log(`🔍 [DEBUG] Users with biometric enabled: ${biometricUsers.length}`);
+          user = biometricUsers.find(u => u.biometricEnabled);
         }
         
         if (!user) {
+          console.error(`🔍 [DEBUG] No user found. Username: ${username}, Total users: ${allUsers.length}, Biometric users: ${allUsers.filter(u => u.biometricEnabled).length}`);
           throw new Error('User not found or biometric not enabled');
         }
         

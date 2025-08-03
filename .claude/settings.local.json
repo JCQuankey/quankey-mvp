@@ -45,7 +45,9 @@
       "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" src/oqs.vcxproj -p:Configuration=Release -p:Platform=x64)",
       "Bash(npm run dev:*)",
       "Bash(touch:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm run start:prod:*)",
+      "Bash(tsc:*)"
     ],
     "deny": []
   }

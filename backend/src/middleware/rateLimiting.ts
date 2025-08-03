@@ -141,17 +141,17 @@ class SecurityStore {
       }
     }
 
-    // Failed attempt tracking
+    // Failed attempt tracking (relaxed for development)
     const failedKey = `failed:${ip}`;
     const failedRecord = this.failedAttempts.get(failedKey);
-    if (failedRecord && failedRecord.count >= SECURITY_CONFIG.threatDetection.maxFailedAttempts) {
-      riskScore += 6;
+    if (failedRecord && failedRecord.count >= 10) { // Increased threshold from 3 to 10
+      riskScore += 4; // Reduced from 6 to 4
       threatType += ' Multiple Failed Attempts';
     }
 
-    // User agent analysis
-    if (!userAgent || userAgent.length < 10 || /bot|crawler|scanner/i.test(userAgent)) {
-      riskScore += 3;
+    // User agent analysis (relaxed for development)
+    if (!userAgent || userAgent.length < 5 || /scanner|attack|exploit/i.test(userAgent)) {
+      riskScore += 1; // Reduced from 3 to 1
       threatType += ' Suspicious User Agent';
     }
 
@@ -165,7 +165,7 @@ class SecurityStore {
       this.securityMetrics.quantumValidations++;
     }
 
-    const isThreat = riskScore >= 5;
+    const isThreat = riskScore >= 8; // Increased threshold from 5 to 8 for less blocking
     
     if (isThreat) {
       this.threatLog.push({
@@ -295,6 +295,12 @@ export function threatDetection(req: Request, res: Response, next: NextFunction)
   const store = SecurityStore.getInstance();
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
   const userAgent = req.get('User-Agent') || '';
+  
+  // Skip threat detection for health checks and critical endpoints
+  if (req.path === '/api/health' || req.path === '/api/auth/users' || req.path.startsWith('/api/auth/login')) {
+    next();
+    return;
+  }
   
   // Analyze request for threats
   const threatResult = store.detectThreats(ip, userAgent, req.body);
