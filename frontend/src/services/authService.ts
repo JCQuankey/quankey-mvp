@@ -164,12 +164,17 @@ export class AuthService {
           }
         };
 
+        // Check response structure - backend may return { success: true, options: {...} }
+        const options = optionsResponse.data.options || optionsResponse.data;
+        console.log(`[DEBUG] [${registrationId}] Server response structure:`, Object.keys(optionsResponse.data));
+        console.log(`[DEBUG] [${registrationId}] Options available:`, !!options);
+        
         const processedOptions = {
-          ...optionsResponse.data.options,
-          challenge: base64urlToUint8Array(optionsResponse.data.options.challenge),
+          ...options,
+          challenge: base64urlToUint8Array(options.challenge),
           user: {
-            ...optionsResponse.data.options.user,
-            id: base64urlToUint8Array(optionsResponse.data.options.user.id)
+            ...options.user,
+            id: base64urlToUint8Array(options.user.id)
           }
         };
 
@@ -311,9 +316,14 @@ export class AuthService {
           }
         };
 
+        // Check response structure for authentication options
+        const options = optionsResponse.data.options || optionsResponse.data;
+        console.log(`[DEBUG] [${authId}] Auth server response structure:`, Object.keys(optionsResponse.data));
+        console.log(`[DEBUG] [${authId}] Auth options available:`, !!options);
+        
         const processedOptions = {
-          ...optionsResponse.data.options,
-          challenge: base64urlToUint8Array(optionsResponse.data.options.challenge)
+          ...options,
+          challenge: base64urlToUint8Array(options.challenge)
         };
 
         // PATENT-CRITICAL: Get credential using WebAuthn - NO PASSWORD
