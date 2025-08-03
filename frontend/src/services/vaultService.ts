@@ -273,6 +273,7 @@ export class VaultService {
 export const EncryptedVaultService = {
   // Función helper para obtener token de autenticación
   getAuthToken() {
+    console.log('🚨 AUTH DEBUG VERSION 2.0 - GET TOKEN CALLED 🚨');
     console.log('🔍 [AUTH DEBUG] Getting auth token...');
     
     // Primero buscar token simple
@@ -360,6 +361,7 @@ export const EncryptedVaultService = {
     notes?: string;
     category?: string;
   }) {
+    console.log('🚨 AUTH DEBUG VERSION 2.0 - SAVE PASSWORD STARTING 🚨');
     console.log('💾 [SAVE DEBUG] Starting saveEncryptedPassword...');
     console.log('💾 [SAVE DEBUG] Data:', { ...data, password: '[HIDDEN]' });
     console.log('💾 [SAVE DEBUG] API_URL:', API_URL);
