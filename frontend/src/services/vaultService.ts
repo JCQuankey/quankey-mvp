@@ -273,25 +273,37 @@ export class VaultService {
 export const EncryptedVaultService = {
   // Función helper para obtener token de autenticación
   getAuthToken() {
+    console.log('🔍 [AUTH DEBUG] Getting auth token...');
+    
     // Primero buscar token simple
     const token = localStorage.getItem('token');
-    if (token) return token;
+    if (token) {
+      console.log('✅ [AUTH DEBUG] Found simple token:', token.substring(0, 20) + '...');
+      return token;
+    }
     
     // Si no, buscar en los vault tokens
+    console.log('🔍 [AUTH DEBUG] Searching vault tokens in localStorage...');
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith('quankey_vault_')) {
+        console.log('🔍 [AUTH DEBUG] Found vault key:', key);
         const vaultData = localStorage.getItem(key);
         if (vaultData) {
           try {
             const parsed = JSON.parse(vaultData);
-            return parsed.token || parsed.accessToken || parsed.authToken || vaultData;
+            const foundToken = parsed.token || parsed.accessToken || parsed.authToken || vaultData;
+            console.log('✅ [AUTH DEBUG] Found vault token:', foundToken.substring(0, 20) + '...');
+            return foundToken;
           } catch {
+            console.log('✅ [AUTH DEBUG] Found raw vault token:', vaultData.substring(0, 20) + '...');
             return vaultData;
           }
         }
       }
     }
+    
+    console.log('❌ [AUTH DEBUG] No token found in localStorage');
     return null;
   },
 
@@ -348,7 +360,12 @@ export const EncryptedVaultService = {
     notes?: string;
     category?: string;
   }) {
+    console.log('💾 [SAVE DEBUG] Starting saveEncryptedPassword...');
+    console.log('💾 [SAVE DEBUG] Data:', { ...data, password: '[HIDDEN]' });
+    console.log('💾 [SAVE DEBUG] API_URL:', API_URL);
+    
     const token = this.getAuthToken();
+    console.log('💾 [SAVE DEBUG] Token obtained:', token ? 'YES' : 'NO');
     
     const headers: Record<string, string> = {
       'Content-Type': 'application/json'
@@ -356,17 +373,36 @@ export const EncryptedVaultService = {
     
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
+      console.log('💾 [SAVE DEBUG] Authorization header set with Bearer token');
+    } else {
+      console.log('❌ [SAVE DEBUG] NO TOKEN - Request will fail!');
     }
-
-    const response = await fetch(`${API_URL}/api/passwords/save`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(data),
-      credentials: 'include'
-    });
     
-    const result = await response.json();
-    console.log('💾 Save password response:', result);
-    return result;
+    console.log('💾 [SAVE DEBUG] Request headers:', headers);
+    console.log('💾 [SAVE DEBUG] Full request URL:', `${API_URL}/api/passwords/save`);
+
+    try {
+      const response = await fetch(`${API_URL}/api/passwords/save`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(data),
+        credentials: 'include'
+      });
+      
+      console.log('💾 [SAVE DEBUG] Response status:', response.status);
+      console.log('💾 [SAVE DEBUG] Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      if (response.status === 401) {
+        console.error('❌ [SAVE DEBUG] 401 UNAUTHORIZED - Auth token rejected!');
+        console.error('❌ [SAVE DEBUG] Token that was sent:', token?.substring(0, 30) + '...');
+      }
+      
+      const result = await response.json();
+      console.log('💾 [SAVE DEBUG] Save password response:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ [SAVE DEBUG] Request failed:', error);
+      throw error;
+    }
   }
 };

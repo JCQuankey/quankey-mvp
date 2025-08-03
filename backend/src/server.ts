@@ -7,6 +7,10 @@ import quantumRouter from './routes/quantum';
 import { authRouter } from './routes/auth';
 // SECURITY RECOVERY: Real WebAuthn routes
 import { authRealRouter } from './routes/authReal';
+// 🚀 PATENT-CRITICAL: World's first quantum vault routes
+import vaultRouter from './routes/vault';
+// 🚀 PATENT-CRITICAL: World's first ML-DSA-65 audit system
+import auditRouter from './routes/audit';
 import { HybridDatabaseService } from './services/hybridDatabaseService';
 import passwordRoutes from './routes/passwords';
 import dashboardRoutes from './routes/dashboard';
@@ -112,6 +116,13 @@ app.use('/api/quantum',
   quantumRouter
 );
 
+// 🚀 PATENT-CRITICAL: World's first quantum vault API
+app.use('/api/vault', 
+  createIntelligentRateLimiter('vaultAccess'),
+  auditMiddleware(AuditEventType.VAULT_ACCESSED, 'Quantum Vault Access', RiskLevel.HIGH),
+  vaultRouter
+);
+
 app.use('/api/passwords', 
   createIntelligentRateLimiter('vaultAccess'),
   authMiddleware, 
@@ -130,6 +141,13 @@ app.use('/api/recovery',
   createIntelligentRateLimiter('api'),
   auditMiddleware(AuditEventType.RECOVERY_INITIATED, 'Recovery Request', RiskLevel.HIGH),
   recoveryRoutes
+);
+
+// 🚀 PATENT-CRITICAL: Quantum Audit Routes - World's First ML-DSA-65 Audit System
+app.use('/api/audit', 
+  createIntelligentRateLimiter('api'),
+  auditMiddleware(AuditEventType.VAULT_ACCESSED, 'Quantum Audit Access', RiskLevel.LOW),
+  auditRouter
 );
 
 // Health check with security status
