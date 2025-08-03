@@ -1,16 +1,7 @@
 // frontend/src/services/authService.ts
 import axios from 'axios';
 
-// Force correct API URL for production
-const getApiUrl = () => {
-  if (window.location.hostname.includes('onrender.com') || window.location.hostname.includes('quankey')) {
-    console.log('🌐 AUTH FORCED PRODUCTION API URL: https://api.quankey.xyz');
-    return 'https://api.quankey.xyz';
-  }
-  return process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
-};
-
-const API_BASE = `${getApiUrl()}/api`;
+const API_BASE = `${process.env.REACT_APP_API_URL || 'https://api.quankey.xyz'}/api`;
 
 export interface User {
   id: string;
