@@ -36,10 +36,10 @@ export class WebAuthnService {
           // { alg: -8, type: 'public-key' }  // ML-DSA-65 (NIST standard)
         ],
         authenticatorSelection: {
-          authenticatorAttachment: 'platform',     // Touch ID, Face ID, Windows Hello
-          userVerification: 'preferred',           // Usa biometría si disponible
-          residentKey: 'preferred',               // 🆕 Mejor para móvil
-          requireResidentKey: false               // 🆕 Fallback si no soporta
+          authenticatorAttachment: 'cross-platform', // Permite tanto platform (biométrico) como USB keys
+          userVerification: 'required',              // REQUIERE biometría/PIN (más seguro)
+          residentKey: 'required',                   // Habilita passkeys (discoverable credentials)
+          requireResidentKey: false                  // Fallback para compatibilidad
         },
         timeout: 60000,
         attestation: 'none',
@@ -70,8 +70,15 @@ export class WebAuthnService {
         challenge: challenge,
         timeout: 60000,
         rpId: rpId,
-        allowCredentials: [], // Allow any registered credential
-        userVerification: 'preferred' as const
+        allowCredentials: [], // Vacío permite passkeys (discoverable credentials)
+        userVerification: 'required' as const, // Requiere biometría/PIN siempre
+        extensions: {
+          // Mejora la experiencia con passkeys
+          credentialProperties: true,
+          largeBlob: {
+            support: 'preferred'
+          }
+        }
       };
       
       console.log(`🔍 [WEBAUTHN] Authentication challenge generated: ${challenge.substring(0, 10)}...`);

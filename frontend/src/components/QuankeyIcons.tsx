@@ -178,3 +178,39 @@ export const CloseIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColo
     <path d="M36 12L12 36m24 0L12 12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
   </svg>
 );
+
+// Icono de Llave para vault
+export const KeyIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="32" cy="16" r="8" stroke={color} strokeWidth="2"/>
+    <path d="M24 24L8 40l4 4 4-4 4 4 4-4" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+// Icono de Candado para vault
+export const LockIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="8" y="20" width="32" height="24" rx="4" stroke={color} strokeWidth="2"/>
+    <path d="M16 20V14a8 8 0 0 1 16 0v6" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+    <circle cx="24" cy="32" r="2" fill={color}/>
+  </svg>
+);
+
+// Icono de Editar
+export const EditIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M36 6l6 6-28 28H8v-6L36 6z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M30 12l6 6" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+
+// Icono de Papelera
+export const TrashIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M6 12h36" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+    <path d="M10 12v24a4 4 0 004 4h20a4 4 0 004-4V12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+    <path d="M18 6h12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+    <path d="M18 20v12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+    <path d="M30 20v12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);

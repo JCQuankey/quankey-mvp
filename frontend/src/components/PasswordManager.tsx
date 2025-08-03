@@ -3,6 +3,7 @@ import axios from 'axios';
 import { BiometricAuth } from './BiometricAuth';
 import { PasswordList } from './PasswordList';
 import { AddPasswordForm } from './AddPasswordForm';
+import { QuantumVault } from './QuantumVault';
 import RecoveryPage from './RecoveryPage';
 import Logo from './LogoComp';
 import { User } from '../services/authService';
@@ -15,7 +16,8 @@ import {
   QuantumIcon,
   CheckIcon,
   CopyIcon,
-  SaveIcon
+  SaveIcon,
+  ShieldIcon
 } from './QuankeyIcons';
 
 // CSS imports
@@ -38,7 +40,7 @@ interface PasswordResponse {
   error?: string;
 }
 
-type ViewMode = 'vault' | 'generator' | 'add-password' | 'recovery';
+type ViewMode = 'vault' | 'quantum-vault' | 'generator' | 'add-password' | 'recovery';
 
 const PasswordManager: React.FC = () => {
   // Authentication state
@@ -133,7 +135,18 @@ const PasswordManager: React.FC = () => {
       alert('Please generate a password first');
       return;
     }
-    setCurrentView('add-password');
+    
+    const userChoice = window.confirm(
+      'Where would you like to save this password?\n\n' +
+      'Click OK for Quantum Vault (ML-KEM-768 encrypted)\n' +
+      'Click Cancel for Local Vault (browser storage)'
+    );
+    
+    if (userChoice) {
+      setCurrentView('quantum-vault');
+    } else {
+      setCurrentView('add-password');
+    }
   };
 
   const handlePasswordSaved = () => {
@@ -307,44 +320,66 @@ const PasswordManager: React.FC = () => {
               onClick={() => setCurrentView('vault')}
               style={{
                 flex: 1,
-                padding: '8px 16px',
+                padding: '8px 12px',
                 borderRadius: '8px',
                 border: 'none',
                 backgroundColor: currentView === 'vault' ? 'var(--quankey-primary)' : 'transparent',
                 color: currentView === 'vault' ? 'white' : 'var(--quankey-gray)',
-                fontSize: '14px',
+                fontSize: '13px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 fontWeight: '600',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px'
+                gap: '6px'
               }}
             >
-              <FolderIcon size={18} color="currentColor" />
-              Vault
+              <FolderIcon size={16} color="currentColor" />
+              Local Vault
+            </button>
+            <button
+              onClick={() => setCurrentView('quantum-vault')}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: currentView === 'quantum-vault' ? 'var(--quankey-primary)' : 'transparent',
+                color: currentView === 'quantum-vault' ? 'white' : 'var(--quankey-gray)',
+                fontSize: '13px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}
+            >
+              <ShieldIcon size={16} color="currentColor" />
+              Quantum Vault
             </button>
             <button
               onClick={() => setCurrentView('generator')}
               style={{
                 flex: 1,
-                padding: '8px 16px',
+                padding: '8px 12px',
                 borderRadius: '8px',
                 border: 'none',
                 backgroundColor: currentView === 'generator' ? 'var(--quankey-primary)' : 'transparent',
                 color: currentView === 'generator' ? 'white' : 'var(--quankey-gray)',
-                fontSize: '14px',
+                fontSize: '13px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 fontWeight: '600',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px'
+                gap: '6px'
               }}
             >
-              <QuantumIcon size={18} color="currentColor" />
+              <QuantumIcon size={16} color="currentColor" />
               Generator
             </button>
           </div>
@@ -358,8 +393,34 @@ const PasswordManager: React.FC = () => {
           />
         )}
 
+        {currentView === 'quantum-vault' && (
+          <QuantumVault userId={currentUser!.id} prefilledPassword={password} />
+        )}
+
         {currentView === 'generator' && (
           <div>
+            {/* Generator Header */}
+            <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+              <h3 style={{ 
+                color: 'var(--quankey-gray-light)', 
+                margin: '0 0 8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}>
+                <QuantumIcon size={24} color="var(--quankey-primary)" />
+                Quantum Password Generator
+              </h3>
+              <p style={{ 
+                color: 'var(--quankey-gray)', 
+                margin: 0,
+                fontSize: '14px'
+              }}>
+                Generate standalone quantum passwords • For vault storage, use "Quantum Vault" tab
+              </p>
+            </div>
+
             {/* Generator Controls */}
             <div className="controls-section">
               <div className="control-group">

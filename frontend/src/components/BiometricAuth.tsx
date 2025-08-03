@@ -41,10 +41,12 @@ export const BiometricAuth: React.FC<BiometricAuthProps> = ({ onAuthenticated, o
   const [username, setUsername] = useState<string>('');
   const [displayName, setDisplayName] = useState<string>('');
   const [existingUsers, setExistingUsers] = useState<any[]>([]);
+  const [conditionalSupported, setConditionalSupported] = useState<boolean>(false);
 
   useEffect(() => {
     checkBiometricSupport();
     loadExistingUsers();
+    checkConditionalSupport();
   }, []);
 
   /**
@@ -75,6 +77,51 @@ export const BiometricAuth: React.FC<BiometricAuthProps> = ({ onAuthenticated, o
     const users = await AuthService.getUsers();
     setExistingUsers(users);
     console.log(`👥 Loaded ${users.length} existing users`);
+  };
+
+  /**
+   * PATENT-CRITICAL: Check Conditional UI Support
+   * 
+   * @patent-feature Auto-fill biometric authentication
+   * @innovation Zero-click login when available
+   */
+  const checkConditionalSupport = async () => {
+    try {
+      const supported = await AuthService.isConditionalMediationAvailable();
+      setConditionalSupported(supported);
+      console.log(`🔍 Conditional UI supported: ${supported}`);
+    } catch (error) {
+      console.error('❌ Error checking conditional support:', error);
+      setConditionalSupported(false);
+    }
+  };
+
+  /**
+   * PATENT-CRITICAL: Auto-fill Authentication
+   * 
+   * @patent-feature Passwordless auto-fill
+   * @innovation Fastest possible secure authentication
+   */
+  const handleConditionalLogin = async () => {
+    setLoading(true);
+    console.log('🔓 Starting conditional authentication...');
+    
+    try {
+      const result = await AuthService.authenticateConditional();
+      
+      if (result.success && result.user) {
+        console.log(`✅ Conditional authentication successful for: ${result.user.displayName}`);
+        onAuthenticated(result.user);
+      } else {
+        console.error('❌ Conditional authentication failed:', result.error);
+        onError(result.error || 'Auto-fill authentication failed');
+      }
+    } catch (error) {
+      console.error('❌ Conditional authentication error:', error);
+      onError('Failed to authenticate with auto-fill');
+    } finally {
+      setLoading(false);
+    }
   };
 
   /**
@@ -374,6 +421,50 @@ export const BiometricAuth: React.FC<BiometricAuthProps> = ({ onAuthenticated, o
                 </button>
               ))}
             </div>
+          )}
+          
+          {/* PATENT-CRITICAL: Conditional UI Auto-fill Button */}
+          {conditionalSupported && (
+            <button
+              onClick={handleConditionalLogin}
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '12px',
+                marginBottom: '12px',
+                borderRadius: '8px',
+                border: '1px solid rgba(0, 166, 251, 0.5)',
+                background: 'linear-gradient(135deg, rgba(0, 166, 251, 0.1), rgba(0, 255, 255, 0.05))',
+                color: 'var(--quankey-primary)',
+                fontSize: '14px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0, 166, 251, 0.2), rgba(0, 255, 255, 0.1))';
+                e.currentTarget.style.borderColor = 'rgba(0, 166, 251, 0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0, 166, 251, 0.1), rgba(0, 255, 255, 0.05))';
+                e.currentTarget.style.borderColor = 'rgba(0, 166, 251, 0.5)';
+              }}
+            >
+              {loading ? (
+                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                  <div className="loading-spinner"></div>
+                  Auto-filling...
+                </div>
+              ) : (
+                <>
+                  <FingerprintIcon size={18} color="currentColor" />
+                  🚀 Quick Login (Auto-fill)
+                </>
+              )}
+            </button>
           )}
           
           <button
