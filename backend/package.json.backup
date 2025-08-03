@@ -4,7 +4,7 @@
   "description": "Quankey Quantum Password Manager Backend",
   "main": "dist/server.js",
   "scripts": {
-    "start:prod": "npx prisma migrate deploy && node dist/server.js",
+    "start:prod": "node dist/server.js",
     "start": "ts-node src/server.ts",
     "build": "prisma generate && tsc -p tsconfig.prod.json",
     "postinstall": "prisma generate",
@@ -18,8 +18,7 @@
     "test:e2e": "jest --testPathPatterns=\"e2e\" --verbose --runInBand",
     "demo:run": "npm run test:e2e",
     "demo:investor": "jest --testPathPatterns=\"investorDemo\" --verbose --runInBand",
-    "typecheck": "tsc --noEmit",
-    "migrate": "npx prisma migrate deploy"
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "quantum",
