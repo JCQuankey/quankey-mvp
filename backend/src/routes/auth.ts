@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { WebAuthnService } from '../services/webauthnService';
 import { HybridDatabaseService } from '../services/hybridDatabaseService';
+import { createSafeUserResponse, serializeWebAuthnResponse } from '../utils/bigintSerializer';
 
 export const authRouter = express.Router();
 
@@ -66,11 +67,21 @@ authRouter.post('/register/finish', async (req, res) => {
     const verification = await WebAuthnService.verifyRegistration(username, responseWithDisplayName);
     
     if (verification.verified) {
-      res.json({
+      // Create safe response data without BigInt serialization issues
+      const responseData = {
         success: true,
         message: 'Biometric authentication registered successfully',
-        user: verification.user
-      });
+        user: createSafeUserResponse(verification.user),
+        quantum: {
+          algorithm: 'Hybrid-ECDSA-ML-DSA',
+          entropy: 'ANU-QRNG',
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      // Serialize the response to avoid BigInt issues
+      const serializedResponse = serializeWebAuthnResponse(responseData);
+      res.json(serializedResponse);
     } else {
       res.status(400).json({
         success: false,
@@ -122,11 +133,21 @@ authRouter.post('/login/finish', async (req, res) => {
     const verification = await WebAuthnService.verifyAuthentication(response, username);
     
     if (verification.verified) {
-      res.json({
+      // Create safe response data without BigInt serialization issues
+      const responseData = {
         success: true,
         message: 'Authentication successful',
-        user: verification.user
-      });
+        user: createSafeUserResponse(verification.user),
+        quantum: {
+          algorithm: 'Hybrid-ECDSA-ML-DSA',
+          entropy: 'ANU-QRNG',
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      // Serialize the response to avoid BigInt issues
+      const serializedResponse = serializeWebAuthnResponse(responseData);
+      res.json(serializedResponse);
     } else {
       res.status(401).json({
         success: false,

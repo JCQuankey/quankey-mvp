@@ -8,6 +8,7 @@ const express_1 = __importDefault(require("express"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const webauthnService_1 = require("../services/webauthnService");
 const hybridDatabaseService_1 = require("../services/hybridDatabaseService");
+const bigintSerializer_1 = require("../utils/bigintSerializer");
 exports.authRouter = express_1.default.Router();
 // Register new user with biometric authentication
 exports.authRouter.post('/register/begin', async (req, res) => {
@@ -60,11 +61,20 @@ exports.authRouter.post('/register/finish', async (req, res) => {
         };
         const verification = await webauthnService_1.WebAuthnService.verifyRegistration(username, responseWithDisplayName);
         if (verification.verified) {
-            res.json({
+            // Create safe response data without BigInt serialization issues
+            const responseData = {
                 success: true,
                 message: 'Biometric authentication registered successfully',
-                user: verification.user
-            });
+                user: (0, bigintSerializer_1.createSafeUserResponse)(verification.user),
+                quantum: {
+                    algorithm: 'Hybrid-ECDSA-ML-DSA',
+                    entropy: 'ANU-QRNG',
+                    timestamp: new Date().toISOString()
+                }
+            };
+            // Serialize the response to avoid BigInt issues
+            const serializedResponse = (0, bigintSerializer_1.serializeWebAuthnResponse)(responseData);
+            res.json(serializedResponse);
         }
         else {
             res.status(400).json({
@@ -109,11 +119,20 @@ exports.authRouter.post('/login/finish', async (req, res) => {
         console.log(`🔍 Completing biometric authentication for: ${username || 'credential-based'}`);
         const verification = await webauthnService_1.WebAuthnService.verifyAuthentication(response, username);
         if (verification.verified) {
-            res.json({
+            // Create safe response data without BigInt serialization issues
+            const responseData = {
                 success: true,
                 message: 'Authentication successful',
-                user: verification.user
-            });
+                user: (0, bigintSerializer_1.createSafeUserResponse)(verification.user),
+                quantum: {
+                    algorithm: 'Hybrid-ECDSA-ML-DSA',
+                    entropy: 'ANU-QRNG',
+                    timestamp: new Date().toISOString()
+                }
+            };
+            // Serialize the response to avoid BigInt issues
+            const serializedResponse = (0, bigintSerializer_1.serializeWebAuthnResponse)(responseData);
+            res.json(serializedResponse);
         }
         else {
             res.status(401).json({
