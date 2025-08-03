@@ -17,10 +17,6 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { createHash, createHmac } from 'crypto';
-import { PrismaClient } from '@prisma/client';
-
-// Initialize Prisma for audit logging
-const prisma = new PrismaClient();
 
 // Audit event types
 export enum AuditEventType {
@@ -91,12 +87,24 @@ class QuantumAuditLogger {
   private static instance: QuantumAuditLogger;
   private logBuffer: AuditLogEntry[] = [];
   private secretKey: string = process.env.AUDIT_SECRET_KEY || 'quantum-audit-key-2024';
+  private isDatabaseEnabled: boolean = this.checkDatabaseEnabled();
   private logMetrics = {
     totalEvents: 0,
     securityEvents: 0,
     highRiskEvents: 0,
     lastFlush: Date.now()
   };
+
+  private checkDatabaseEnabled(): boolean {
+    const dbUrl = process.env.DATABASE_URL;
+    const isDisabled = process.env.DISABLE_DATABASE === 'true';
+    
+    // Check if we have a valid database URL and database is not explicitly disabled
+    return !isDisabled && 
+           dbUrl && 
+           !dbUrl.includes('host:5432') && 
+           !dbUrl.includes('memory://');
+  }
 
   static getInstance(): QuantumAuditLogger {
     if (!QuantumAuditLogger.instance) {
@@ -129,17 +137,41 @@ class QuantumAuditLogger {
       // Add quantum signature for tamper detection
       entry.quantumSignature = this.generateQuantumSignature(entry);
       
-      // Add to buffer
-      this.logBuffer.push(entry);
+      // Add timestamp
+      const logEntry = {
+        ...entry,
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+      };
+      
+      // Always add to buffer
+      this.logBuffer.push(logEntry);
       
       // Update metrics
       this.updateMetrics(entry);
       
-      // Immediate flush for high-risk events
+      // If database not available, log to console with structured format
+      if (!this.isDatabaseEnabled) {
+        console.log('🔒 [AUDIT LOG]:', JSON.stringify({
+          eventType: entry.eventType,
+          action: entry.action,
+          riskLevel: entry.riskLevel,
+          userId: entry.userId,
+          ipAddress: entry.ipAddress,
+          quantumSignature: entry.quantumSignature,
+          timestamp: logEntry.timestamp
+        }, null, 2));
+        
+        // Keep only last 1000 entries in memory to prevent memory leaks
+        if (this.logBuffer.length > 1000) {
+          this.logBuffer = this.logBuffer.slice(-1000);
+        }
+        return;
+      }
+      
+      // If database available, handle flushing
       if (entry.riskLevel === RiskLevel.CRITICAL || entry.riskLevel === RiskLevel.HIGH) {
         await this.flushLogs();
-        
-        // Send real-time alert for critical events
         this.sendSecurityAlert(entry);
       }
       
@@ -150,19 +182,25 @@ class QuantumAuditLogger {
       
     } catch (error) {
       console.error('❌ Audit logging failed:', error);
-      // Fallback: log to console for debugging
-      console.log('🔍 AUDIT EVENT:', JSON.stringify(entry, null, 2));
+      console.log('🔍 FALLBACK AUDIT LOG:', JSON.stringify(entry, null, 2));
     }
   }
 
   // Flush log buffer to database
   private async flushLogs(): Promise<void> {
-    if (this.logBuffer.length === 0) return;
+    if (this.logBuffer.length === 0 || !this.isDatabaseEnabled) return;
     
     const logsToFlush = [...this.logBuffer];
     this.logBuffer = [];
     
     try {
+      // Dynamic Prisma import to avoid initialization errors
+      const { PrismaClient } = await import('@prisma/client');
+      const prisma = new PrismaClient();
+      
+      // Test connection first
+      await prisma.$connect();
+      
       // Batch insert to database
       await prisma.auditLog.createMany({
         data: logsToFlush.map(entry => ({
@@ -183,13 +221,20 @@ class QuantumAuditLogger {
         }))
       });
       
+      await prisma.$disconnect();
+      
       this.logMetrics.lastFlush = Date.now();
       console.log(`✅ Flushed ${logsToFlush.length} audit logs to database`);
       
     } catch (error) {
-      console.error('❌ Failed to flush audit logs:', error);
-      // Put logs back in buffer for retry
+      console.warn('❌ Database not available, keeping logs in memory:', error.message);
+      // Put logs back in buffer but limit size to prevent memory issues
       this.logBuffer.unshift(...logsToFlush);
+      if (this.logBuffer.length > 1000) {
+        this.logBuffer = this.logBuffer.slice(-1000);
+      }
+      // Disable database for this session to avoid repeated connection attempts
+      this.isDatabaseEnabled = false;
     }
   }
 
@@ -235,8 +280,10 @@ class QuantumAuditLogger {
     return {
       ...this.logMetrics,
       bufferSize: this.logBuffer.length,
+      databaseEnabled: this.isDatabaseEnabled,
       uptime: process.uptime(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      status: this.isDatabaseEnabled ? 'database-connected' : 'memory-only'
     };
   }
 

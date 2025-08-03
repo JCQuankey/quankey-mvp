@@ -2,7 +2,7 @@
 // ────────────────────────────────────────────
 // Patent: US-2024-QP-007 - Hybrid Post-Quantum WebAuthn
 // Claims: 1, 2, 3
-// GuideRef: P0A · Critical PQC Implementation
+// GuideRef: P0A · Critical PQC Implementation - REAL libOQS Integration
 // ────────────────────────────────────────────
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -10,8 +10,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostQuantumService = void 0;
 const crypto_1 = __importDefault(require("crypto"));
+const libOQSBinaryService_1 = require("./libOQSBinaryService");
+const libOQSDirectService_1 = require("./libOQSDirectService");
 class PostQuantumService {
-    // Generate hybrid key pair (ECDSA + ML-DSA simulation)
+    // Generate hybrid key pair (ECDSA + REAL ML-DSA via libOQS)
     static async generateHybridKeyPair() {
         try {
             // Generate ECDSA P-256 key pair (current WebAuthn standard)
@@ -26,10 +28,20 @@ class PostQuantumService {
                     format: 'der'
                 }
             });
-            // Simulate ML-DSA-65 key generation (NIST standard)
-            // In production, this would use libOQS or similar
-            const mldsaPublicKey = crypto_1.default.randomBytes(1952); // ML-DSA-65 public key size
-            const mldsaPrivateKey = crypto_1.default.randomBytes(4032); // ML-DSA-65 private key size
+            // Generate REAL ML-DSA-65 key pair via libOQS (prioritize Direct service)
+            console.log('🔬 Generating ML-DSA-65 key pair via libOQS...');
+            let mldsaKeyPair;
+            // Try LibOQSDirectService first (most advanced), fallback to binary service
+            if (libOQSDirectService_1.libOQSDirectService.isDirectLibraryAvailable()) {
+                console.log('🚀 Using LibOQSDirectService (enhanced library detection)');
+                mldsaKeyPair = await libOQSDirectService_1.libOQSDirectService.generateSignatureKeyPair();
+            }
+            else {
+                console.log('⚡ Using LibOQSBinaryService (binary execution fallback)');
+                mldsaKeyPair = await libOQSBinaryService_1.libOQSBinaryService.generateSignatureKeyPair();
+            }
+            const mldsaPublicKey = mldsaKeyPair.publicKey;
+            const mldsaPrivateKey = mldsaKeyPair.secretKey;
             // Generate unique credential IDs
             const ecdsaCredentialId = crypto_1.default.randomBytes(16).toString('base64url');
             const mldsaCredentialId = crypto_1.default.randomBytes(16).toString('base64url');
@@ -59,10 +71,18 @@ class PostQuantumService {
             const ecdsaSign = crypto_1.default.createSign('SHA256');
             ecdsaSign.update(data);
             const ecdsaSignature = ecdsaSign.sign(ecdsaPrivateKey);
-            // Simulate ML-DSA signature (in production, use real PQC library)
-            const mldsaSign = crypto_1.default.createHmac('sha3-256', mldsaPrivateKey);
-            mldsaSign.update(data);
-            const mldsaSignature = mldsaSign.digest();
+            // Generate REAL ML-DSA signature via libOQS (prioritize Direct service)
+            console.log('🔬 Signing data with ML-DSA-65 via libOQS...');
+            let mldsaSignature;
+            // Try LibOQSDirectService first (most advanced), fallback to binary service
+            if (libOQSDirectService_1.libOQSDirectService.isDirectLibraryAvailable()) {
+                console.log('🚀 Using LibOQSDirectService for signing');
+                mldsaSignature = await libOQSDirectService_1.libOQSDirectService.signData(data, mldsaPrivateKey);
+            }
+            else {
+                console.log('⚡ Using LibOQSBinaryService for signing');
+                mldsaSignature = await libOQSBinaryService_1.libOQSBinaryService.signData(data, mldsaPrivateKey);
+            }
             // Combine both signatures with proof of hybrid verification
             const combinedProof = crypto_1.default
                 .createHash('sha3-256')
@@ -92,11 +112,18 @@ class PostQuantumService {
                 console.log('❌ ECDSA signature verification failed');
                 return false;
             }
-            // Simulate ML-DSA verification (in production, use real PQC library)
-            const mldsaVerify = crypto_1.default.createHmac('sha3-256', credential.mldsaPublicKey);
-            mldsaVerify.update(data);
-            const expectedMldsaSignature = mldsaVerify.digest();
-            const mldsaValid = crypto_1.default.timingSafeEqual(signature.mldsaSignature, expectedMldsaSignature);
+            // Verify REAL ML-DSA signature via libOQS (prioritize Direct service)
+            console.log('🔬 Verifying ML-DSA-65 signature via libOQS...');
+            let mldsaValid;
+            // Try LibOQSDirectService first (most advanced), fallback to binary service
+            if (libOQSDirectService_1.libOQSDirectService.isDirectLibraryAvailable()) {
+                console.log('🚀 Using LibOQSDirectService for verification');
+                mldsaValid = await libOQSDirectService_1.libOQSDirectService.verifySignature(data, signature.mldsaSignature, credential.mldsaPublicKey);
+            }
+            else {
+                console.log('⚡ Using LibOQSBinaryService for verification');
+                mldsaValid = await libOQSBinaryService_1.libOQSBinaryService.verifySignature(data, signature.mldsaSignature, credential.mldsaPublicKey);
+            }
             if (!mldsaValid) {
                 console.log('❌ ML-DSA signature verification failed');
                 return false;
