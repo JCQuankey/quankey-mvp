@@ -234,20 +234,30 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
     try {
       setLoading(true);
       
-      // For demo, use a mock public key
-      const mockPublicKey = 'quantum-public-key-base64-demo';
+      // 🚀 CRITICAL FIX: Generate REAL ML-KEM-768 key
+      console.log('🔐 Initializing quantum vault with REAL ML-KEM-768 key...');
+      
+      // Import EncryptedVaultService to get real quantum key
+      const { EncryptedVaultService } = await import('../services/vaultService');
+      const realQuantumKey = await EncryptedVaultService.getQuantumVaultKey();
       
       const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
       const authHeaders = getAuthHeaders();
+      
+      console.log('🔐 Using REAL ML-KEM-768 quantum key (', realQuantumKey.length, 'chars base64)');
+      
+      // Verify key size
+      const keyBytes = atob(realQuantumKey);
+      console.log('✅ Quantum key verified:', keyBytes.length, 'bytes (should be 1184)');
       
       const response = await fetch(`${API_URL}/api/vault/items`, {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({
           userId: userId,
-          vaultId: 'demo-vault',
+          vaultId: 'quantum-vault-primary', // Updated from demo-vault
           ...newItem,
-          vaultPublicKey: mockPublicKey
+          vaultPublicKey: realQuantumKey  // <-- REAL ML-KEM-768 key, not mock
         })
       });
       

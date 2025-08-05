@@ -1,6 +1,6 @@
 // frontend/src/components/AddPasswordForm.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { VaultService } from '../services/vaultService';
 import { EncryptedVaultService } from '../services/vaultService';
 // Importar los iconos profesionales
@@ -60,6 +60,21 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
   const [includeSymbols, setIncludeSymbols] = useState(true);
   const [currentEntropy, setCurrentEntropy] = useState(entropy);
   const [isCurrentQuantum, setIsCurrentQuantum] = useState(isQuantum);
+
+  // 🚀 QUANTUM VAULT: Initialize quantum keys when component mounts
+  useEffect(() => {
+    const setupQuantumVault = async () => {
+      try {
+        console.log('🚀 Initializing QUANTUM VAULT for password form...');
+        await EncryptedVaultService.getQuantumVaultKey();
+        console.log('✅ Quantum vault ML-KEM-768 keys ready');
+      } catch (error) {
+        console.error('❌ Failed to initialize quantum vault:', error);
+      }
+    };
+    
+    setupQuantumVault();
+  }, []);
 
   /**
    * PATENT-CRITICAL: Track Quantum Status
@@ -142,35 +157,27 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
       console.log(`💾 [${saveId}] Saving password for: ${formData.title}`);
       console.log(`⚛️ [${saveId}] Is Quantum: ${isCurrentQuantum}`);
       
-      // PATENT-CRITICAL: Use encrypted service for quantum passwords
-      if (isCurrentQuantum) {
-        console.log(`🔐 [${saveId}] Using encrypted vault service (quantum password)`);
-        
-        await EncryptedVaultService.saveEncryptedPassword({
-          site: formData.website.trim(),
-          username: formData.username.trim(),
-          password: formData.password,
-          notes: formData.notes.trim(),
-          category: 'Quantum-Generated'
-        });
-        
-        console.log(`✅ [${saveId}] Quantum password saved with encryption`);
-      } else {
-        // Fallback for non-quantum passwords
-        console.log(`📝 [${saveId}] Using local vault service (classical password)`);
-        
-        VaultService.addEntry(userId, {
-          title: formData.title.trim(),
-          website: formData.website.trim(),
-          username: formData.username.trim(),
-          password: formData.password,
-          notes: formData.notes.trim(),
-          isQuantum: isCurrentQuantum,
-          entropy: currentEntropy
-        });
-        
-        console.log(`✅ [${saveId}] Classical password saved locally`);
-      }
+      // 🚀 QUANTUM VAULT: ALL passwords are now quantum-encrypted
+      console.log(`🚀 [${saveId}] Using QUANTUM VAULT (ALL passwords quantum-encrypted)`);
+      console.log(`⚛️ [${saveId}] Is quantum generated: ${isCurrentQuantum}`);
+      console.log(`⚛️ [${saveId}] Entropy: ${currentEntropy}`);
+      
+      await EncryptedVaultService.saveQuantumPassword({
+        site: formData.website.trim(),
+        username: formData.username.trim(),
+        password: formData.password,
+        notes: formData.notes.trim(),
+        category: isCurrentQuantum ? 'Quantum-Generated' : 'Quantum-Encrypted',
+        isQuantum: isCurrentQuantum,
+        quantumInfo: {
+          source: isCurrentQuantum ? 'ANU Hardware Quantum Generator' : 'Classical + Quantum Encryption',
+          theoretical_entropy: currentEntropy || 'N/A',
+          generation_method: isCurrentQuantum ? 'Hardware TRNG' : 'Classical Generation',
+          timestamp: new Date().toISOString()
+        }
+      });
+      
+      console.log(`✅ [${saveId}] PASSWORD QUANTUM-ENCRYPTED AND SAVED TO QUANTUM VAULT`);
       
       onSaved();
     } catch (error) {
