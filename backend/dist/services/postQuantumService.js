@@ -4,12 +4,42 @@
 // Claims: 1, 2, 3
 // GuideRef: P0A · Critical PQC Implementation - REAL libOQS Integration
 // ────────────────────────────────────────────
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostQuantumService = void 0;
-const crypto_1 = __importDefault(require("crypto"));
+const crypto = __importStar(require("crypto"));
 const libOQSBinaryService_1 = require("./libOQSBinaryService");
 const libOQSDirectService_1 = require("./libOQSDirectService");
 class PostQuantumService {
@@ -17,7 +47,7 @@ class PostQuantumService {
     static async generateHybridKeyPair() {
         try {
             // Generate ECDSA P-256 key pair (current WebAuthn standard)
-            const ecdsaKeyPair = crypto_1.default.generateKeyPairSync('ec', {
+            const ecdsaKeyPair = crypto.generateKeyPairSync('ec', {
                 namedCurve: 'P-256',
                 publicKeyEncoding: {
                     type: 'spki',
@@ -43,10 +73,10 @@ class PostQuantumService {
             const mldsaPublicKey = mldsaKeyPair.publicKey;
             const mldsaPrivateKey = mldsaKeyPair.secretKey;
             // Generate unique credential IDs
-            const ecdsaCredentialId = crypto_1.default.randomBytes(16).toString('base64url');
-            const mldsaCredentialId = crypto_1.default.randomBytes(16).toString('base64url');
+            const ecdsaCredentialId = crypto.randomBytes(16).toString('base64url');
+            const mldsaCredentialId = crypto.randomBytes(16).toString('base64url');
             // Create hybrid ID by combining both
-            const hybridId = crypto_1.default
+            const hybridId = crypto
                 .createHash('sha256')
                 .update(ecdsaCredentialId + mldsaCredentialId)
                 .digest('base64url');
@@ -68,7 +98,7 @@ class PostQuantumService {
     static async createHybridSignature(data, ecdsaPrivateKey, mldsaPrivateKey) {
         try {
             // Create ECDSA signature
-            const ecdsaSign = crypto_1.default.createSign('SHA256');
+            const ecdsaSign = crypto.createSign('SHA256');
             ecdsaSign.update(data);
             const ecdsaSignature = ecdsaSign.sign(ecdsaPrivateKey);
             // Generate REAL ML-DSA signature via libOQS (prioritize Direct service)
@@ -84,7 +114,7 @@ class PostQuantumService {
                 mldsaSignature = await libOQSBinaryService_1.libOQSBinaryService.signData(data, mldsaPrivateKey);
             }
             // Combine both signatures with proof of hybrid verification
-            const combinedProof = crypto_1.default
+            const combinedProof = crypto
                 .createHash('sha3-256')
                 .update(ecdsaSignature)
                 .update(mldsaSignature)
@@ -105,7 +135,7 @@ class PostQuantumService {
     static async verifyHybridSignature(data, signature, credential) {
         try {
             // Verify ECDSA signature
-            const ecdsaVerify = crypto_1.default.createVerify('SHA256');
+            const ecdsaVerify = crypto.createVerify('SHA256');
             ecdsaVerify.update(data);
             const ecdsaValid = ecdsaVerify.verify(credential.ecdsaPublicKey, signature.ecdsaSignature);
             if (!ecdsaValid) {
@@ -129,13 +159,13 @@ class PostQuantumService {
                 return false;
             }
             // Verify combined proof
-            const expectedProof = crypto_1.default
+            const expectedProof = crypto
                 .createHash('sha3-256')
                 .update(signature.ecdsaSignature)
                 .update(signature.mldsaSignature)
                 .update(data)
                 .digest();
-            const proofValid = crypto_1.default.timingSafeEqual(signature.combinedProof, expectedProof);
+            const proofValid = crypto.timingSafeEqual(signature.combinedProof, expectedProof);
             console.log('✅ Hybrid signature verification passed (ECDSA + ML-DSA)');
             return ecdsaValid && mldsaValid && proofValid;
         }

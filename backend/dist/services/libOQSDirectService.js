@@ -1,8 +1,8 @@
 "use strict";
 /**
- * libOQS Direct Service
- * Alternative approach using dynamic library loading instead of C++ addon
- * This bypasses node-gyp issues while still using real libOQS libraries
+ * libOQS Direct Service - PRODUCTION REAL IMPLEMENTATION
+ * Using @noble/post-quantum for 100% real ML-KEM and ML-DSA
+ * NO simulation - REAL quantum-resistant cryptography
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -41,92 +41,84 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.libOQSDirectService = exports.LibOQSDirectService = void 0;
 const perf_hooks_1 = require("perf_hooks");
 const crypto = __importStar(require("crypto"));
-const fs = __importStar(require("fs/promises"));
-const path = __importStar(require("path"));
+const ml_kem_1 = require("@noble/post-quantum/ml-kem");
+const ml_dsa_1 = require("@noble/post-quantum/ml-dsa");
 /**
- * Direct libOQS Service using FFI or dynamic library loading
- * This is a more advanced approach that loads the compiled libraries directly
+ * Direct libOQS Service using @noble/post-quantum REAL implementation
+ * 100% quantum-resistant cryptography with NIST standards
  */
 class LibOQSDirectService {
     constructor() {
-        this.isAvailable = false;
-        this.useDirectLibrary = false;
-        // Check for compiled libOQS libraries
-        this.libOQSPath = 'C:\\Users\\JuanCano\\dev\\liboqs\\build';
+        this.isAvailable = true; // Always available with @noble
+        this.useRealImplementation = true;
+        this.useDirectLibrary = false; // Legacy property for compatibility
         this.initializeService();
     }
     /**
-     * Initialize service and check for real libOQS availability
+     * Initialize service with REAL @noble/post-quantum implementation
      */
     async initializeService() {
         try {
-            // Check if we have the compiled libraries
-            const mlkemLib = path.join(this.libOQSPath, 'src', 'kem', 'ml_kem', 'ml_kem_768_ref.dir', 'Release', 'ml_kem_768_ref.lib');
-            const mldsaLib = path.join(this.libOQSPath, 'src', 'sig', 'ml_dsa', 'ml_dsa_65_ref.dir', 'Release', 'ml_dsa_65_ref.lib');
-            try {
-                await fs.access(mlkemLib);
-                await fs.access(mldsaLib);
-                console.log('✅ libOQS Direct Service: Found compiled libraries');
-                console.log(`📁 ML-KEM-768: ${mlkemLib}`);
-                console.log(`📁 ML-DSA-65: ${mldsaLib}`);
-                this.isAvailable = true;
-                this.useDirectLibrary = true;
-            }
-            catch (error) {
-                console.warn('⚠️ libOQS compiled libraries not accessible, using enhanced simulation');
-                this.isAvailable = false;
-            }
+            console.log('🔐 Initializing REAL quantum cryptography with @noble/post-quantum');
+            console.log('✅ ML-KEM-768: REAL NIST standard implementation');
+            console.log('✅ ML-DSA-65: REAL NIST standard implementation');
+            console.log('🚀 NO simulation - 100% production quantum-resistant crypto');
+            this.isAvailable = true;
+            this.useRealImplementation = true;
         }
         catch (error) {
-            console.error('❌ Failed to initialize libOQS Direct Service:', error.message);
+            console.error('❌ Failed to initialize libOQS Binary Service:', error.message);
             this.isAvailable = false;
         }
     }
     /**
-     * Generate ML-KEM-768 key pair using direct library or enhanced simulation
+     * Generate ML-KEM-768 key pair using REAL @noble/post-quantum implementation
      */
     async generateKEMKeyPair() {
         const startTime = perf_hooks_1.performance.now();
         try {
-            if (this.useDirectLibrary) {
-                // TODO: Implement direct library loading when C++ addon is ready
-                // For now, use enhanced simulation with library detection
-                console.log('🔬 Attempting direct ML-KEM-768 generation...');
-                // This would call the real libOQS library
-                // const result = await this.callDirectLibOQS('ML-KEM-768', 'keypair');
-                // Fallback to enhanced simulation for now
-                return this.generateEnhancedSimulationKeyPair('ML-KEM-768');
-            }
-            else {
-                return this.generateEnhancedSimulationKeyPair('ML-KEM-768');
-            }
+            console.log('🔮 Generating ML-KEM-768 key pair with REAL @noble implementation');
+            // REAL ML-KEM-768 key generation using @noble/post-quantum
+            const seed = crypto.randomBytes(64); // High-entropy seed
+            const keyPair = ml_kem_1.ml_kem768.keygen(seed);
+            const executionTime = perf_hooks_1.performance.now() - startTime;
+            console.log(`✅ REAL ML-KEM-768 key pair generated in ${executionTime.toFixed(2)}ms`);
+            return {
+                publicKey: Buffer.from(keyPair.publicKey),
+                secretKey: Buffer.from(keyPair.secretKey),
+                algorithm: 'ML-KEM-768',
+                keyId: `mlkem768_real_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`,
+                created: new Date()
+            };
         }
         catch (error) {
-            console.error('❌ ML-KEM-768 generation failed:', error.message);
-            return this.generateEnhancedSimulationKeyPair('ML-KEM-768');
+            console.error('❌ REAL ML-KEM-768 generation failed:', error.message);
+            throw new Error(`REAL ML-KEM-768 key generation failed: ${error.message}`);
         }
     }
     /**
-     * Generate ML-DSA-65 key pair using direct library or enhanced simulation
+     * Generate ML-DSA-65 key pair using REAL @noble/post-quantum implementation
      */
     async generateSignatureKeyPair() {
         const startTime = perf_hooks_1.performance.now();
         try {
-            if (this.useDirectLibrary) {
-                // TODO: Implement direct library loading when C++ addon is ready
-                console.log('🔬 Attempting direct ML-DSA-65 generation...');
-                // This would call the real libOQS library
-                // const result = await this.callDirectLibOQS('ML-DSA-65', 'keypair');
-                // Fallback to enhanced simulation for now
-                return this.generateEnhancedSimulationKeyPair('ML-DSA-65');
-            }
-            else {
-                return this.generateEnhancedSimulationKeyPair('ML-DSA-65');
-            }
+            console.log('🔬 Generating ML-DSA-65 key pair with REAL @noble implementation');
+            // REAL ML-DSA-65 key generation using @noble/post-quantum
+            const seed = crypto.randomBytes(32); // Proper seed for ML-DSA-65
+            const keyPair = ml_dsa_1.ml_dsa65.keygen(seed);
+            const executionTime = perf_hooks_1.performance.now() - startTime;
+            console.log(`✅ REAL ML-DSA-65 key pair generated in ${executionTime.toFixed(2)}ms`);
+            return {
+                publicKey: Buffer.from(keyPair.publicKey),
+                secretKey: Buffer.from(keyPair.secretKey),
+                algorithm: 'ML-DSA-65',
+                keyId: `mldsa65_real_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`,
+                created: new Date()
+            };
         }
         catch (error) {
-            console.error('❌ ML-DSA-65 generation failed:', error.message);
-            return this.generateEnhancedSimulationKeyPair('ML-DSA-65');
+            console.error('❌ REAL ML-DSA-65 generation failed:', error.message);
+            throw new Error(`REAL ML-DSA-65 key generation failed: ${error.message}`);
         }
     }
     /**
@@ -173,51 +165,34 @@ class LibOQSDirectService {
         return keyPair;
     }
     /**
-     * Sign data using ML-DSA-65 with enhanced simulation
+     * Sign data using REAL ML-DSA-65 implementation
      */
     async signData(data, secretKey) {
         try {
-            if (this.useDirectLibrary) {
-                // TODO: Call real libOQS signing when C++ addon is ready
-                console.log('🔬 Attempting direct ML-DSA-65 signing...');
-            }
-            // Enhanced simulation using HMAC-SHA3-512 with algorithm-specific parameters
-            const signature = crypto.createHmac('sha3-512', secretKey);
-            signature.update(data);
-            signature.update(Buffer.from('ML-DSA-65-NIST-FIPS-204')); // Add standard identifier
-            signature.update(Buffer.from([0x01, 0x02, 0x03, 0x04])); // Version bytes
-            const result = signature.digest();
-            console.log(`✅ Generated ML-DSA-65 signature (${result.length} bytes)`);
-            return result;
+            console.log('🔬 Signing data with REAL ML-DSA-65 implementation');
+            // REAL ML-DSA-65 signing using @noble/post-quantum
+            const signature = ml_dsa_1.ml_dsa65.sign(secretKey, data);
+            console.log(`✅ Generated REAL ML-DSA-65 signature (${signature.length} bytes)`);
+            return Buffer.from(signature);
         }
         catch (error) {
-            console.error('❌ ML-DSA-65 signing failed:', error.message);
+            console.error('❌ REAL ML-DSA-65 signing failed:', error.message);
             throw error;
         }
     }
     /**
-     * Verify signature using ML-DSA-65 with enhanced simulation
+     * Verify signature using REAL ML-DSA-65 implementation
      */
     async verifySignature(data, signature, publicKey) {
         try {
-            if (this.useDirectLibrary) {
-                // TODO: Call real libOQS verification when C++ addon is ready
-                console.log('🔬 Attempting direct ML-DSA-65 verification...');
-            }
-            // For enhanced simulation, we need to use the secret key for HMAC verification
-            // In a real implementation, this would use the public key with the ML-DSA algorithm
-            // Enhanced verification simulation
-            const expectedSignature = crypto.createHmac('sha3-512', publicKey); // Note: using publicKey as secret for simulation
-            expectedSignature.update(data);
-            expectedSignature.update(Buffer.from('ML-DSA-65-NIST-FIPS-204'));
-            expectedSignature.update(Buffer.from([0x01, 0x02, 0x03, 0x04]));
-            const expectedResult = expectedSignature.digest();
-            const isValid = crypto.timingSafeEqual(signature, expectedResult);
-            console.log(`🔍 ML-DSA-65 verification: ${isValid ? 'PASSED' : 'FAILED'}`);
+            console.log('🔍 Verifying signature with REAL ML-DSA-65 implementation');
+            // REAL ML-DSA-65 verification using @noble/post-quantum
+            const isValid = ml_dsa_1.ml_dsa65.verify(publicKey, data, signature);
+            console.log(`🔍 REAL ML-DSA-65 verification: ${isValid ? 'PASSED' : 'FAILED'}`);
             return isValid;
         }
         catch (error) {
-            console.error('❌ ML-DSA-65 verification failed:', error.message);
+            console.error('❌ REAL ML-DSA-65 verification failed:', error.message);
             return false;
         }
     }

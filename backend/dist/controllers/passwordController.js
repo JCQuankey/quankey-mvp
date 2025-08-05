@@ -50,60 +50,132 @@ exports.PasswordController = {
     async savePassword(req, res) {
         const saveId = `pwd_save_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         try {
+            console.log(`💾 [${saveId}] STARTING password save process...`);
+            console.log(`💾 [${saveId}] Request body keys: ${Object.keys(req.body).join(', ')}`);
             const { site, username, password, notes, category, isQuantum, quantumInfo } = req.body;
             const userId = req.user?.id;
+            // Enhanced validation
+            console.log(`💾 [${saveId}] Validating request data...`);
             if (!userId) {
-                return res.status(401).json({ error: 'User not authenticated' });
+                console.error(`❌ [${saveId}] Authentication failed - no userId`);
+                return res.status(401).json({
+                    success: false,
+                    error: 'User not authenticated',
+                    saveId
+                });
             }
-            console.log(`💾 [${saveId}] Saving password for site: ${site}`);
+            if (!site || !username || !password) {
+                console.error(`❌ [${saveId}] Missing required fields: site=${!!site}, username=${!!username}, password=${!!password}`);
+                return res.status(400).json({
+                    success: false,
+                    error: 'Missing required fields: site, username, password',
+                    saveId
+                });
+            }
+            console.log(`💾 [${saveId}] Saving password for site: ${site}, user: ${userId}`);
+            console.log(`💾 [${saveId}] Password length: ${password.length}, isQuantum: ${isQuantum}`);
             // PATENT-CRITICAL: Generate user-specific encryption credential
+            console.log(`💾 [${saveId}] Generating encryption credential...`);
             const userCredential = encryptionService_1.EncryptionService.generateUserCredential(userId, userId);
             // PATENT-CRITICAL: Encrypt password with zero-knowledge
+            console.log(`💾 [${saveId}] Encrypting password data...`);
             const encryptedPasswordData = await encryptionService_1.EncryptionService.encrypt(password, userCredential);
+            console.log(`💾 [${saveId}] Password encrypted successfully`);
             // Encrypt notes if provided
             let encryptedNotesData = null;
             if (notes) {
+                console.log(`💾 [${saveId}] Encrypting notes...`);
                 const encryptedNotes = await encryptionService_1.EncryptionService.encrypt(notes, userCredential);
                 encryptedNotesData = encryptedNotes.encryptedData;
+                console.log(`💾 [${saveId}] Notes encrypted successfully`);
             }
             // Calculate password strength
             const strength = calculatePasswordStrength(password);
+            console.log(`💾 [${saveId}] Password strength calculated: ${strength}`);
             // PATENT-CRITICAL: Save with complete encryption metadata
-            const savedPassword = await prisma.password.create({
-                data: {
-                    userId,
-                    site,
-                    username,
-                    encryptedPassword: encryptedPasswordData.encryptedData,
-                    encryptedNotes: encryptedNotesData,
-                    encryptedData: encryptedPasswordData.encryptedData,
-                    iv: encryptedPasswordData.iv,
-                    salt: encryptedPasswordData.salt,
-                    authTag: encryptedPasswordData.authTag,
-                    strength,
-                    category: category || 'General',
-                    isFavorite: false,
-                    isQuantum: isQuantum || false,
-                    quantumSource: quantumInfo?.source || null,
-                    quantumEntropy: quantumInfo?.theoretical_entropy || null,
-                    metadata: quantumInfo || null,
-                    algorithm: encryptedPasswordData.metadata.algorithm,
-                    keyDerivation: encryptedPasswordData.metadata.keyDerivation,
-                    encryptionVersion: encryptedPasswordData.metadata.version
-                }
+            console.log(`💾 [${saveId}] Preparing database save...`);
+            const passwordData = {
+                userId,
+                site,
+                username,
+                encryptedPassword: encryptedPasswordData.encryptedData,
+                encryptedNotes: encryptedNotesData,
+                encryptedData: encryptedPasswordData.encryptedData,
+                iv: encryptedPasswordData.iv,
+                salt: encryptedPasswordData.salt,
+                authTag: encryptedPasswordData.authTag,
+                strength,
+                category: category || 'General',
+                isFavorite: false,
+                isQuantum: isQuantum || false,
+                quantumSource: quantumInfo?.source || null,
+                quantumEntropy: quantumInfo?.theoretical_entropy || null,
+                metadata: quantumInfo || null,
+                algorithm: encryptedPasswordData.metadata.algorithm,
+                keyDerivation: encryptedPasswordData.metadata.keyDerivation,
+                encryptionVersion: encryptedPasswordData.metadata.version
+            };
+            console.log(`💾 [${saveId}] Database fields prepared:`, {
+                userId: passwordData.userId,
+                site: passwordData.site,
+                username: passwordData.username,
+                algorithm: passwordData.algorithm,
+                keyDerivation: passwordData.keyDerivation,
+                encryptionVersion: passwordData.encryptionVersion,
+                isQuantum: passwordData.isQuantum
             });
-            console.log(`✅ [${saveId}] Password saved successfully: ${savedPassword.id}`);
+            console.log(`💾 [${saveId}] Executing database save...`);
+            console.log(`💾 [${saveId}] Database connection status:`, {
+                prismaConnected: !!prisma,
+                hasPasswordModel: !!prisma.password
+            });
+            // 🚨 CRITICAL: Test database connection first
+            try {
+                console.log(`💾 [${saveId}] Testing database connection...`);
+                await prisma.$queryRaw `SELECT 1 as test`;
+                console.log(`✅ [${saveId}] Database connection successful`);
+            }
+            catch (dbError) {
+                console.error(`❌ [${saveId}] Database connection failed:`, dbError);
+                throw new Error(`Database connection failed: ${dbError.message}`);
+            }
+            // 🚨 CRITICAL: Validate all required fields before save
+            const requiredFields = ['userId', 'site', 'username', 'encryptedPassword', 'encryptedData', 'iv', 'salt', 'authTag'];
+            const missingFields = requiredFields.filter(field => !passwordData[field]);
+            if (missingFields.length > 0) {
+                console.error(`❌ [${saveId}] Missing required fields:`, missingFields);
+                throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+            }
+            console.log(`💾 [${saveId}] All validation passed, executing Prisma create...`);
+            const savedPassword = await prisma.password.create({
+                data: passwordData
+            });
+            console.log(`✅ [${saveId}] Database save successful:`, {
+                passwordId: savedPassword.id,
+                created: !!savedPassword.createdAt,
+                userId: savedPassword.userId
+            });
+            console.log(`✅ [${saveId}] Password saved successfully to database: ${savedPassword.id}`);
             res.json({
                 success: true,
                 id: savedPassword.id,
-                message: 'Password saved securely'
+                message: 'Password saved securely',
+                saveId
             });
         }
         catch (error) {
             console.error(`❌ [${saveId}] Save password error:`, error);
+            console.error(`❌ [${saveId}] Error stack:`, error.stack);
+            console.error(`❌ [${saveId}] Error details:`, {
+                name: error.name,
+                message: error.message,
+                code: error.code
+            });
             res.status(500).json({
                 success: false,
-                error: 'Failed to save password'
+                error: 'Failed to save password',
+                saveId,
+                details: process.env.NODE_ENV === 'development' ? error.message : undefined
             });
         }
     },

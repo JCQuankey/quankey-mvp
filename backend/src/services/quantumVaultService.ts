@@ -191,8 +191,14 @@ export class QuantumVaultService {
     const startTime = performance.now();
     
     try {
+      // 🚨 CRITICAL: Validate ML-KEM-768 public key size
+      if (!vaultPublicKey || vaultPublicKey.length !== 1184) {
+        throw new Error(`Invalid ML-KEM-768 public key size: expected 1184, got ${vaultPublicKey?.length || 0}`);
+      }
+      
       const id = itemId || crypto.randomUUID();
       console.log(`🔐 [VAULT] Encrypting item ${id} with ML-KEM-768...`);
+      console.log(`✅ [VAULT] Valid ML-KEM-768 public key (${vaultPublicKey.length} bytes)`);
       
       // Step 1: ML-KEM-768 Key Encapsulation
       console.log('  1️⃣ Performing ML-KEM-768 encapsulation...');

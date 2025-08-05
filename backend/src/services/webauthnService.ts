@@ -36,10 +36,10 @@ export class WebAuthnService {
           // { alg: -8, type: 'public-key' }  // ML-DSA-65 (NIST standard)
         ],
         authenticatorSelection: {
-          // NO especificar authenticatorAttachment permite AMBOS: platform (laptop biometrics) + cross-platform (USB keys)
-          userVerification: 'required',              // REQUIERE biometría/PIN (más seguro)
+          authenticatorAttachment: 'platform',      // SOLO platform authenticators (built-in biometrics)
+          userVerification: 'required',              // REQUIERE verificación de usuario
           residentKey: 'required',                   // Habilita passkeys (discoverable credentials)
-          requireResidentKey: false                  // Fallback para compatibilidad
+          requireResidentKey: true                   // FORCE resident key for stronger security
         },
         timeout: 60000,
         attestation: 'none',

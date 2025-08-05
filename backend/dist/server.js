@@ -11,6 +11,10 @@ const quantum_1 = __importDefault(require("./routes/quantum"));
 const auth_1 = require("./routes/auth");
 // SECURITY RECOVERY: Real WebAuthn routes
 const authReal_1 = require("./routes/authReal");
+// 🚀 PATENT-CRITICAL: World's first quantum vault routes
+const vault_1 = __importDefault(require("./routes/vault"));
+// 🚀 PATENT-CRITICAL: World's first ML-DSA-65 audit system
+const audit_1 = __importDefault(require("./routes/audit"));
 const hybridDatabaseService_1 = require("./services/hybridDatabaseService");
 const passwords_1 = __importDefault(require("./routes/passwords"));
 const dashboard_1 = __importDefault(require("./routes/dashboard"));
@@ -72,9 +76,13 @@ app.use('/api/auth', (0, intelligentThreatDetection_1.createIntelligentRateLimit
 // SECURITY RECOVERY: Real WebAuthn routes
 app.use('/api/auth-real', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('authentication'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.USER_LOGIN, 'Real WebAuthn Authentication', auditLogging_1.RiskLevel.HIGH), authReal_1.authRealRouter);
 app.use('/api/quantum', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('passwordGeneration'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.QUANTUM_GENERATION, 'Quantum Password Generation', auditLogging_1.RiskLevel.LOW), quantum_1.default);
+// 🚀 PATENT-CRITICAL: World's first quantum vault API
+app.use('/api/vault', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('vaultAccess'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Quantum Vault Access', auditLogging_1.RiskLevel.HIGH), vault_1.default);
 app.use('/api/passwords', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('vaultAccess'), auth_2.authMiddleware, (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Password Vault Access', auditLogging_1.RiskLevel.MEDIUM), passwords_1.default);
 app.use('/api/dashboard', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('api'), auth_2.authMiddleware, (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Dashboard Access', auditLogging_1.RiskLevel.LOW), dashboard_1.default);
 app.use('/api/recovery', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('api'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.RECOVERY_INITIATED, 'Recovery Request', auditLogging_1.RiskLevel.HIGH), recovery_1.default);
+// 🚀 PATENT-CRITICAL: Quantum Audit Routes - World's First ML-DSA-65 Audit System
+app.use('/api/audit', (0, intelligentThreatDetection_1.createIntelligentRateLimiter)('api'), (0, auditLogging_1.auditMiddleware)(auditLogging_1.AuditEventType.VAULT_ACCESSED, 'Quantum Audit Access', auditLogging_1.RiskLevel.LOW), audit_1.default);
 // Health check with security status
 app.get('/api/health', async (req, res) => {
     const dbHealth = await hybridDatabaseService_1.HybridDatabaseService.healthCheck();
@@ -126,7 +134,11 @@ async function startServer() {
     console.log(`[DB] Features: ${dbInfo.features.join(', ')}`);
     app.listen(PORT, () => {
         console.log(`[SERVER] Quankey Backend running on port ${PORT}`);
-        console.log(`[HEALTH] Check: http://localhost:${PORT}/api/health`);
+        // Production URL for health check
+        const healthUrl = process.env.NODE_ENV === 'production'
+            ? 'https://api.quankey.xyz/api/health'
+            : `http://localhost:${PORT}/api/health`;
+        console.log(`[HEALTH] Check: ${healthUrl}`);
         console.log('[AUTH] WebAuthn biometric auth ready');
         console.log('[QUANTUM] Multi-source quantum generation ready');
         console.log(`[DB] Database: ${dbInfo.type} ${dbInfo.persistent ? '(persistent)' : '(in-memory)'}`);

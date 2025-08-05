@@ -1,79 +1,77 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMiddleware = void 0;
-const authMiddleware = (req, res, next) => {
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const client_1 = require("@prisma/client");
+const prisma = new client_1.PrismaClient();
+const authMiddleware = async (req, res, next) => {
     try {
-        // Buscar token en Authorization header
         const authHeader = req.headers.authorization;
-        let token = null;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            token = authHeader.substring(7);
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            console.error('❌ No authorization header or wrong format');
+            return res.status(401).json({ error: 'No authorization header' });
         }
-        // Si no hay token en header, buscar en cookies
-        if (!token && req.headers.cookie) {
-            const cookies = req.headers.cookie.split(';');
-            for (const cookie of cookies) {
-                const [name, value] = cookie.trim().split('=');
-                if (name === 'authToken' || name.startsWith('quankey_')) {
-                    token = value;
-                    break;
-                }
-            }
-        }
-        console.log('🔍 Auth middleware - Token found:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
-        console.log('🔍 Auth middleware - Full token:', token);
-        if (!token) {
-            return res.status(401).json({ error: 'Not authenticated' });
-        }
-        // NUEVA VALIDACIÓN - Aceptar cualquier token y extraer user ID
+        const token = authHeader.substring(7);
+        console.log('🔍 Auth middleware - Token found:', token.substring(0, 20) + '...');
+        // 🚨 CRITICAL FIX: Properly verify and decode JWT
         try {
-            let userId = null;
-            let username = null;
-            // Si es token JSON (del localStorage)
-            if (token.startsWith('{')) {
-                const parsed = JSON.parse(token);
-                userId = parsed.userId || parsed.id || parsed.user?.id;
-                username = parsed.username || parsed.displayName || parsed.user?.username;
+            const JWT_SECRET = process.env.JWT_SECRET || 'quankey_jwt_secret_quantum_2024_production';
+            // VERIFY the token with the secret (not just decode)
+            const decoded = jsonwebtoken_1.default.verify(token, JWT_SECRET);
+            console.log('📝 JWT verified and decoded:', {
+                userId: decoded.userId,
+                username: decoded.username,
+                authMethod: decoded.authMethod,
+                exp: new Date(decoded.exp * 1000)
+            });
+            // 🔴 CRITICAL: Extract REAL userId from JWT payload
+            const userId = decoded.userId;
+            const username = decoded.username;
+            if (!userId) {
+                console.error('❌ JWT payload missing userId');
+                return res.status(401).json({ error: 'Invalid token payload' });
             }
-            // Si es token de sesión que creamos
-            else if (token.startsWith('session_')) {
-                const parts = token.split('_');
-                userId = parts[1];
-                username = `user_${userId}`;
+            // 🚨 CRITICAL: Verify user exists in database
+            const user = await prisma.user.findUnique({
+                where: { id: userId }
+            });
+            if (!user) {
+                console.error('❌ User not found in database:', userId);
+                return res.status(401).json({ error: 'User not found' });
             }
-            // Si es token simple string
-            else {
-                userId = token.split('_')[0] || 'user123';
-                username = `user_${userId}`;
-            }
-            if (userId) {
-                req.user = {
-                    id: userId,
-                    username: username || `user_${userId}`,
-                    webauthnId: `webauthn_${userId}`
-                };
-                console.log('✅ User authenticated:', req.user);
-                return next();
-            }
-            // Si no se pudo extraer userId, usar fallback
-            throw new Error('Could not extract user ID');
-        }
-        catch (parseError) {
-            console.log('🔍 Token parse error, using fallback user:', parseError);
-            // Fallback: crear usuario temporal para testing
-            const fallbackUserId = `temp_${Date.now()}`;
+            // Set authenticated user with REAL database ID
             req.user = {
-                id: fallbackUserId,
-                username: 'temp_user',
-                webauthnId: `temp_webauthn_${fallbackUserId}`
+                id: userId, // <-- REAL user ID from database
+                username: username || user.username,
+                webauthnId: user.webauthnId || `webauthn_${userId}`
             };
-            console.log('✅ Fallback user created:', req.user);
-            return next();
+            console.log('✅ User authenticated correctly:', {
+                id: req.user.id,
+                username: req.user.username,
+                exists_in_db: !!user
+            });
+            next();
+        }
+        catch (jwtError) {
+            console.error('❌ JWT verification failed:', jwtError);
+            if (jwtError.name === 'JsonWebTokenError') {
+                return res.status(401).json({ error: 'Invalid token' });
+            }
+            if (jwtError.name === 'TokenExpiredError') {
+                return res.status(401).json({ error: 'Token expired' });
+            }
+            return res.status(401).json({ error: 'Token verification failed' });
         }
     }
     catch (error) {
         console.error('❌ Auth middleware error:', error);
-        return res.status(401).json({ error: 'Authentication failed' });
+        return res.status(500).json({ error: 'Authentication failed' });
+    }
+    finally {
+        await prisma.$disconnect();
     }
 };
 exports.authMiddleware = authMiddleware;

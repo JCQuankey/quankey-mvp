@@ -48,7 +48,11 @@
       "Bash(npx tsc:*)",
       "Bash(npm run start:prod:*)",
       "Bash(tsc:*)",
-      "Bash(timeout 10 npm run start:prod)"
+      "Bash(timeout 10 npm run start:prod)",
+      "WebFetch(domain:bundlejs.com)",
+      "WebFetch(domain:bundlephobia.com)",
+      "Bash(npm run:*)",
+      "WebFetch(domain:api.quankey.xyz)"
     ],
     "deny": []
   }
