@@ -207,7 +207,12 @@ async function startServer() {
   
   app.listen(PORT, () => {
     console.log(`[SERVER] Quankey Backend running on port ${PORT}`);
-    console.log(`[HEALTH] Check: http://localhost:${PORT}/api/health`);
+    
+    // Production URL for health check
+    const healthUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://api.quankey.xyz/api/health'
+      : `http://localhost:${PORT}/api/health`;
+    console.log(`[HEALTH] Check: ${healthUrl}`);
     console.log('[AUTH] WebAuthn biometric auth ready');
     console.log('[QUANTUM] Multi-source quantum generation ready');
     console.log(`[DB] Database: ${dbInfo.type} ${dbInfo.persistent ? '(persistent)' : '(in-memory)'}`);
