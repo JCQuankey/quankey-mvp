@@ -275,7 +275,17 @@ export const EncryptedVaultService = {
   getAuthToken() {
     // Primero buscar token simple
     const token = localStorage.getItem('token');
-    if (token) return token;
+    if (token) {
+      console.log('🔑 Found auth token in localStorage');
+      return token;
+    }
+    
+    // Check session storage as fallback
+    const sessionToken = sessionStorage.getItem('token');
+    if (sessionToken) {
+      console.log('🔑 Found auth token in sessionStorage');
+      return sessionToken;
+    }
     
     // Si no, buscar en los vault tokens
     for (let i = 0; i < localStorage.length; i++) {
@@ -292,6 +302,8 @@ export const EncryptedVaultService = {
         }
       }
     }
+    
+    console.warn('⚠️ No auth token found in storage');
     return null;
   },
 
@@ -350,23 +362,45 @@ export const EncryptedVaultService = {
   }) {
     const token = this.getAuthToken();
     
+    console.log('💾 Attempting to save password for site:', data.site);
+    console.log('🔐 Auth token present:', !!token);
+    
     const headers: Record<string, string> = {
       'Content-Type': 'application/json'
     };
     
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
+      console.log('🔑 Authorization header set');
+    } else {
+      console.error('❌ No auth token available for password save');
     }
 
-    const response = await fetch(`${API_URL}/api/passwords/save`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(data),
-      credentials: 'include'
-    });
-    
-    const result = await response.json();
-    console.log('💾 Save password response:', result);
-    return result;
+    try {
+      const response = await fetch(`${API_URL}/api/passwords/save`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(data),
+        credentials: 'include'
+      });
+      
+      console.log('📡 Save password response status:', response.status);
+      
+      if (response.status === 401) {
+        console.error('❌ 401 Unauthorized - Authentication token may be invalid or missing');
+      }
+      
+      const result = await response.json();
+      console.log('💾 Save password response data:', result);
+      
+      if (!response.ok) {
+        throw new Error(result.error || `HTTP error! status: ${response.status}`);
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('❌ Error saving password:', error);
+      throw error;
+    }
   }
 };

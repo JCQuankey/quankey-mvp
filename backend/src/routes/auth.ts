@@ -67,11 +67,23 @@ authRouter.post('/register/finish', async (req, res) => {
     const verification = await WebAuthnService.verifyRegistration(username, responseWithDisplayName);
     
     if (verification.verified) {
+      // Generate JWT token for the newly registered user
+      const token = jwt.sign(
+        { 
+          userId: verification.user.id,
+          username: verification.user.username,
+          authMethod: 'webauthn'
+        },
+        process.env.JWT_SECRET || 'quankey_jwt_secret_quantum_2024_production',
+        { expiresIn: '30d' }
+      );
+      
       // Create safe response data without BigInt serialization issues
       const responseData = {
         success: true,
         message: 'Biometric authentication registered successfully',
         user: createSafeUserResponse(verification.user),
+        token: token, // Include the JWT token
         quantum: {
           algorithm: 'Hybrid-ECDSA-ML-DSA',
           entropy: 'ANU-QRNG',
@@ -133,11 +145,23 @@ authRouter.post('/login/finish', async (req, res) => {
     const verification = await WebAuthnService.verifyAuthentication(response, username);
     
     if (verification.verified) {
+      // Generate JWT token for authenticated user
+      const token = jwt.sign(
+        { 
+          userId: verification.user.id,
+          username: verification.user.username,
+          authMethod: 'webauthn'
+        },
+        process.env.JWT_SECRET || 'quankey_jwt_secret_quantum_2024_production',
+        { expiresIn: '30d' }
+      );
+      
       // Create safe response data without BigInt serialization issues
       const responseData = {
         success: true,
         message: 'Authentication successful',
         user: createSafeUserResponse(verification.user),
+        token: token, // Include the JWT token
         quantum: {
           algorithm: 'Hybrid-ECDSA-ML-DSA',
           entropy: 'ANU-QRNG',
@@ -199,10 +223,22 @@ authRouter.post('/authenticate/complete', async (req, res) => {
     const verification = await WebAuthnService.verifyAuthentication(response, username);
     
     if (verification.verified) {
+      // Generate JWT token for authenticated user
+      const token = jwt.sign(
+        { 
+          userId: verification.user.id,
+          username: verification.user.username,
+          authMethod: 'webauthn'
+        },
+        process.env.JWT_SECRET || 'quankey_jwt_secret_quantum_2024_production',
+        { expiresIn: '30d' }
+      );
+      
       res.json({
         success: true,
         message: 'Authentication successful',
-        user: verification.user
+        user: verification.user,
+        token: token // Include the JWT token
       });
     } else {
       res.status(401).json({
