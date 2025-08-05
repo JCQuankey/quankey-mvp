@@ -33,6 +33,8 @@
     "node": "18.x"
   },
   "dependencies": {
+    "@noble/hashes": "^1.8.0",
+    "@noble/post-quantum": "^0.4.1",
     "@prisma/client": "^6.13.0",
     "@simplewebauthn/browser": "^13.1.2",
     "@simplewebauthn/server": "^13.1.2",

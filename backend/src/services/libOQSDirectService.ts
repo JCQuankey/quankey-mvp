@@ -31,6 +31,7 @@ export interface LibOQSKeyPair {
 export class LibOQSDirectService {
   private isAvailable = true; // Always available with @noble
   private useRealImplementation = true;
+  private useDirectLibrary = false; // Legacy property for compatibility
 
   constructor() {
     this.initializeService();
