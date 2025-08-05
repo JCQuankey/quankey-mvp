@@ -50,7 +50,7 @@ export class WebAuthnDebugTest {
       console.log(`   Challenge: ${options.challenge}`);
       console.log(`   Timeout: ${options.timeout}ms`);
       console.log(`   Algorithms: ${options.pubKeyCredParams.length}`);
-      console.log(`   Authenticator Attachment: ${options.authenticatorSelection?.authenticatorAttachment || 'any (platform + cross-platform)'}`);
+      console.log(`   Authenticator Attachment: ${(options.authenticatorSelection as any)?.authenticatorAttachment || 'any (platform + cross-platform)'}`);
       console.log(`   User Verification: ${options.authenticatorSelection?.userVerification}`);
       console.log(`   Resident Key: ${options.authenticatorSelection?.residentKey}`);
       
