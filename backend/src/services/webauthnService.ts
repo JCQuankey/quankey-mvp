@@ -1,6 +1,6 @@
 import { HybridDatabaseService } from './hybridDatabaseService';
 import { PostQuantumService, HybridCredential } from './postQuantumService';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 export class WebAuthnService {
   

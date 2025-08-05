@@ -4,7 +4,7 @@
 // GuideRef: P0A · Critical PQC Implementation - REAL libOQS Integration
 // ────────────────────────────────────────────
 
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import { libOQSBinaryService } from './libOQSBinaryService';
 import { libOQSDirectService } from './libOQSDirectService';
 
