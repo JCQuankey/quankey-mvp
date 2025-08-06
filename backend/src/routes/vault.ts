@@ -139,16 +139,18 @@ vaultRouter.get('/status/:userId', async (req, res) => {
  */
 vaultRouter.post('/items', async (req, res) => {
   try {
-    const { userId, vaultId, title, username, password, url, notes, vaultPublicKey } = req.body;
+    const { vaultId, title, username, password, url, notes, vaultPublicKey } = req.body;
+    // 🔴 FIX: Get userId from JWT token (set by auth middleware)
+    const userId = (req as any).user?.id;
     
     if (!userId || !title || !vaultPublicKey) {
       return res.status(400).json({
         success: false,
-        error: 'User ID, title, and vault public key are required'
+        error: 'User ID (from token), title, and vault public key are required'
       });
     }
 
-    console.log(`📝 [VAULT API] Creating quantum vault item: ${title} for user: ${userId}`);
+    console.log(`📝 [VAULT API] Creating quantum vault item: ${title} for user: ${userId} (from JWT)`);
     
     // Decode public key from base64
     const publicKeyBuffer = Buffer.from(vaultPublicKey, 'base64');
@@ -163,9 +165,36 @@ vaultRouter.post('/items', async (req, res) => {
       notes
     }, publicKey);
     
+    // 🔴 FIX: Also save to persistent database
+    const persistentItem = await HybridDatabaseService.savePassword(userId, {
+      site: url || title,
+      username: username || '',
+      encryptedPassword: Buffer.from(vaultItem.encryptionMetadata.ciphertext).toString('base64'),
+      encryptedNotes: notes || '',
+      category: 'Quantum-Encrypted',
+      strength: 100, // Quantum = max strength
+      isQuantum: true,
+      quantumSource: 'ML-KEM-768',
+      quantumEntropy: 'Hardware TRNG',
+      metadata: {
+        algorithm: 'ML-KEM-768 + AES-GCM-SIV',
+        quantumProof: true,
+        vaultItemId: vaultItem.id
+      },
+      // Encryption metadata
+      encryptedData: Buffer.from(vaultItem.encryptionMetadata.ciphertext).toString('base64'),
+      iv: Buffer.from(vaultItem.encryptionMetadata.kemCiphertext).toString('base64').substring(0, 24),
+      salt: Buffer.from(vaultItem.encryptionMetadata.kemCiphertext).toString('base64').substring(24, 48),
+      authTag: Buffer.from(vaultItem.encryptionMetadata.kemCiphertext).toString('base64').substring(48, 72),
+      algorithm: 'ML-KEM-768'
+    });
+    
+    console.log(`✅ [VAULT API] Saved to both quantum vault AND persistent database`);
+    
     // Prepare safe response (no sensitive encryption metadata exposed)
     const safeVaultItem = {
       id: vaultItem.id,
+      persistentId: persistentItem?.id,
       title: vaultItem.title,
       created: vaultItem.created,
       updated: vaultItem.updated,

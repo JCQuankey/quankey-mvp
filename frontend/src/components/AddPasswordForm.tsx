@@ -230,8 +230,28 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
         </button>
       </div>
 
-      {/* Form */}
-      <div style={{ display: 'grid', gap: '20px' }}>
+      {/* 🔴 FIX: Anti-Opera Form with honeypots and custom attributes */}
+      <form 
+        autoComplete="off"
+        data-lpignore="true"
+        data-bwignore="true"
+        data-1p-ignore="true"
+        data-form-type="other"
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Don't call handleSave here - only via button click
+          return false;
+        }}
+        style={{ display: 'grid', gap: '20px' }}
+      >
+        {/* Honeypot fields to confuse password managers */}
+        <div style={{ position: 'absolute', left: '-9999px', opacity: 0 }}>
+          <input type="text" name="username" tabIndex={-1} autoComplete="off" />
+          <input type="password" name="password" tabIndex={-1} autoComplete="off" />
+          <input type="email" name="email" tabIndex={-1} autoComplete="off" />
+          <input type="url" name="website" tabIndex={-1} autoComplete="off" />
+        </div>
         {/* Title */}
         <div>
           <label style={{ display: 'block', color: 'var(--quankey-gray-light)', fontSize: '14px', marginBottom: '8px' }}>
@@ -239,9 +259,12 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
           </label>
           <input
             type="text"
+            name="qv_title_field"  // 🔴 FIX: Obfuscated field name
             value={formData.title}
             onChange={(e) => handleInputChange('title', e.target.value)}
             placeholder="e.g., Gmail, Facebook, Work Email"
+            autoComplete="off"
+            data-form-type="other"
             style={{
               width: '100%',
               padding: '12px',
@@ -261,9 +284,12 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
           </label>
           <input
             type="text"
+            name="qv_site_field"  // 🔴 FIX: Obfuscated field name
             value={formData.website}
             onChange={(e) => handleInputChange('website', e.target.value)}
             placeholder="e.g., gmail.com, facebook.com"
+            autoComplete="off"
+            data-form-type="other"
             style={{
               width: '100%',
               padding: '12px',
@@ -283,9 +309,12 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
           </label>
           <input
             type="text"
+            name="qv_user_field"  // 🔴 FIX: Obfuscated field name
             value={formData.username}
             onChange={(e) => handleInputChange('username', e.target.value)}
             placeholder="your@email.com or username"
+            autoComplete="off"
+            data-form-type="other"
             style={{
               width: '100%',
               padding: '12px',
@@ -366,10 +395,13 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
           {/* Password Input with Quantum Indicator */}
           <div style={{ position: 'relative' }}>
             <input
-              type="text"
+              type="password"
+              name="qv_secret_field"  // 🔴 FIX: Obfuscated field name
               value={formData.password}
               onChange={(e) => handleInputChange('password', e.target.value)}
               placeholder="Enter or generate a quantum password"
+              autoComplete="new-password"
+              data-form-type="other"
               style={{
                 width: '100%',
                 padding: '12px',
@@ -443,10 +475,13 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
             Notes (Optional)
           </label>
           <textarea
+            name="qv_notes_field"  // 🔴 FIX: Obfuscated field name
             value={formData.notes}
             onChange={(e) => handleInputChange('notes', e.target.value)}
             placeholder="Any additional notes..."
             rows={3}
+            autoComplete="off"
+            data-form-type="other"
             style={{
               width: '100%',
               padding: '12px',
@@ -461,8 +496,13 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
         </div>
 
         {/* Actions */}
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+        {/* Close form here to prevent Opera interception */}
+        </form>
+        
+        {/* Buttons - 🔴 FIX: Outside form to prevent Opera interception */}
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '20px' }}>
           <button
+            type="button"
             onClick={onCancel}
             style={{
               padding: '12px 24px',
@@ -477,7 +517,12 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
             Cancel
           </button>
           <button
-            onClick={handleSave}
+            type="button"  // 🔴 FIX: NOT submit type
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleSave();
+            }}
             disabled={loading}
             style={{
               padding: '12px 24px',
@@ -501,7 +546,6 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
             )}
           </button>
         </div>
-      </div>
     </div>
   );
 };

@@ -425,7 +425,21 @@ export const EncryptedVaultService = {
       timestamp?: string;
     };
   }) {
+    console.log('🔍 DEBUG: Starting quantum vault save process');
+    
     const token = this.getAuthToken();
+    const userId = localStorage.getItem('user_id');
+    const storedQuantumKey = localStorage.getItem('quantum_vault_public_key');
+    
+    // 🔴 FIX: Enhanced debugging
+    console.log('🔍 DEBUG: Auth status:', {
+      hasToken: !!token,
+      tokenPreview: token?.substring(0, 20) + '...',
+      hasUserId: !!userId,
+      userId: userId,
+      hasStoredQuantumKey: !!storedQuantumKey,
+      storedQuantumKeySize: storedQuantumKey ? atob(storedQuantumKey).length : 0
+    });
     
     console.log('🚀 QUANTUM VAULT: Saving password for site:', data.site);
     console.log('🔐 Auth token present:', !!token);
@@ -471,6 +485,22 @@ export const EncryptedVaultService = {
       console.log('🔐 Quantum key length:', quantumKey.length, 'chars (base64)');
       console.log('⚛️ Item metadata:', vaultItem.metadata);
       
+      // 🔴 FIX: Enhanced debugging before fetch
+      console.log('🔍 DEBUG: About to fetch to backend:', {
+        url: `${API_URL}/api/vault/items`,
+        method: 'POST',
+        hasHeaders: !!headers,
+        hasAuth: headers.Authorization ? 'yes' : 'no',
+        authHeader: headers.Authorization?.substring(0, 20) + '...',
+        bodySize: JSON.stringify(vaultItem).length,
+        bodyPreview: {
+          title: vaultItem.title,
+          username: vaultItem.username,
+          hasPassword: !!vaultItem.password,
+          hasVaultKey: !!vaultItem.vaultPublicKey
+        }
+      });
+      
       const response = await fetch(`${API_URL}/api/vault/items`, {
         method: 'POST',
         headers,
@@ -479,6 +509,12 @@ export const EncryptedVaultService = {
       });
       
       console.log('📡 Quantum vault response status:', response.status);
+      console.log('🔍 DEBUG: Response details:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
+      });
       
       if (response.status === 401) {
         console.error('❌ 401 Unauthorized - Authentication token may be invalid or missing');

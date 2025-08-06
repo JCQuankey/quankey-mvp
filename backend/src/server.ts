@@ -119,6 +119,7 @@ app.use('/api/quantum',
 // 🚀 PATENT-CRITICAL: World's first quantum vault API
 app.use('/api/vault', 
   createIntelligentRateLimiter('vaultAccess'),
+  authMiddleware,  // 🔴 FIX: Add auth middleware to vault routes
   auditMiddleware(AuditEventType.VAULT_ACCESSED, 'Quantum Vault Access', RiskLevel.HIGH),
   vaultRouter
 );
