@@ -142,6 +142,15 @@ class HybridDatabaseService {
             return await databaseService_1.DatabaseService.getAllUsers();
         }
     }
+    // 🔴 FIX: Update user
+    static async updateUser(userId, updateData) {
+        if (this.usePostgreSQL) {
+            return await prismaService_1.PrismaService.updateUser(userId, updateData);
+        }
+        else {
+            return await databaseService_1.DatabaseService.updateUser(userId, updateData);
+        }
+    }
     // PASSWORD MANAGEMENT
     // Save password - handles both simple and complex encryption metadata
     static async savePassword(userId, passwordData) {

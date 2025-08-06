@@ -275,11 +275,21 @@ exports.authRouter.post('/register/complete', async (req, res) => {
             displayName: displayName || username
         };
         const verification = await webauthnService_1.WebAuthnService.verifyRegistration(username, responseWithDisplayName);
-        if (verification.verified) {
+        if (verification.verified && verification.user) {
+            // 🔴 FIX: Generate JWT token for registered user
+            const jwtSecret = process.env.JWT_SECRET || 'quankey_jwt_secret_quantum_2024_production';
+            const token = jsonwebtoken_1.default.sign({
+                userId: verification.user.id,
+                username: verification.user.username,
+                authMethod: 'webauthn'
+            }, jwtSecret, { expiresIn: '24h' });
+            console.log('✅ Registration complete with JWT token generated');
             res.json({
                 success: true,
                 message: 'Biometric authentication registered successfully',
-                user: verification.user
+                user: verification.user,
+                token: token,
+                expiresIn: 86400
             });
         }
         else {
@@ -336,12 +346,20 @@ exports.authRouter.post('/login/finish', async (req, res) => {
         console.log(`🔐 Completing biometric login for: ${username}`);
         const verification = await webauthnService_1.WebAuthnService.verifyAuthentication(username, response);
         if (verification.verified && verification.user) {
-            // CREAR SESIÓN/TOKEN AQUÍ
+            // 🔴 FIX: Generate real JWT token for login
+            const jwtSecret = process.env.JWT_SECRET || 'quankey_jwt_secret_quantum_2024_production';
+            const token = jsonwebtoken_1.default.sign({
+                userId: verification.user.id,
+                username: verification.user.username,
+                authMethod: 'webauthn'
+            }, jwtSecret, { expiresIn: '24h' });
+            console.log('✅ Login successful with JWT token generated');
             res.json({
                 success: true,
                 message: 'Login successful',
                 user: verification.user,
-                token: `session_${verification.user.id}_${Date.now()}` // Token temporal
+                token: token,
+                expiresIn: 86400
             });
         }
         else {

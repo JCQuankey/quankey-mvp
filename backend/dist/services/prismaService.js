@@ -174,12 +174,31 @@ class PrismaService {
             return false;
         }
     }
+    // 🔴 FIX: Generic update user method
+    static async updateUser(userId, updateData) {
+        try {
+            const updatedUser = await this.client.user.update({
+                where: { id: userId },
+                data: {
+                    ...updateData,
+                    updatedAt: new Date()
+                }
+            });
+            console.log(`✅ Updated user: ${userId}`, Object.keys(updateData));
+            return updatedUser;
+        }
+        catch (error) {
+            console.error('❌ Error updating user:', error);
+            return null;
+        }
+    }
     // Enable biometric for user
     static async enableBiometric(userId) {
         try {
             await this.client.user.update({
                 where: { id: userId },
                 data: {
+                    lastLogin: new Date(),
                     updatedAt: new Date()
                 }
             });

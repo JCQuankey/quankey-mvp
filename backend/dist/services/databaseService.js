@@ -104,6 +104,24 @@ class DatabaseService {
             return false;
         }
     }
+    // 🔴 FIX: Generic update user method
+    static async updateUser(userId, updateData) {
+        try {
+            for (const [username, user] of users.entries()) {
+                if (user.id === userId) {
+                    const updatedUser = { ...user, ...updateData, updatedAt: new Date() };
+                    users.set(username, updatedUser);
+                    console.log(`✅ Updated user: ${userId}`, Object.keys(updateData));
+                    return updatedUser;
+                }
+            }
+            return null;
+        }
+        catch (error) {
+            console.error('Error updating user:', error);
+            return null;
+        }
+    }
     // Get all users
     static async getAllUsers() {
         try {

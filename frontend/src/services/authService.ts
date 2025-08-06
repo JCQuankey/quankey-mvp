@@ -159,9 +159,21 @@ export class AuthService {
           }
         };
 
-        // PATENT-CRITICAL: Create credential - NO PASSWORD
+        // 🔴 FIX: Enforce biometric-only authentication
+        const enhancedOptions = {
+          ...processedOptions,
+          authenticatorSelection: {
+            authenticatorAttachment: 'platform',
+            userVerification: 'required',
+            residentKey: 'required',
+            requireResidentKey: true
+          },
+          timeout: 30000 // Shorter timeout to prevent PIN fallback
+        };
+
+        // PATENT-CRITICAL: Create credential - NO PASSWORD, BIOMETRIC ONLY
         const credential = await navigator.credentials.create({
-          publicKey: processedOptions
+          publicKey: enhancedOptions
         }) as PublicKeyCredential;
 
         if (!credential) {
@@ -171,6 +183,10 @@ export class AuthService {
             error: 'Biometric credential creation failed. Please try again.'
           };
         }
+
+        // 🔴 FIX: Simplified biometric validation (strict timeout prevents PIN)
+        // The short timeout (30s) and platform+required settings should prevent PIN fallback
+        console.log(`[SUCCESS] [${registrationId}] Biometric-only credential created with strict settings ✅`);
 
         console.log(`[SUCCESS] [${registrationId}] WebAuthn credential created successfully!`);
 

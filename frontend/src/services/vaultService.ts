@@ -448,7 +448,8 @@ export const EncryptedVaultService = {
     try {
       // 🚀 QUANTUM VAULT: Create vault item with ML-KEM-768 encryption
       const vaultItem = {
-        userId: token, // Will be decoded by backend auth middleware
+        // ✅ FIX: Don't send userId - backend extracts it from JWT token
+        // userId is handled by auth middleware from decoded JWT
         vaultId: 'quantum-vault-primary',
         title: data.site,
         username: data.username,

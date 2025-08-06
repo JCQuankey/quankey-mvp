@@ -153,6 +153,15 @@ export class HybridDatabaseService {
     }
   }
 
+  // 🔴 FIX: Update user
+  static async updateUser(userId: string, updateData: Partial<UserData>): Promise<UserData | null> {
+    if (this.usePostgreSQL) {
+      return await PrismaService.updateUser(userId, updateData);
+    } else {
+      return await DatabaseService.updateUser(userId, updateData);
+    }
+  }
+
   // PASSWORD MANAGEMENT
 
   // Save password - handles both simple and complex encryption metadata

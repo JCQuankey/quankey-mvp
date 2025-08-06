@@ -110,6 +110,7 @@ const PentagonIcon: React.FC<{ size?: number }> = ({ size = 24 }) => (
 );
 
 const ProfessionalLandingPage: React.FC = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     company: '',
@@ -201,11 +202,12 @@ const ProfessionalLandingPage: React.FC = () => {
             </span>
           </div>
           
+          {/* Desktop Menu */}
           <div style={{
             display: 'flex',
             gap: '2rem',
             alignItems: 'center'
-          }}>
+          }} className="hidden md:flex">
             <a href="#product" style={{ color: '#B0BEC5', textDecoration: 'none', transition: 'color 0.3s', fontWeight: '500' }}>Product</a>
             <a href="#security" style={{ color: '#B0BEC5', textDecoration: 'none', transition: 'color 0.3s', fontWeight: '500' }}>Security</a>
             <a href="#compliance" style={{ color: '#B0BEC5', textDecoration: 'none', transition: 'color 0.3s', fontWeight: '500' }}>Compliance</a>
@@ -226,6 +228,70 @@ const ProfessionalLandingPage: React.FC = () => {
               Access Portal
             </Link>
           </div>
+          
+          {/* 🔴 FIX: Mobile Hamburger Menu */}
+          <div className="md:hidden">
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              style={{
+                color: '#00A6FB',
+                background: 'none',
+                border: 'none',
+                fontSize: '24px',
+                cursor: 'pointer',
+                padding: '8px'
+              }}
+            >
+              {mobileMenuOpen ? '✕' : '☰'}
+            </button>
+          </div>
+          
+          {/* Mobile Menu Overlay */}
+          {mobileMenuOpen && (
+            <div 
+              style={{
+                position: 'fixed',
+                top: '80px',
+                left: 0,
+                right: 0,
+                background: 'rgba(10, 22, 40, 0.98)',
+                backdropFilter: 'blur(20px)',
+                borderBottom: '1px solid rgba(0, 166, 251, 0.2)',
+                zIndex: 999,
+                padding: '2rem'
+              }}
+              className="md:hidden"
+            >
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.5rem',
+                alignItems: 'center'
+              }}>
+                <a href="#product" style={{ color: '#B0BEC5', textDecoration: 'none', fontSize: '18px', fontWeight: '500' }}>Product</a>
+                <a href="#security" style={{ color: '#B0BEC5', textDecoration: 'none', fontSize: '18px', fontWeight: '500' }}>Security</a>
+                <a href="#compliance" style={{ color: '#B0BEC5', textDecoration: 'none', fontSize: '18px', fontWeight: '500' }}>Compliance</a>
+                <a href="#company" style={{ color: '#B0BEC5', textDecoration: 'none', fontSize: '18px', fontWeight: '500' }}>Company</a>
+                <a href="#docs" style={{ color: '#B0BEC5', textDecoration: 'none', fontSize: '18px', fontWeight: '500' }}>Documentation</a>
+                <Link 
+                  to="/app" 
+                  style={{
+                    background: 'linear-gradient(135deg, #00A6FB, #00D4FF)',
+                    color: 'white',
+                    padding: '12px 32px',
+                    borderRadius: '8px',
+                    textDecoration: 'none',
+                    fontWeight: '600',
+                    fontSize: '18px',
+                    marginTop: '1rem'
+                  }}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Access Portal
+                </Link>
+              </div>
+            </div>
+          )}
         </nav>
       </header>
 
@@ -250,7 +316,7 @@ const ProfessionalLandingPage: React.FC = () => {
           color: '#00FF88'
         }}>
           <SecurityIcon size={20} />
-          <span style={{ marginLeft: '8px' }}>NIST Quantum-Ready Certified</span>
+          <span style={{ marginLeft: '8px' }}>NIST Standards Aligned</span>
         </div>
 
         <h1 style={{
@@ -693,7 +759,7 @@ const ProfessionalLandingPage: React.FC = () => {
               marginTop: '2rem'
             }}>
               <div>
-                <h4 style={{ color: '#B0BEC5', fontSize: '1.1rem', marginBottom: '0.5rem' }}>NIST 800-171 Compliant</h4>
+                <h4 style={{ color: '#B0BEC5', fontSize: '1.1rem', marginBottom: '0.5rem' }}>NIST 800-171 Framework Ready</h4>
                 <p style={{ color: '#8B8CA5', fontSize: '0.9rem' }}>Meets all CUI protection requirements</p>
               </div>
               <div>
@@ -730,7 +796,7 @@ const ProfessionalLandingPage: React.FC = () => {
               marginTop: '2rem'
             }}>
               <div>
-                <h4 style={{ color: '#B0BEC5', fontSize: '1.1rem', marginBottom: '0.5rem' }}>HIPAA Compliant</h4>
+                <h4 style={{ color: '#B0BEC5', fontSize: '1.1rem', marginBottom: '0.5rem' }}>HIPAA Framework Ready</h4>
                 <p style={{ color: '#8B8CA5', fontSize: '0.9rem' }}>Full ePHI protection with audit trails</p>
               </div>
               <div>
@@ -763,7 +829,7 @@ const ProfessionalLandingPage: React.FC = () => {
               marginTop: '2rem'
             }}>
               <div>
-                <h4 style={{ color: '#B0BEC5', fontSize: '1.1rem', marginBottom: '0.5rem' }}>SOX Compliant</h4>
+                <h4 style={{ color: '#B0BEC5', fontSize: '1.1rem', marginBottom: '0.5rem' }}>SOX Framework Ready</h4>
                 <p style={{ color: '#8B8CA5', fontSize: '0.9rem' }}>Full audit trail for financial systems</p>
               </div>
               <div>
@@ -800,7 +866,7 @@ const ProfessionalLandingPage: React.FC = () => {
                 <p style={{ color: '#8B8CA5', fontSize: '0.9rem' }}>Works with your identity provider</p>
               </div>
               <div>
-                <h4 style={{ color: '#B0BEC5', fontSize: '1.1rem', marginBottom: '0.5rem' }}>ISO 27001 Certified</h4>
+                <h4 style={{ color: '#B0BEC5', fontSize: '1.1rem', marginBottom: '0.5rem' }}>ISO 27001 Framework Ready</h4>
                 <p style={{ color: '#8B8CA5', fontSize: '0.9rem' }}>Information security management</p>
               </div>
               <div>
@@ -1171,7 +1237,7 @@ const ProfessionalLandingPage: React.FC = () => {
                 What certifications do you have?
               </summary>
               <p style={{ color: '#B0BEC5', lineHeight: 1.6 }}>
-                We maintain SOC 2 Type II, NIST 800-171 compliance, and are pursuing FIPS 140-2 Level 3 certification. Our quantum cryptography implementations follow NIST post-quantum cryptography standards and we're CMMC 2.0 assessment ready.
+                We have built compliance-ready architecture following SOC 2, NIST 800-171 frameworks, and are preparing for FIPS 140-2 Level 3 assessment. Our quantum cryptography implementations follow NIST post-quantum cryptography standards and we're CMMC 2.0 assessment ready.
               </p>
             </details>
             
@@ -1211,7 +1277,7 @@ const ProfessionalLandingPage: React.FC = () => {
                 What's your disaster recovery process?
               </summary>
               <p style={{ color: '#B0BEC5', lineHeight: 1.6 }}>
-                We maintain geographically distributed quantum-secured backups with automatic failover. RPO is &lt;1 hour, RTO is &lt;15 minutes. All recovery keys are generated using the same quantum entropy sources and stored in FIPS 140-2 Level 3 HSMs.
+                We maintain geographically distributed quantum-secured backups with automatic failover. RPO is &lt;1 hour, RTO is &lt;15 minutes. All recovery keys are generated using the same quantum entropy sources and stored in enterprise-grade HSMs.
               </p>
             </details>
             
@@ -1306,11 +1372,11 @@ const ProfessionalLandingPage: React.FC = () => {
             <div>
               <h4 style={{ color: '#00A6FB', marginBottom: '1rem', fontSize: '1.1rem' }}>Certifications</h4>
               <div style={{ color: '#B0BEC5', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                <p>✅ SOC 2 Type II</p>
-                <p>✅ NIST 800-171 Compliant</p>
+                <p>🔄 SOC 2 Compliant Architecture</p>
+                <p>🔄 NIST 800-171 Framework Ready</p>
                 <p>✅ GDPR & HIPAA Ready</p>
-                <p>✅ ISO 27001 Certified</p>
-                <p>🔄 FIPS 140-2 Level 3 (In Progress)</p>
+                <p>✅ ISO 27001 Framework Ready</p>
+                <p>🔄 FIPS 140-2 Level 3 (Preparation Phase)</p>
                 <p>🔄 CMMC 2.0 Assessment Ready</p>
               </div>
             </div>
@@ -1338,7 +1404,7 @@ const ProfessionalLandingPage: React.FC = () => {
                 <strong style={{ color: '#B0BEC5' }}>Intellectual Property:</strong> All intellectual and industrial property rights belong exclusively to Cainmani Resources, S.L. and its affiliates. Users may create private copies for personal use only. Reproduction or distribution without written authorization is prohibited.
               </p>
               <p style={{ marginBottom: '1rem' }}>
-                <strong style={{ color: '#B0BEC5' }}>Export Control & ITAR:</strong> Our quantum cryptographic technologies may be subject to export control regulations. International users should verify compliance with local import/export laws. ITAR-compliant on-premises solutions available for qualifying organizations.
+                <strong style={{ color: '#B0BEC5' }}>Export Control & Standards:</strong> Our quantum cryptographic technologies follow international standards. Enterprise solutions available for qualifying organizations with enhanced security requirements.
               </p>
               <p>
                 <strong style={{ color: '#B0BEC5' }}>Jurisdiction:</strong> These terms are governed by Spanish and European Union regulations. For US operations, additional federal and state regulations apply. Disputes will be resolved in the appropriate courts of Madrid, Spain or Houston, Texas as applicable.
