@@ -345,17 +345,18 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
                 fontSize: '14px'
               }}
             />
-            <SearchIcon 
-              size={16} 
-              color="var(--quankey-gray)" 
-              style={{
-                position: 'absolute',
-                right: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                pointerEvents: 'none'
-              }}
-            />
+            <div style={{
+              position: 'absolute',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              pointerEvents: 'none'
+            }}>
+              <SearchIcon 
+                size={16} 
+                color="var(--quankey-gray)" 
+              />
+            </div>
           </div>
           <select
             value={sortBy}
