@@ -63,14 +63,14 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
     
     try {
       // 🔴 FIX: Load from Quantum Vault backend instead of localStorage
-      const userId = EncryptedVaultService.getUserIdFromToken();
-      if (!userId) {
+      const tokenUserId = EncryptedVaultService.getUserIdFromToken();
+      if (!tokenUserId) {
         console.error('❌ No userId from token');
         return;
       }
       
       // Load from backend API
-      const response = await fetch(`https://api.quankey.xyz/api/vault/items/${userId}`, {
+      const response = await fetch(`https://api.quankey.xyz/api/vault/items/${tokenUserId}`, {
         headers: {
           'Authorization': `Bearer ${EncryptedVaultService.getAuthToken()}`
         }
