@@ -17,7 +17,7 @@ import {
   TargetIcon,
   QuantumIcon,
   EyeIcon,
-  AlertIcon,
+  WarningIcon,
   CheckIcon,
   ClockIcon,
   KeyIcon
@@ -280,7 +280,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ entries })
           border: '1px solid rgba(0, 166, 251, 0.3)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <AlertIcon size={20} color="var(--quankey-error)" />
+            <WarningIcon size={20} color="var(--quankey-error)" />
             <h3 style={{ color: 'var(--quankey-gray-light)', margin: 0, fontSize: '16px' }}>
               Security Issues
             </h3>
@@ -399,7 +399,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ entries })
               borderRadius: '8px',
               border: '1px solid rgba(255, 59, 48, 0.2)'
             }}>
-              <AlertIcon size={16} color="var(--quankey-error)" />
+              <WarningIcon size={16} color="var(--quankey-error)" />
               <div>
                 <div style={{ color: 'var(--quankey-gray-light)', fontSize: '14px', fontWeight: '500' }}>
                   Remove Duplicate Passwords
