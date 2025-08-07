@@ -46,6 +46,8 @@ export class WebAuthnService {
         excludeCredentials: [],                    // 🆕 Evita registros duplicados
         extensions: {                             // 🆕 Extensiones para mejor UX
           credProps: true
+          // Si necesitas largeBlob en el futuro, agregar aquí:
+          // largeBlob: { support: 'preferred' }  // ✅ Solo válido en REGISTRO
         }
       };
       
@@ -74,10 +76,9 @@ export class WebAuthnService {
         userVerification: 'required' as const, // Requiere biometría/PIN siempre
         extensions: {
           // Mejora la experiencia con passkeys
-          credentialProperties: true,
-          largeBlob: {
-            support: 'preferred'
-          }
+          credentialProperties: true
+          // 🔴 FIX: largeBlob 'support' solo es válida en REGISTRO, no en LOGIN
+          // Para login, si necesitas largeBlob, usa: largeBlob: { read: true }
         }
       };
       

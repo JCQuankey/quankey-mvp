@@ -332,14 +332,14 @@ export const EncryptedVaultService = {
   // Función helper para obtener token de autenticación
   getAuthToken() {
     // Primero buscar token simple
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('auth_token');
     if (token) {
       console.log('🔑 Found auth token in localStorage');
       return token;
     }
     
     // Check session storage as fallback
-    const sessionToken = sessionStorage.getItem('token');
+    const sessionToken = sessionStorage.getItem('auth_token');
     if (sessionToken) {
       console.log('🔑 Found auth token in sessionStorage');
       return sessionToken;
@@ -363,6 +363,27 @@ export const EncryptedVaultService = {
     
     console.warn('⚠️ No auth token found in storage');
     return null;
+  },
+
+  // 🔴 CRITICAL FIX: ALWAYS extract userId from JWT token, NEVER localStorage
+  getUserIdFromToken() {
+    const token = this.getAuthToken();
+    if (!token) {
+      console.error('❌ No auth token found - cannot extract userId');
+      return null;
+    }
+    
+    try {
+      // Decode JWT token payload
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload.userId;
+      
+      console.log('🔑 Extracted userId from JWT token:', userId);
+      return userId;
+    } catch (error) {
+      console.error('❌ Failed to decode JWT token:', error);
+      return null;
+    }
   },
 
   // Generar contraseña cuántica - ACTUALIZADO PARA USAR LA RUTA CORRECTA
@@ -428,7 +449,8 @@ export const EncryptedVaultService = {
     console.log('🔍 DEBUG: Starting quantum vault save process');
     
     const token = this.getAuthToken();
-    const userId = localStorage.getItem('user_id');
+    // 🔴 CRITICAL FIX: Extract userId from JWT token, NOT localStorage
+    const userId = this.getUserIdFromToken();
     const storedQuantumKey = localStorage.getItem('quantum_vault_public_key');
     
     // 🔴 FIX: Enhanced debugging

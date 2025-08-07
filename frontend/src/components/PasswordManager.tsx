@@ -137,9 +137,10 @@ const PasswordManager: React.FC = () => {
     }
     
     const userChoice = window.confirm(
-      'Where would you like to save this password?\n\n' +
-      'Click OK for Quantum Vault (ML-KEM-768 encrypted)\n' +
-      'Click Cancel for Local Vault (browser storage)'
+      '🔐 CHOOSE STORAGE METHOD:\n\n' +
+      '✅ OK = QUANTUM VAULT (ML-KEM-768 encrypted, unbreakable)\n' +
+      '❌ CANCEL = Local browser storage (basic encryption)\n\n' +
+      'Recommendation: Choose OK for maximum security!'
     );
     
     if (userChoice) {
@@ -498,13 +499,27 @@ const PasswordManager: React.FC = () => {
                           </>
                         )}
                       </button>
-                      <button onClick={saveGeneratedPassword} className="copy-button">
+                      <button 
+                        onClick={saveGeneratedPassword} 
+                        className="copy-button"
+                        type="button"
+                        data-lpignore="true"
+                        data-bwignore="true" 
+                        data-1p-ignore="true"
+                        data-form-type="other"
+                      >
                         <SaveIcon size={16} color="currentColor" />
-                        <span style={{marginLeft: '6px'}}>Save</span>
+                        <span style={{marginLeft: '6px'}}>Store</span>
                       </button>
                     </div>
                   </div>
-                  <div className="password-text">{password}</div>
+                  <div 
+                    className="password-text"
+                    data-lpignore="true"
+                    data-bwignore="true"
+                    data-1p-ignore="true" 
+                    data-form-type="other"
+                  >{password}</div>
                 </div>
 
                 <div className="stats-grid">

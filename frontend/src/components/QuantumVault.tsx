@@ -140,7 +140,8 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
       // Get authentication token/credentials
       const authHeaders = getAuthHeaders();
       
-      const response = await fetch(`${API_URL}/api/vault/status/${userId}`, {
+      // 🔴 CRITICAL FIX: Backend will use JWT token userId, ignore URL param
+      const response = await fetch(`${API_URL}/api/vault/status/jwt-user`, {
         headers: authHeaders
       });
       
@@ -169,7 +170,9 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
       const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
       const authHeaders = getAuthHeaders();
       
-      const response = await fetch(`${API_URL}/api/vault/items/${userId}`, {
+      // 🔴 CRITICAL FIX: Send any userId - backend will use JWT token userId and ignore this
+      // Backend extracts userId from JWT token for security
+      const response = await fetch(`${API_URL}/api/vault/items/jwt-user`, {
         headers: authHeaders
       });
       
@@ -254,7 +257,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({
-          userId: userId,
+          // 🔴 FIX: Don't send userId - backend gets it from JWT token via auth middleware
           vaultId: 'quantum-vault-primary', // Updated from demo-vault
           ...newItem,
           vaultPublicKey: realQuantumKey  // <-- REAL ML-KEM-768 key, not mock
@@ -576,58 +579,103 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
             <LockIcon size={20} color="var(--quankey-primary)" />
             Add Quantum-Encrypted Item
           </h3>
+
+          {/* 🔴 FIX: Anti-Opera Form with honeypots and custom attributes */}
+          <form 
+            autoComplete="off"
+            data-lpignore="true"
+            data-bwignore="true"
+            data-1p-ignore="true"
+            data-form-type="other"
+            onSubmit={(e) => { e.preventDefault(); return false; }}
+          >
+            {/* Honeypot fields to confuse password managers */}
+            <div style={{ position: 'absolute', left: '-9999px', opacity: 0 }}>
+              <input type="text" name="username" tabIndex={-1} autoComplete="off" />
+              <input type="password" name="password" tabIndex={-1} autoComplete="off" />
+              <input type="email" name="email" tabIndex={-1} autoComplete="off" />
+              <input type="url" name="website" tabIndex={-1} autoComplete="off" />
+            </div>
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
             <input
               type="text"
+              name="qv_title_vault"  // 🔴 FIX: Obfuscated field name
               placeholder="Title (e.g., Gmail Account)"
               value={newItem.title}
               onChange={(e) => setNewItem(prev => ({ ...prev, title: e.target.value }))}
               className="vault-input"
+              autoComplete="off"
+              data-form-type="other"
             />
             <input
               type="text"
+              name="qv_user_vault"  // 🔴 FIX: Obfuscated field name
               placeholder="Username/Email"
               value={newItem.username}
               onChange={(e) => setNewItem(prev => ({ ...prev, username: e.target.value }))}
               className="vault-input"
+              autoComplete="off"
+              data-form-type="other"
             />
           </div>
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
             <input
               type="password"
+              name="qv_secret_vault"  // 🔴 FIX: Obfuscated field name
               placeholder="Password"
               value={newItem.password}
               onChange={(e) => setNewItem(prev => ({ ...prev, password: e.target.value }))}
               className="vault-input"
+              autoComplete="new-password"
+              data-form-type="other"
+              data-lpignore="true"
+              data-bwignore="true"
+              data-1p-ignore="true"
             />
             <input
               type="url"
+              name="qv_url_vault"  // 🔴 FIX: Obfuscated field name
               placeholder="Website URL"
               value={newItem.url}
               onChange={(e) => setNewItem(prev => ({ ...prev, url: e.target.value }))}
               className="vault-input"
+              autoComplete="off"
+              data-form-type="other"
             />
           </div>
           
           <textarea
+            name="qv_notes_vault"  // 🔴 FIX: Obfuscated field name
             placeholder="Notes (optional)"
             value={newItem.notes}
             onChange={(e) => setNewItem(prev => ({ ...prev, notes: e.target.value }))}
             className="vault-input"
             style={{ marginBottom: '24px', minHeight: '80px', resize: 'vertical' }}
+            autoComplete="off"
+            data-form-type="other"
           />
           
+          {/* Close form here to prevent Opera interception */}
+          </form>
+          
+          {/* Buttons - 🔴 FIX: Outside form to prevent Opera interception */}
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
             <button
+              type="button"
               onClick={() => setShowAddForm(false)}
               className="btn-secondary"
             >
               Cancel
             </button>
             <button
-              onClick={createVaultItem}
+              type="button"  // 🔴 FIX: NOT submit type
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                createVaultItem();
+              }}
               disabled={loading || !newItem.title}
               className="btn-quantum"
             >

@@ -211,7 +211,7 @@ export class AuthService {
           
           // Store token for subsequent API calls
           if (verificationResponse.data.token) {
-            localStorage.setItem('token', verificationResponse.data.token);
+            localStorage.setItem('auth_token', verificationResponse.data.token);
           }
           
           return {
@@ -340,7 +340,7 @@ export class AuthService {
           
           // Store token
           if (verificationResponse.data.token) {
-            localStorage.setItem('token', verificationResponse.data.token);
+            localStorage.setItem('auth_token', verificationResponse.data.token);
           }
           
           return {
