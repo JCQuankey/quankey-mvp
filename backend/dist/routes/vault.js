@@ -128,16 +128,38 @@ exports.vaultRouter.get('/status/:userId', async (req, res) => {
  */
 exports.vaultRouter.post('/items', async (req, res) => {
     try {
-        const { vaultId, title, username, password, url, notes, vaultPublicKey } = req.body;
+        console.log('🔴 === VAULT SAVE START ===');
+        console.log('1. Request headers:', req.headers.authorization ? 'Bearer token present' : 'NO AUTH');
+        console.log('2. Request body keys:', Object.keys(req.body));
+        const { vaultId, title, username, password, url, notes, vaultPublicKey, userId: bodyUserId } = req.body;
         // 🔴 FIX: Get userId from JWT token (set by auth middleware)
         const userId = req.user?.id;
+        const authUser = req.user;
+        console.log('3. Auth middleware data:');
+        console.log('   - req.user exists?', !!authUser);
+        console.log('   - req.user.id:', userId);
+        console.log('   - req.user.username:', authUser?.username);
+        console.log('   - req.user.webauthnId:', authUser?.webauthnId);
+        console.log('4. Body userId (ignored):', bodyUserId);
+        console.log('5. Using userId from TOKEN:', userId);
         if (!userId || !title || !vaultPublicKey) {
+            console.log('❌ Missing required fields:');
+            console.log('   - userId:', !!userId);
+            console.log('   - title:', !!title);
+            console.log('   - vaultPublicKey:', !!vaultPublicKey);
             return res.status(400).json({
                 success: false,
                 error: 'User ID (from token), title, and vault public key are required'
             });
         }
-        console.log(`📝 [VAULT API] Creating quantum vault item: ${title} for user: ${userId} (from JWT)`);
+        console.log('6. Creating vault item:');
+        console.log('   - Title:', title);
+        console.log('   - Username:', username || 'none');
+        console.log('   - URL:', url || 'none');
+        console.log('   - vaultPublicKey length:', vaultPublicKey?.length || 0);
+        // Check database type
+        const dbType = hybridDatabaseService_1.HybridDatabaseService.getDatabaseType();
+        console.log('7. Database type:', dbType);
         // Decode public key from base64
         const publicKeyBuffer = Buffer.from(vaultPublicKey, 'base64');
         const publicKey = new Uint8Array(publicKeyBuffer);
@@ -150,6 +172,7 @@ exports.vaultRouter.post('/items', async (req, res) => {
             notes
         }, publicKey);
         // 🔴 FIX: Also save to persistent database
+        console.log('8. Attempting to save to database...');
         const persistentItem = await hybridDatabaseService_1.HybridDatabaseService.savePassword(userId, {
             site: url || title,
             username: username || '',
@@ -172,7 +195,21 @@ exports.vaultRouter.post('/items', async (req, res) => {
             authTag: Buffer.from(vaultItem.encryptionMetadata.kemCiphertext).toString('base64').substring(48, 72),
             algorithm: 'ML-KEM-768'
         });
-        console.log(`✅ [VAULT API] Saved to both quantum vault AND persistent database`);
+        console.log('9. ✅ SAVED:', {
+            vaultItemId: vaultItem.id,
+            persistentId: persistentItem?.id,
+            savedWithUserId: userId,
+            title: vaultItem.title,
+            success: !!persistentItem
+        });
+        // Immediately verify the save
+        console.log('10. Verifying save...');
+        const verifyItems = await hybridDatabaseService_1.HybridDatabaseService.getPasswordsForUser(userId);
+        console.log('11. Verification:', {
+            totalItemsForUser: verifyItems.length,
+            justSavedItemFound: verifyItems.some(item => item.id === persistentItem?.id)
+        });
+        console.log('🔴 === VAULT SAVE END ===');
         // Prepare safe response (no sensitive encryption metadata exposed)
         const safeVaultItem = {
             id: vaultItem.id,
@@ -214,40 +251,77 @@ exports.vaultRouter.post('/items', async (req, res) => {
  */
 exports.vaultRouter.get('/items/:userId', async (req, res) => {
     try {
+        console.log('🔵 === VAULT LOAD START ===');
+        console.log('1. Request headers:', req.headers.authorization ? 'Bearer token present' : 'NO AUTH');
         const { userId } = req.params;
-        console.log(`📋 [VAULT API] Getting vault items for user: ${userId}`);
-        // In production, retrieve from database
-        // For MVP, return demo data structure
-        const demoItems = [
-            {
-                id: 'demo-item-1',
-                title: 'Gmail Account',
-                created: new Date('2024-01-15'),
-                updated: new Date('2024-01-15'),
-                encryption: {
-                    algorithm: 'ML-KEM-768 + AES-GCM-SIV',
-                    quantumProof: true,
-                    ciphertextSize: 256,
-                    kemCiphertextSize: 1088
-                }
-            },
-            {
-                id: 'demo-item-2',
-                title: 'Bank Account',
-                created: new Date('2024-01-16'),
-                updated: new Date('2024-01-20'),
-                encryption: {
-                    algorithm: 'ML-KEM-768 + AES-GCM-SIV',
-                    quantumProof: true,
-                    ciphertextSize: 312,
-                    kemCiphertextSize: 1088
-                }
+        const authUser = req.user;
+        const tokenUserId = authUser?.id;
+        console.log('2. Auth info:');
+        console.log('   - URL param userId:', userId);
+        console.log('   - Token userId:', tokenUserId);
+        console.log('   - req.user exists?', !!authUser);
+        console.log('   - req.user.username:', authUser?.username);
+        console.log('3. USING TOKEN userId:', tokenUserId);
+        if (!tokenUserId) {
+            console.log('❌ No userId from token - auth failed');
+            return res.status(401).json({
+                success: false,
+                error: 'User ID from token is required (authentication failed)'
+            });
+        }
+        // Check database type
+        const dbType = hybridDatabaseService_1.HybridDatabaseService.getDatabaseType();
+        const dbInfo = hybridDatabaseService_1.HybridDatabaseService.getDatabaseInfo();
+        console.log('4. Database info:', {
+            type: dbType,
+            persistent: dbInfo.persistent,
+            features: dbInfo.features.length
+        });
+        // ALWAYS use token userId for security - user can only see their own items
+        const correctUserId = tokenUserId;
+        console.log('5. Searching for items with userId:', correctUserId);
+        // 🚀 REAL DATABASE QUERY instead of demo data
+        const realItems = await hybridDatabaseService_1.HybridDatabaseService.getPasswordsForUser(correctUserId);
+        console.log('6. Database query results:', {
+            itemsFound: realItems.length,
+            userId: correctUserId
+        });
+        // Debug: Check if there are ANY items in the database
+        if (realItems.length === 0) {
+            console.log('7. ⚠️ NO ITEMS FOUND - Debugging...');
+            // Try to get ALL users to see what's in the DB
+            const allUsers = await hybridDatabaseService_1.HybridDatabaseService.getAllUsers();
+            console.log('   - Total users in DB:', allUsers.length);
+            console.log('   - User IDs:', allUsers.map(u => ({ id: u.id, username: u.username })));
+            // Check if our user exists
+            const userExists = allUsers.some(u => u.id === correctUserId);
+            console.log('   - Current user exists in DB?', userExists);
+            // Get stats for this user
+            const stats = await hybridDatabaseService_1.HybridDatabaseService.getUserStats(correctUserId);
+            console.log('   - User stats:', stats);
+        }
+        // Convert database items to vault format
+        const vaultItems = realItems.map(item => ({
+            id: item.id,
+            title: item.title || item.website || 'Untitled',
+            created: item.createdAt,
+            updated: item.updatedAt,
+            encryption: {
+                algorithm: item.metadata?.algorithm || 'ML-KEM-768 + AES-GCM-SIV',
+                quantumProof: item.isQuantum || false,
+                ciphertextSize: item.encryptedData?.length || 0,
+                kemCiphertextSize: item.metadata?.kemCiphertextSize || 1088
             }
-        ];
+        }));
+        console.log('8. 🔴 RETURNING ITEMS:', {
+            count: vaultItems.length,
+            userId: correctUserId
+        });
+        console.log('🔵 === VAULT LOAD END ===');
         res.json({
             success: true,
-            items: demoItems,
-            count: demoItems.length,
+            items: vaultItems,
+            count: vaultItems.length,
             quantum: {
                 allItemsQuantumResistant: true,
                 algorithm: 'ML-KEM-768 + AES-GCM-SIV',
@@ -257,6 +331,11 @@ exports.vaultRouter.get('/items/:userId', async (req, res) => {
                 zeroKnowledge: true,
                 serverCannotDecrypt: true,
                 quantumProof: true
+            },
+            debug: {
+                userId: correctUserId,
+                databaseType: dbType,
+                itemCount: vaultItems.length
             }
         });
     }
@@ -420,6 +499,77 @@ exports.vaultRouter.post('/test', async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Quantum vault self-test failed',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+/**
+ * DEBUG ENDPOINT - Get database status and vault items
+ * GET /api/vault/debug
+ */
+exports.vaultRouter.get('/debug', async (req, res) => {
+    try {
+        const authUser = req.user;
+        const tokenUserId = authUser?.id;
+        console.log('🔍 === VAULT DEBUG ===');
+        // Get database info
+        const dbInfo = hybridDatabaseService_1.HybridDatabaseService.getDatabaseInfo();
+        const dbType = hybridDatabaseService_1.HybridDatabaseService.getDatabaseType();
+        // Get all users
+        const allUsers = await hybridDatabaseService_1.HybridDatabaseService.getAllUsers();
+        // Get items for current user if authenticated
+        let userItems = [];
+        let userStats = null;
+        if (tokenUserId) {
+            userItems = await hybridDatabaseService_1.HybridDatabaseService.getPasswordsForUser(tokenUserId);
+            userStats = await hybridDatabaseService_1.HybridDatabaseService.getUserStats(tokenUserId);
+        }
+        // Count total items across all users
+        let totalItems = 0;
+        const itemsByUser = [];
+        for (const user of allUsers) {
+            const items = await hybridDatabaseService_1.HybridDatabaseService.getPasswordsForUser(user.id);
+            totalItems += items.length;
+            itemsByUser.push({
+                userId: user.id,
+                username: user.username,
+                itemCount: items.length
+            });
+        }
+        const debugInfo = {
+            database: {
+                type: dbType,
+                persistent: dbInfo.persistent,
+                features: dbInfo.features
+            },
+            currentUser: tokenUserId ? {
+                id: tokenUserId,
+                username: authUser?.username,
+                itemCount: userItems.length,
+                stats: userStats
+            } : 'Not authenticated',
+            system: {
+                totalUsers: allUsers.length,
+                totalItems: totalItems,
+                itemsByUser: itemsByUser
+            },
+            environment: {
+                NODE_ENV: process.env.NODE_ENV,
+                DATABASE_URL: process.env.DATABASE_URL ? 'Set' : 'Not set',
+                JWT_SECRET: process.env.JWT_SECRET ? 'Set' : 'Using default'
+            }
+        };
+        console.log('Debug info:', debugInfo);
+        res.json({
+            success: true,
+            debug: debugInfo
+        });
+    }
+    catch (error) {
+        console.error('❌ Debug endpoint error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Debug endpoint failed',
             message: error instanceof Error ? error.message : 'Unknown error'
         });
     }

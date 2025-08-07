@@ -4,6 +4,7 @@ import { BiometricAuth } from './BiometricAuth';
 import { PasswordList } from './PasswordList';
 import { AddPasswordForm } from './AddPasswordForm';
 import { QuantumVault } from './QuantumVault';
+import { SecurityDashboard } from './SecurityDashboard';
 import RecoveryPage from './RecoveryPage';
 import Logo from './LogoComp';
 import { User } from '../services/authService';
@@ -40,7 +41,7 @@ interface PasswordResponse {
   error?: string;
 }
 
-type ViewMode = 'vault' | 'quantum-vault' | 'generator' | 'add-password' | 'recovery';
+type ViewMode = 'vault' | 'quantum-vault' | 'generator' | 'add-password' | 'recovery' | 'security';
 
 const PasswordManager: React.FC = () => {
   // Authentication state
@@ -57,6 +58,7 @@ const PasswordManager: React.FC = () => {
   const [passwordLength, setPasswordLength] = useState<number>(16);
   const [includeSymbols, setIncludeSymbols] = useState<boolean>(true);
   const [copied, setCopied] = useState<boolean>(false);
+  const [copyFeedback, setCopyFeedback] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const [entropy, setEntropy] = useState<string>('');
 
   const handleAuthenticated = (user: User) => {
@@ -124,15 +126,29 @@ const PasswordManager: React.FC = () => {
     }
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(password);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(password);
+      setCopied(true);
+      setCopyFeedback({ show: true, message: '¡Contraseña copiada al portapapeles!' });
+      
+      setTimeout(() => {
+        setCopied(false);
+        setCopyFeedback({ show: false, message: '' });
+      }, 2000);
+    } catch (error) {
+      console.error('Error copying password:', error);
+      setCopyFeedback({ show: true, message: 'Error copiando contraseña' });
+      setTimeout(() => {
+        setCopyFeedback({ show: false, message: '' });
+      }, 2000);
+    }
   };
 
   const saveGeneratedPassword = () => {
     if (!password) {
-      alert('Please generate a password first');
+      setCopyFeedback({ show: true, message: 'Primero genera una contraseña' });
+      setTimeout(() => setCopyFeedback({ show: false, message: '' }), 2000);
       return;
     }
     
@@ -144,8 +160,12 @@ const PasswordManager: React.FC = () => {
     );
     
     if (userChoice) {
+      setCopyFeedback({ show: true, message: '¡Redirigiendo al Quantum Vault!' });
+      setTimeout(() => setCopyFeedback({ show: false, message: '' }), 2000);
       setCurrentView('quantum-vault');
     } else {
+      setCopyFeedback({ show: true, message: '¡Redirigiendo al Local Vault!' });
+      setTimeout(() => setCopyFeedback({ show: false, message: '' }), 2000);
       setCurrentView('add-password');
     }
   };
@@ -383,6 +403,28 @@ const PasswordManager: React.FC = () => {
               <QuantumIcon size={16} color="currentColor" />
               Generator
             </button>
+            <button
+              onClick={() => setCurrentView('security')}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: currentView === 'security' ? 'var(--quankey-primary)' : 'transparent',
+                color: currentView === 'security' ? 'white' : 'var(--quankey-gray)',
+                fontSize: '13px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}
+            >
+              <ShieldIcon size={16} color="currentColor" />
+              Security
+            </button>
           </div>
         </div>
 
@@ -557,12 +599,37 @@ const PasswordManager: React.FC = () => {
           />
         )}
 
+        {currentView === 'security' && (
+          <SecurityDashboard entries={getVaultStats()?.entries || []} />
+        )}
+
         {/* Footer */}
         <div className="footer" style={{marginTop: '32px'}}>
           <p>Powered by quantum random number generation</p>
           <p style={{marginTop: '8px'}}>Protected by biometric authentication</p>
         </div>
       </div>
+
+      {/* Copy Feedback Toast */}
+      {copyFeedback.show && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          background: 'rgba(0, 255, 136, 0.9)',
+          color: 'white',
+          padding: '12px 20px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          fontWeight: '600',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+          zIndex: 1000,
+          animation: 'slideIn 0.3s ease-out',
+          backdropFilter: 'blur(10px)'
+        }}>
+          {copyFeedback.message}
+        </div>
+      )}
     </div>
   );
 };

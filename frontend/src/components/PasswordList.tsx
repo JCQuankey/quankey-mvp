@@ -47,6 +47,10 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
   const [selectedEntry, setSelectedEntry] = useState<VaultEntry | null>(null);
   const [showPassword, setShowPassword] = useState<{ [key: string]: boolean }>({});
   const [sortBy, setSortBy] = useState<'updated' | 'title' | 'website'>('updated');
+  const [copyFeedback, setCopyFeedback] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
+  const [filterType, setFilterType] = useState<'all' | 'quantum' | 'weak' | 'strong'>('all');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   useEffect(() => {
     loadEntries();
@@ -85,18 +89,33 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
       
       if (data.success && data.items) {
         // Convert backend items to VaultEntry format
-        const allEntries: VaultEntry[] = data.items.map((item: any) => ({
-          id: item.id,
-          title: item.title || item.site || 'Untitled',
-          website: item.url || item.site || '',
-          username: item.username || '',
-          password: item.password || '••••••••',
-          notes: item.notes || '',
-          createdAt: new Date(item.createdAt || item.timestamp),
-          updatedAt: new Date(item.updatedAt || item.createdAt || item.timestamp),
-          isQuantum: item.isQuantum !== false, // Default to quantum
-          entropy: item.entropy || 'Quantum-generated'
-        }));
+        const allEntries: VaultEntry[] = data.items.map((item: any) => {
+          // Auto-categorize based on website domain if no category exists
+          const getDefaultCategory = (website: string) => {
+            const domain = website.toLowerCase();
+            if (domain.includes('bank') || domain.includes('paypal') || domain.includes('stripe')) return 'Financial';
+            if (domain.includes('gmail') || domain.includes('outlook') || domain.includes('mail')) return 'Email';
+            if (domain.includes('facebook') || domain.includes('twitter') || domain.includes('instagram')) return 'Social Media';
+            if (domain.includes('github') || domain.includes('gitlab') || domain.includes('dev')) return 'Development';
+            if (domain.includes('netflix') || domain.includes('spotify') || domain.includes('youtube')) return 'Entertainment';
+            if (domain.includes('amazon') || domain.includes('shop') || domain.includes('store')) return 'Shopping';
+            return 'Personal';
+          };
+
+          return {
+            id: item.id,
+            title: item.title || item.site || 'Untitled',
+            website: item.url || item.site || '',
+            username: item.username || '',
+            password: item.password || '••••••••',
+            notes: item.notes || '',
+            category: item.category || getDefaultCategory(item.url || item.site || ''),
+            createdAt: new Date(item.createdAt || item.timestamp),
+            updatedAt: new Date(item.updatedAt || item.createdAt || item.timestamp),
+            isQuantum: item.isQuantum !== false, // Default to quantum
+            entropy: item.entropy || 'Quantum-generated'
+          };
+        });
         
         // Apply sorting
         switch (sortBy) {
@@ -129,11 +148,44 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
     }
   };
 
-  const filteredEntries = entries.filter(entry =>
-    entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    entry.website.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    entry.username.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Get unique categories from entries
+  const availableCategories = Array.from(new Set(
+    entries
+      .map(entry => entry.category || 'Uncategorized')
+      .filter(Boolean)
+  )).sort();
+
+  const filteredEntries = entries.filter(entry => {
+    // Text search
+    const matchesSearch = searchQuery === '' || (
+      entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.website.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (entry.category || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // Type filter
+    const matchesFilter = (() => {
+      switch (filterType) {
+        case 'quantum':
+          return entry.isQuantum === true;
+        case 'weak':
+          const weakStrength = getPasswordStrength(entry.password);
+          return weakStrength.strength === 'Weak' || weakStrength.strength === 'Medium';
+        case 'strong':
+          const strongStrength = getPasswordStrength(entry.password);
+          return strongStrength.strength === 'Strong' || strongStrength.strength === 'Very Strong';
+        default:
+          return true; // 'all'
+      }
+    })();
+
+    // Category filter
+    const matchesCategory = selectedCategory === 'all' || 
+      (entry.category || 'Uncategorized') === selectedCategory;
+
+    return matchesSearch && matchesFilter && matchesCategory;
+  });
 
   /**
    * PATENT-CRITICAL: Secure Password Display Toggle
@@ -151,10 +203,26 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
     }));
   };
 
-  const copyToClipboard = (text: string, label: string) => {
+  const copyToClipboard = async (text: string, label: string) => {
     const copyId = `copy_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    navigator.clipboard.writeText(text);
-    console.log(`📋 [${copyId}] Copied ${label} to clipboard`);
+    try {
+      await navigator.clipboard.writeText(text);
+      console.log(`📋 [${copyId}] Copied ${label} to clipboard`);
+      
+      // Show visual feedback
+      setCopyFeedback({ show: true, message: `¡${label} copiado!` });
+      
+      // Hide feedback after 2 seconds
+      setTimeout(() => {
+        setCopyFeedback({ show: false, message: '' });
+      }, 2000);
+    } catch (error) {
+      console.error(`❌ Error copying ${label}:`, error);
+      setCopyFeedback({ show: true, message: `Error copiando ${label}` });
+      setTimeout(() => {
+        setCopyFeedback({ show: false, message: '' });
+      }, 2000);
+    }
   };
 
   /**
@@ -261,21 +329,34 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
       {/* Search and Sort */}
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-          <input
-            type="text"
-            placeholder="Search passwords..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              flex: 1,
-              padding: '12px',
-              borderRadius: '8px',
-              border: '1px solid rgba(0, 166, 251, 0.3)',
-              background: 'rgba(10, 22, 40, 0.5)',
-              color: 'white',
-              fontSize: '14px'
-            }}
-          />
+          <div style={{ position: 'relative', flex: 1 }}>
+            <input
+              type="text"
+              placeholder="Search passwords..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 40px 12px 12px',
+                borderRadius: '8px',
+                border: '1px solid rgba(0, 166, 251, 0.3)',
+                background: 'rgba(10, 22, 40, 0.5)',
+                color: 'white',
+                fontSize: '14px'
+              }}
+            />
+            <SearchIcon 
+              size={16} 
+              color="var(--quankey-gray)" 
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                pointerEvents: 'none'
+              }}
+            />
+          </div>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
@@ -292,8 +373,165 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
             <option value="title">Title A-Z</option>
             <option value="website">Website A-Z</option>
           </select>
+          <button
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            style={{
+              padding: '12px 16px',
+              borderRadius: '8px',
+              border: '1px solid rgba(0, 166, 251, 0.3)',
+              background: showAdvancedFilters ? 'rgba(0, 166, 251, 0.2)' : 'rgba(10, 22, 40, 0.5)',
+              color: 'var(--quankey-gray-light)',
+              fontSize: '14px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <TargetIcon size={16} color="currentColor" />
+            Filters
+          </button>
         </div>
+
+        {/* Advanced Filters */}
+        {showAdvancedFilters && (
+          <div style={{
+            padding: '16px',
+            background: 'rgba(10, 22, 40, 0.3)',
+            borderRadius: '8px',
+            border: '1px solid rgba(0, 166, 251, 0.2)',
+            marginTop: '12px'
+          }}>
+            {/* Type Filters */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+              <span style={{ color: 'var(--quankey-gray)', fontSize: '14px', alignSelf: 'center' }}>
+                Type:
+              </span>
+              {[
+                { value: 'all', label: 'All Passwords', icon: FolderIcon },
+                { value: 'quantum', label: 'Quantum Only', icon: QuantumIcon },
+                { value: 'weak', label: 'Need Attention', icon: TargetIcon },
+                { value: 'strong', label: 'Strong Only', icon: ShieldIcon }
+              ].map((filter) => {
+                const IconComponent = filter.icon;
+                return (
+                  <button
+                    key={filter.value}
+                    onClick={() => setFilterType(filter.value as any)}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      border: 'none',
+                      background: filterType === filter.value ? 'var(--quankey-primary)' : 'rgba(0, 166, 251, 0.1)',
+                      color: filterType === filter.value ? 'white' : 'var(--quankey-gray)',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <IconComponent size={12} color="currentColor" />
+                    {filter.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Category Filter */}
+            {availableCategories.length > 0 && (
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <span style={{ color: 'var(--quankey-gray)', fontSize: '14px' }}>
+                  Category:
+                </span>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(0, 166, 251, 0.3)',
+                    background: 'rgba(10, 22, 40, 0.7)',
+                    color: 'white',
+                    fontSize: '12px'
+                  }}
+                >
+                  <option value="all">All Categories ({entries.length})</option>
+                  {availableCategories.map(category => (
+                    <option key={category} value={category}>
+                      {category} ({entries.filter(e => (e.category || 'Uncategorized') === category).length})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            
+            {/* Clear Filters */}
+            {(filterType !== 'all' || selectedCategory !== 'all') && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+                <button
+                  onClick={() => {
+                    setFilterType('all');
+                    setSelectedCategory('all');
+                  }}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    border: 'none',
+                    background: 'rgba(255, 59, 48, 0.2)',
+                    color: 'var(--quankey-error)',
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Results Counter */}
+      {(searchQuery || filterType !== 'all' || selectedCategory !== 'all') && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '16px',
+          padding: '8px 12px',
+          background: 'rgba(0, 166, 251, 0.1)',
+          borderRadius: '6px',
+          border: '1px solid rgba(0, 166, 251, 0.2)'
+        }}>
+          <SearchIcon size={14} color="var(--quankey-primary)" />
+          <span style={{ color: 'var(--quankey-gray-light)', fontSize: '14px' }}>
+            {filteredEntries.length === 0 
+              ? 'No passwords match your search' 
+              : `Showing ${filteredEntries.length} of ${entries.length} passwords`}
+          </span>
+          {(searchQuery || filterType !== 'all' || selectedCategory !== 'all') && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setFilterType('all');
+                setSelectedCategory('all');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--quankey-primary)',
+                cursor: 'pointer',
+                fontSize: '12px',
+                marginLeft: 'auto'
+              }}
+            >
+              Clear all
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Password List */}
       <div style={{ display: 'grid', gap: '16px' }}>
@@ -337,7 +575,7 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
                   <p style={{ 
                     color: 'var(--quankey-gray)', 
                     fontSize: '12px', 
-                    margin: 0,
+                    margin: '0 0 4px 0',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px'
@@ -345,6 +583,20 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
                     <UserIcon size={14} color="currentColor" />
                     {entry.username}
                   </p>
+                  {entry.category && (
+                    <p style={{ 
+                      color: 'var(--quankey-primary)', 
+                      fontSize: '11px', 
+                      margin: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      fontWeight: '500'
+                    }}>
+                      <FolderIcon size={12} color="currentColor" />
+                      {entry.category}
+                    </p>
+                  )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   {/* PATENT-CRITICAL: Quantum Status Badge */}
@@ -532,6 +784,27 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
           <p style={{ color: 'var(--quankey-gray)' }}>
             No passwords found for "{searchQuery}"
           </p>
+        </div>
+      )}
+
+      {/* Copy Feedback Toast */}
+      {copyFeedback.show && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          background: 'rgba(0, 255, 136, 0.9)',
+          color: 'white',
+          padding: '12px 20px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          fontWeight: '600',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+          zIndex: 1000,
+          animation: 'slideIn 0.3s ease-out',
+          backdropFilter: 'blur(10px)'
+        }}>
+          {copyFeedback.message}
         </div>
       )}
     </div>

@@ -257,127 +257,6 @@ exports.authRouter.get('/users', async (req, res) => {
         });
     }
 });
-// Añadir AL FINAL de tu auth.ts, después de todos los endpoints existentes:
-// Complete registration - ALIAS para compatibilidad frontend
-exports.authRouter.post('/register/complete', async (req, res) => {
-    try {
-        const { username, response, displayName } = req.body;
-        if (!username || !response) {
-            return res.status(400).json({
-                success: false,
-                error: 'Username and response are required'
-            });
-        }
-        console.log(`🔐 Completing biometric registration for: ${username}`);
-        // Pass displayName in the response object for the verification
-        const responseWithDisplayName = {
-            ...response,
-            displayName: displayName || username
-        };
-        const verification = await webauthnService_1.WebAuthnService.verifyRegistration(username, responseWithDisplayName);
-        if (verification.verified && verification.user) {
-            // 🔴 FIX: Generate JWT token for registered user
-            const jwtSecret = process.env.JWT_SECRET || 'quankey_jwt_secret_quantum_2024_production';
-            const token = jsonwebtoken_1.default.sign({
-                userId: verification.user.id,
-                username: verification.user.username,
-                authMethod: 'webauthn'
-            }, jwtSecret, { expiresIn: '24h' });
-            console.log('✅ Registration complete with JWT token generated');
-            res.json({
-                success: true,
-                message: 'Biometric authentication registered successfully',
-                user: verification.user,
-                token: token,
-                expiresIn: 86400
-            });
-        }
-        else {
-            res.status(400).json({
-                success: false,
-                error: 'Registration verification failed'
-            });
-        }
-    }
-    catch (error) {
-        console.error('❌ Registration complete error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to complete registration',
-            message: error instanceof Error ? error.message : 'Unknown error'
-        });
-    }
-});
-// Login existing user with biometric authentication
-exports.authRouter.post('/login/begin', async (req, res) => {
-    try {
-        const { username } = req.body;
-        if (!username) {
-            return res.status(400).json({
-                success: false,
-                error: 'Username is required'
-            });
-        }
-        console.log(`🔐 Starting biometric login for: ${username}`);
-        const options = await webauthnService_1.WebAuthnService.generateAuthenticationOptions(username);
-        res.json({
-            success: true,
-            options
-        });
-    }
-    catch (error) {
-        console.error('❌ Login begin error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to generate login options',
-            message: error instanceof Error ? error.message : 'Unknown error'
-        });
-    }
-});
-exports.authRouter.post('/login/finish', async (req, res) => {
-    try {
-        const { username, response } = req.body;
-        if (!username || !response) {
-            return res.status(400).json({
-                success: false,
-                error: 'Username and response are required'
-            });
-        }
-        console.log(`🔐 Completing biometric login for: ${username}`);
-        const verification = await webauthnService_1.WebAuthnService.verifyAuthentication(username, response);
-        if (verification.verified && verification.user) {
-            // 🔴 FIX: Generate real JWT token for login
-            const jwtSecret = process.env.JWT_SECRET || 'quankey_jwt_secret_quantum_2024_production';
-            const token = jsonwebtoken_1.default.sign({
-                userId: verification.user.id,
-                username: verification.user.username,
-                authMethod: 'webauthn'
-            }, jwtSecret, { expiresIn: '24h' });
-            console.log('✅ Login successful with JWT token generated');
-            res.json({
-                success: true,
-                message: 'Login successful',
-                user: verification.user,
-                token: token,
-                expiresIn: 86400
-            });
-        }
-        else {
-            res.status(401).json({
-                success: false,
-                error: 'Login verification failed'
-            });
-        }
-    }
-    catch (error) {
-        console.error('❌ Login complete error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to complete login',
-            message: error instanceof Error ? error.message : 'Unknown error'
-        });
-    }
-});
 // Browser Extension Login - Email/Password based
 exports.authRouter.post('/extension-login', async (req, res) => {
     try {
@@ -442,6 +321,30 @@ exports.authRouter.post('/extension-login', async (req, res) => {
             success: false,
             error: 'Extension login failed',
             message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// 🔧 DEBUG ENDPOINT - Verificar extensiones WebAuthn
+exports.authRouter.get('/debug/webauthn-extensions', async (req, res) => {
+    try {
+        console.log('🔍 [DEBUG] Checking WebAuthn extensions...');
+        const options = await webauthnService_1.WebAuthnService.generateAuthenticationOptions('debug_user');
+        res.json({
+            success: true,
+            debug: {
+                extensionsInOptions: options.extensions || 'No extensions',
+                hasLargeBlob: !!options.extensions?.largeBlob,
+                largeBlobConfig: options.extensions?.largeBlob || null,
+                allOptions: options
+            },
+            message: 'Debug info for WebAuthn extensions'
+        });
+    }
+    catch (error) {
+        console.error('❌ Debug endpoint error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Debug endpoint failed'
         });
     }
 });

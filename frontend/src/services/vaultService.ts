@@ -8,6 +8,7 @@ export interface VaultEntry {
   username: string;
   password: string;
   notes?: string;
+  category?: string;
   createdAt: Date;
   updatedAt: Date;
   isQuantum: boolean;

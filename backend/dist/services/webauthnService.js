@@ -78,6 +78,8 @@ class WebAuthnService {
                 excludeCredentials: [], // 🆕 Evita registros duplicados
                 extensions: {
                     credProps: true
+                    // Si necesitas largeBlob en el futuro, agregar aquí:
+                    // largeBlob: { support: 'preferred' }  // ✅ Solo válido en REGISTRO
                 }
             };
         }
@@ -103,10 +105,9 @@ class WebAuthnService {
                 userVerification: 'required', // Requiere biometría/PIN siempre
                 extensions: {
                     // Mejora la experiencia con passkeys
-                    credentialProperties: true,
-                    largeBlob: {
-                        support: 'preferred'
-                    }
+                    credentialProperties: true
+                    // 🔴 FIX: largeBlob 'support' solo es válida en REGISTRO, no en LOGIN
+                    // Para login, si necesitas largeBlob, usa: largeBlob: { read: true }
                 }
             };
             console.log(`🔍 [WEBAUTHN] Authentication challenge generated: ${challenge.substring(0, 10)}...`);
