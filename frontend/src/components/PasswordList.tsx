@@ -1,7 +1,7 @@
 // frontend/src/components/PasswordList.tsx
 
 import React, { useState, useEffect } from 'react';
-import { VaultService, VaultEntry } from '../services/vaultService';
+import { VaultService, VaultEntry, EncryptedVaultService } from '../services/vaultService';
 // Importar los iconos profesionales
 import { 
   ShieldIcon, 
@@ -53,32 +53,80 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
   }, [userId, sortBy]);
 
   /**
-   * PATENT-CRITICAL: Load Encrypted Vault Entries
+   * PATENT-CRITICAL: Load Encrypted Vault Entries from Quantum Backend
    *
-   * @innovation Zero-knowledge vault loading
+   * @innovation Zero-knowledge vault loading from quantum backend
    * @security Entries remain encrypted until user interaction
    */
-  const loadEntries = () => {
+  const loadEntries = async () => {
     console.log(`📂 Loading vault entries for user: ${userId}`);
     
-    const allEntries = VaultService.getAllEntries(userId);
-    
-    // Apply sorting
-    switch (sortBy) {
-      case 'title':
-        allEntries.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case 'website':
-        allEntries.sort((a, b) => a.website.localeCompare(b.website));
-        break;
-      default: // 'updated'
-        allEntries.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+    try {
+      // 🔴 FIX: Load from Quantum Vault backend instead of localStorage
+      const userId = EncryptedVaultService.getUserIdFromToken();
+      if (!userId) {
+        console.error('❌ No userId from token');
+        return;
+      }
+      
+      // Load from backend API
+      const response = await fetch(`https://api.quankey.xyz/api/vault/items/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${EncryptedVaultService.getAuthToken()}`
+        }
+      });
+      
+      const data = await response.json();
+      console.log(`📊 Backend response:`, { 
+        success: data.success, 
+        count: data.count || 0,
+        items: data.items?.length || 0 
+      });
+      
+      if (data.success && data.items) {
+        // Convert backend items to VaultEntry format
+        const allEntries: VaultEntry[] = data.items.map((item: any) => ({
+          id: item.id,
+          title: item.title || item.site || 'Untitled',
+          website: item.url || item.site || '',
+          username: item.username || '',
+          password: item.password || '••••••••',
+          notes: item.notes || '',
+          createdAt: new Date(item.createdAt || item.timestamp),
+          updatedAt: new Date(item.updatedAt || item.createdAt || item.timestamp),
+          isQuantum: item.isQuantum !== false, // Default to quantum
+          entropy: item.entropy || 'Quantum-generated'
+        }));
+        
+        // Apply sorting
+        switch (sortBy) {
+          case 'title':
+            allEntries.sort((a, b) => a.title.localeCompare(b.title));
+            break;
+          case 'website':
+            allEntries.sort((a, b) => a.website.localeCompare(b.website));
+            break;
+          default: // 'updated'
+            allEntries.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+        }
+        
+        const quantumCount = allEntries.filter(e => e.isQuantum).length;
+        console.log(`✅ Loaded ${allEntries.length} entries (${quantumCount} quantum) from Quantum Vault backend`);
+        
+        setEntries(allEntries);
+      } else {
+        console.log('📭 No entries found in backend or failed to load');
+        setEntries([]);
+      }
+    } catch (error) {
+      console.error('❌ Error loading entries from backend:', error);
+      // Fallback to localStorage as backup
+      console.log('🔄 Falling back to localStorage...');
+      const localEntries = VaultService.getAllEntries(userId);
+      const quantumCount = localEntries.filter(e => e.isQuantum).length;
+      console.log(`✅ Loaded ${localEntries.length} entries (${quantumCount} quantum) from localStorage fallback`);
+      setEntries(localEntries);
     }
-    
-    const quantumCount = allEntries.filter(e => e.isQuantum).length;
-    console.log(`✅ Loaded ${allEntries.length} entries (${quantumCount} quantum)`);
-    
-    setEntries(allEntries);
   };
 
   const filteredEntries = entries.filter(entry =>
