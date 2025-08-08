@@ -164,7 +164,8 @@ export class VaultService {
       quantumPasswords: quantumCount,
       classicPasswords: classicCount,
       lastSync: vault.lastSync,
-      encryptionVersion: vault.encryptionVersion
+      encryptionVersion: vault.encryptionVersion,
+      entries: vault.entries // Add entries property for SecurityDashboard
     };
   }
 
