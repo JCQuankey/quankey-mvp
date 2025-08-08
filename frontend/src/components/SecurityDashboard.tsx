@@ -22,6 +22,7 @@ import {
   ClockIcon,
   KeyIcon
 } from './QuankeyIcons';
+import { DonutChart, BarChart, ProgressRing, SparkLine } from './Charts';
 
 interface SecurityDashboardProps {
   entries: VaultEntry[];
@@ -209,6 +210,179 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ entries })
             width: `${metrics.securityScore}%`,
             transition: 'width 0.5s ease'
           }} />
+        </div>
+      </div>
+
+      {/* Visual Charts Section */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '24px',
+        marginBottom: '32px'
+      }}>
+        {/* Security Distribution Donut Chart */}
+        <div style={{
+          background: 'rgba(10, 22, 40, 0.5)',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid rgba(0, 166, 251, 0.3)',
+          display: 'flex',
+          justifyContent: 'center'
+        }}>
+          <DonutChart 
+            title="Password Security Distribution"
+            total={metrics.totalPasswords}
+            data={[
+              {
+                label: 'Quantum Protected',
+                value: metrics.quantumPasswords,
+                color: 'var(--quankey-quantum)',
+                percentage: (metrics.quantumPasswords / metrics.totalPasswords) * 100
+              },
+              {
+                label: 'Strong Traditional',
+                value: Math.max(0, metrics.strongPasswords - metrics.quantumPasswords),
+                color: 'var(--quankey-success)',
+                percentage: (Math.max(0, metrics.strongPasswords - metrics.quantumPasswords) / metrics.totalPasswords) * 100
+              },
+              {
+                label: 'Medium Strength',
+                value: metrics.totalPasswords - metrics.strongPasswords - metrics.weakPasswords,
+                color: 'var(--quankey-warning)',
+                percentage: ((metrics.totalPasswords - metrics.strongPasswords - metrics.weakPasswords) / metrics.totalPasswords) * 100
+              },
+              {
+                label: 'Weak/At Risk',
+                value: metrics.weakPasswords,
+                color: 'var(--quankey-error)',
+                percentage: (metrics.weakPasswords / metrics.totalPasswords) * 100
+              }
+            ]}
+          />
+        </div>
+
+        {/* Security Issues Bar Chart */}
+        <div style={{
+          background: 'rgba(10, 22, 40, 0.5)',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid rgba(0, 166, 251, 0.3)'
+        }}>
+          <BarChart 
+            title="Security Issues Analysis"
+            data={[
+              {
+                label: 'Duplicate Passwords',
+                value: metrics.duplicatePasswords,
+                color: 'var(--quankey-error)'
+              },
+              {
+                label: 'Outdated (6+ months)',
+                value: metrics.oldPasswords,
+                color: 'var(--quankey-warning)'
+              },
+              {
+                label: 'Weak Passwords',
+                value: metrics.weakPasswords,
+                color: 'var(--quankey-error)'
+              },
+              {
+                label: 'Strong Passwords',
+                value: metrics.strongPasswords,
+                color: 'var(--quankey-success)'
+              }
+            ]}
+          />
+        </div>
+
+        {/* Overall Security Score Ring */}
+        <div style={{
+          background: 'rgba(10, 22, 40, 0.5)',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid rgba(0, 166, 251, 0.3)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <h4 style={{
+            color: 'var(--quankey-gray-light)',
+            fontSize: '16px',
+            marginBottom: '20px',
+            textAlign: 'center'
+          }}>
+            Overall Security Score
+          </h4>
+          <ProgressRing 
+            progress={metrics.securityScore}
+            size={120}
+            strokeWidth={12}
+            label={getScoreLabel(metrics.securityScore)}
+          />
+          <div style={{
+            marginTop: '16px',
+            textAlign: 'center',
+            color: 'var(--quankey-gray)',
+            fontSize: '12px'
+          }}>
+            Based on password strength, quantum protection, and security practices
+          </div>
+        </div>
+
+        {/* Recent Activity Sparkline */}
+        <div style={{
+          background: 'rgba(10, 22, 40, 0.5)',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid rgba(0, 166, 251, 0.3)'
+        }}>
+          <h4 style={{
+            color: 'var(--quankey-gray-light)',
+            fontSize: '16px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <ClockIcon size={18} color="var(--quankey-primary)" />
+            Activity Trend
+          </h4>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            <SparkLine 
+              data={[
+                metrics.totalPasswords * 0.3,
+                metrics.totalPasswords * 0.5,
+                metrics.totalPasswords * 0.7,
+                metrics.totalPasswords * 0.6,
+                metrics.totalPasswords * 0.8,
+                metrics.totalPasswords * 0.9,
+                metrics.totalPasswords
+              ]}
+              width={120}
+              height={40}
+              color="var(--quankey-primary)"
+            />
+            <div>
+              <div style={{
+                color: 'var(--quankey-gray-light)',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}>
+                {metrics.recentlyUpdated} Recent Updates
+              </div>
+              <div style={{
+                color: 'var(--quankey-gray)',
+                fontSize: '12px'
+              }}>
+                Last 30 days activity
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

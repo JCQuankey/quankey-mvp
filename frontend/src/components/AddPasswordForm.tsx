@@ -137,8 +137,8 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
         console.error(`❌ [${generationId}] Generation failed:`, result.error);
         error('Failed to generate quantum password: ' + (result.error || 'Unknown error'));
       }
-    } catch (error) {
-      console.error(`❌ [${generationId}] Generation error:`, error);
+    } catch (err) {
+      console.error(`❌ [${generationId}] Generation error:`, err);
       error('Failed to connect to quantum backend');
     }
     
@@ -189,8 +189,8 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
       
       success(`Password saved successfully! ${isCurrentQuantum ? 'Quantum-generated and ' : ''}quantum-encrypted.`);
       onSaved();
-    } catch (error) {
-      console.error(`❌ [${saveId}] Save error:`, error);
+    } catch (err) {
+      console.error(`❌ [${saveId}] Save error:`, err);
       error('Failed to save password');
     } finally {
       setLoading(false);

@@ -234,21 +234,18 @@ export const CSVManager: React.FC<CSVManagerProps> = ({ userId, entries, onImpor
 
       for (const row of importPreview.valid) {
         try {
-          const entry: Partial<VaultEntry> = {
-            id: `import-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          const entry = {
             title: row.title,
             website: row.website,
             username: row.username,
             password: row.password,
-            notes: row.notes,
+            notes: row.notes || '',
             category: row.category || 'Imported',
             isQuantum: false, // Imported passwords are not quantum-generated
-            entropy: 'Imported from CSV',
-            createdAt: new Date(),
-            updatedAt: new Date()
+            entropy: 'Imported from CSV'
           };
 
-          VaultService.saveEntry(userId, entry as VaultEntry);
+          VaultService.addEntry(userId, entry);
           imported++;
         } catch (err) {
           console.error('Import entry error:', err);

@@ -205,7 +205,7 @@ const PasswordManager: React.FC = () => {
     const demoEntries = generateDemoEntries();
     // Save demo entries to local storage
     demoEntries.forEach(entry => {
-      VaultService.saveEntry(currentUser!.id, entry);
+      VaultService.addEntry(currentUser!.id, entry);
     });
     
     setDemoLoaded(true);
@@ -229,7 +229,7 @@ const PasswordManager: React.FC = () => {
     // Clear all entries and re-save non-demo ones
     localStorage.removeItem(`quankey_vault_${currentUser!.id}`);
     cleanedEntries.forEach(entry => {
-      VaultService.saveEntry(currentUser!.id, entry);
+      VaultService.addEntry(currentUser!.id, entry);
     });
     
     setDemoLoaded(false);

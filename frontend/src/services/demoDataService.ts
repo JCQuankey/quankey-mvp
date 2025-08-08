@@ -285,7 +285,7 @@ export const generateDemoStats = () => {
     weakPasswords: weakCount,
     needingUpdate: oldCount,
     securityScore: Math.round((quantumCount / DEMO_PASSWORDS.length) * 100),
-    categories: [...new Set(DEMO_PASSWORDS.map(p => p.category))].length,
+    categories: Array.from(new Set(DEMO_PASSWORDS.map(p => p.category))).length,
     averageAge: Math.round(
       DEMO_PASSWORDS.reduce((sum, p) => sum + (p.updatedDaysAgo || 0), 0) / DEMO_PASSWORDS.length
     )

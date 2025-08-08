@@ -214,3 +214,31 @@ export const TrashIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColo
     <path d="M30 20v12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
   </svg>
 );
+
+// Icono de Descarga
+export const DownloadIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 4v28" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M16 24l8 8 8-8" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M4 36v4a4 4 0 004 4h32a4 4 0 004-4v-4" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+// Icono de Subida
+export const UploadIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 40V12" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M16 20l8-8 8 8" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M4 36v4a4 4 0 004 4h32a4 4 0 004-4v-4" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+// Icono de Archivo
+export const FileIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M30 6H12a4 4 0 00-4 4v32a4 4 0 004 4h24a4 4 0 004-4V18l-10-12z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M30 6v12h10" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M20 24h12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+    <path d="M20 32h12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);

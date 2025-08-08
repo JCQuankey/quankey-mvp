@@ -3,7 +3,7 @@ import {
   ShieldIcon, 
   TargetIcon, 
   QuantumIcon,
-  AlertIcon
+  WarningIcon
 } from './QuankeyIcons';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning' | 'quantum';
@@ -98,7 +98,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({ toast, onC
       case 'success':
         return <ShieldIcon {...iconProps} />;
       case 'error':
-        return <AlertIcon {...iconProps} />;
+        return <WarningIcon {...iconProps} />;
       case 'warning':
         return <TargetIcon {...iconProps} />;
       case 'quantum':
