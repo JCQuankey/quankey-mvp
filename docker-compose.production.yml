@@ -1,0 +1,228 @@
+# 🔐 QUANKEY PRODUCTION DEPLOYMENT
+# Military-grade Docker Compose configuration for enterprise deployment
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database - Secure configuration
+  postgres:
+    image: postgres:15-alpine
+    container_name: quankey-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-quankey_production}
+      POSTGRES_USER: ${POSTGRES_USER:-quankey_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/scripts/init-security.sql:/docker-entrypoint-initdb.d/init-security.sql:ro
+    ports:
+      - "127.0.0.1:5432:5432"  # Only localhost access
+    networks:
+      - quankey-internal
+    command: [
+      "postgres",
+      "-c", "ssl=on",
+      "-c", "ssl_cert_file=/var/lib/postgresql/server.crt",
+      "-c", "ssl_key_file=/var/lib/postgresql/server.key",
+      "-c", "log_statement=all",
+      "-c", "log_connections=on",
+      "-c", "log_disconnections=on",
+      "-c", "shared_preload_libraries=pg_stat_statements"
+    ]
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+
+  # Redis Cache - Secure configuration
+  redis:
+    image: redis:7-alpine
+    container_name: quankey-redis
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: [
+      "redis-server",
+      "--requirepass", "${REDIS_PASSWORD}",
+      "--appendonly", "yes",
+      "--appendfsync", "everysec",
+      "--maxmemory", "256mb",
+      "--maxmemory-policy", "volatile-lru",
+      "--bind", "0.0.0.0",
+      "--port", "6379"
+    ]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "127.0.0.1:6379:6379"  # Only localhost access
+    networks:
+      - quankey-internal
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  # Backend API - Secure Node.js application
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: quankey-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-quankey_admin}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-quankey_production}?sslmode=require
+      REDIS_URL: redis://default:${REDIS_PASSWORD}@redis:6379
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      DB_ENCRYPTION_KEY: ${DB_ENCRYPTION_KEY}
+      CORS_ORIGIN: https://quankey.xyz,https://www.quankey.xyz
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@quankey.xyz}
+      # Quantum security settings
+      ANU_QRNG_ENABLED: true
+      IBM_QUANTUM_ENABLED: false  # Set to true with IBM credentials
+      QUANTUM_ENTROPY_SOURCES: anu,hardware,crypto
+    volumes:
+      - backend_logs:/app/logs:rw
+    ports:
+      - "127.0.0.1:5000:5000"  # Only localhost access
+    networks:
+      - quankey-internal
+    depends_on:
+      - postgres
+      - redis
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend Web Server - Secure Nginx
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: quankey-frontend
+    restart: unless-stopped
+    environment:
+      NGINX_HOST: quankey.xyz
+      NGINX_PORT: 80
+    volumes:
+      - frontend_logs:/var/log/nginx:rw
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - quankey-internal
+      - quankey-external
+    depends_on:
+      - backend
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+      - NET_BIND_SERVICE
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Security Scanner (Optional - for continuous security monitoring)
+  security-scanner:
+    image: owasp/zap2docker-stable
+    container_name: quankey-scanner
+    restart: "no"
+    profiles:
+      - security
+    environment:
+      ZAP_PROXY: quankey-frontend:80
+    networks:
+      - quankey-internal
+    volumes:
+      - scanner_reports:/zap/reports:rw
+    command: [
+      "zap-baseline.py",
+      "-t", "http://quankey-frontend",
+      "-J", "/zap/reports/baseline-report.json",
+      "-r", "/zap/reports/baseline-report.html"
+    ]
+
+# Networks
+networks:
+  quankey-internal:
+    driver: bridge
+    internal: true  # No external access
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+  
+  quankey-external:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+
+# Volumes
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/postgres
+  
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/redis
+  
+  backend_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${LOGS_PATH:-./logs}/backend
+  
+  frontend_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${LOGS_PATH:-./logs}/frontend
+  
+  scanner_reports:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${REPORTS_PATH:-./reports}/security
+
+# Security configurations
+x-security-defaults: &security-defaults
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  read_only: true
+  tmpfs:
+    - /tmp:noexec,nosuid,nodev,size=100m

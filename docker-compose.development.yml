@@ -1,0 +1,104 @@
+# 🔧 QUANKEY DEVELOPMENT DEPLOYMENT
+# Secure development environment with hot reloading
+
+version: '3.8'
+
+services:
+  # PostgreSQL for development
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: quankey-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: quankey_development
+      POSTGRES_USER: quankey_dev
+      POSTGRES_PASSWORD: dev_password_change_in_production
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./backend/scripts/init-security.sql:/docker-entrypoint-initdb.d/init-security.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - quankey-dev
+
+  # Redis for development
+  redis-dev:
+    image: redis:7-alpine
+    container_name: quankey-redis-dev
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_dev_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - quankey-dev
+
+  # Backend development with hot reloading
+  backend-dev:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: quankey-backend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      DATABASE_URL: postgresql://quankey_dev:dev_password_change_in_production@postgres-dev:5432/quankey_development
+      REDIS_URL: redis://redis-dev:6379
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:-dev_public_key}
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:-dev_private_key}
+      DB_ENCRYPTION_KEY: ${DB_ENCRYPTION_KEY:-dev_encryption_key_64_chars_minimum_for_development_use}
+      CORS_ORIGIN: http://localhost:3000
+      # Development quantum settings
+      ANU_QRNG_ENABLED: true
+      IBM_QUANTUM_ENABLED: false
+    volumes:
+      - ./backend/src:/app/src:ro
+      - ./backend/prisma:/app/prisma:ro
+      - backend_dev_logs:/app/logs:rw
+    ports:
+      - "5000:5000"
+    networks:
+      - quankey-dev
+    depends_on:
+      - postgres-dev
+      - redis-dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend development with hot reloading
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: quankey-frontend-dev
+    restart: unless-stopped
+    environment:
+      REACT_APP_API_URL: http://localhost:5000
+      CHOKIDAR_USEPOLLING: true
+    volumes:
+      - ./frontend/src:/app/src:ro
+      - ./frontend/public:/app/public:ro
+      - frontend_dev_logs:/app/logs:rw
+    ports:
+      - "3000:3000"
+    networks:
+      - quankey-dev
+    depends_on:
+      - backend-dev
+
+# Networks
+networks:
+  quankey-dev:
+    driver: bridge
+
+# Volumes
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+  backend_dev_logs:
+  frontend_dev_logs:
