@@ -400,7 +400,7 @@ export const EncryptedVaultService = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    // CAMBIO IMPORTANTE: Usar la ruta quantum correcta
+    // Use secure quantum password generation endpoint
     const response = await fetch(`${API_URL}/api/quantum/password`, {
       method: 'POST',
       headers,
@@ -423,7 +423,7 @@ export const EncryptedVaultService = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_URL}/api/passwords/`, {
+    const response = await fetch(`${API_URL}/api/vault/items`, {
       headers,
       credentials: 'include'
     });
@@ -528,7 +528,16 @@ export const EncryptedVaultService = {
       const response = await fetch(`${API_URL}/api/vault/items`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(vaultItem),
+        body: JSON.stringify({
+          title: data.site,
+          username: data.username,
+          password: data.password,
+          website: `https://${data.site}`,
+          notes: data.notes || '',
+          category: data.category || 'other',
+          isQuantum: data.isQuantum !== false,
+          entropySource: data.quantumInfo?.source || 'quantum-generated'
+        }),
         credentials: 'include'
       });
       

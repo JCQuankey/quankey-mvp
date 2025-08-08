@@ -126,7 +126,7 @@ export class AuthService {
       // PATENT-CRITICAL: Get registration options from server
       console.log(`[API] [${registrationId}] Requesting WebAuthn registration options...`);
       const optionsResponse = await axios.post(`${API_BASE}/auth/register/begin`, {
-        username,
+        email: username, // Use email field for secure API
         displayName
       });
 
@@ -191,10 +191,10 @@ export class AuthService {
         console.log(`[SUCCESS] [${registrationId}] WebAuthn credential created successfully!`);
 
         // PATENT-CRITICAL: Complete registration - NO PASSWORD
+        const regId = optionsResponse.data.registrationId; // Get registration ID from secure API
         const verificationResponse = await axios.post(`${API_BASE}/auth/register/finish`, {
-          username,
-          displayName,
-          response: {
+          registrationId: regId,
+          webauthnResponse: {
             id: credential.id,
             rawId: Array.from(new Uint8Array(credential.rawId)),
             response: {
@@ -276,7 +276,7 @@ export class AuthService {
       // PATENT-CRITICAL: Get authentication options from server
       console.log(`[API] [${authId}] Requesting WebAuthn authentication options...`);
       const optionsResponse = await axios.post(`${API_BASE}/auth/login/begin`, {
-        username
+        email: username // Use email field for secure API
       });
 
       if (!optionsResponse.data.success) {
@@ -320,9 +320,10 @@ export class AuthService {
         console.log(`[SUCCESS] [${authId}] WebAuthn credential received!`);
 
         // PATENT-CRITICAL: Complete authentication - NO PASSWORD
+        const loginId = optionsResponse.data.loginId; // Get login ID from secure API
         const verificationResponse = await axios.post(`${API_BASE}/auth/login/finish`, {
-          username,
-          response: {
+          loginId: loginId,
+          webauthnResponse: {
             id: credential.id,
             rawId: Array.from(new Uint8Array(credential.rawId)),
             response: {

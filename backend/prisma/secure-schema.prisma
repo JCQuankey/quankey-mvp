@@ -1,0 +1,329 @@
+// SECURE DATABASE SCHEMA - PostgreSQL ONLY
+// Row Level Security, Audit Logging, Encryption
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [uuid_ossp, pgcrypto, pg_stat_statements]
+}
+
+// ========================================
+// USERS TABLE - Información de usuarios
+// ========================================
+model User {
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email             String    @unique @db.VarChar(255)
+  displayName       String    @db.VarChar(100)
+  
+  // WebAuthn Credentials
+  webauthnId        String?   @unique @db.VarChar(255)
+  credentialId      String?   @unique @db.Text
+  publicKeyECDSA    String?   @db.Text
+  publicKeyMLDSA    Bytes?    // Post-quantum public key
+  
+  // Security flags
+  quantumResistant  Boolean   @default(false)
+  twoFactorEnabled  Boolean   @default(false)
+  blocked           Boolean   @default(false)
+  emailVerified     Boolean   @default(false)
+  
+  // Timestamps
+  createdAt         DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt         DateTime  @updatedAt @db.Timestamp(6)
+  lastLoginAt       DateTime? @db.Timestamp(6)
+  deletedAt         DateTime? @db.Timestamp(6)
+  
+  // Password-related
+  requiresPasswordReset Boolean @default(false)
+  passwordResetToken    String? @db.VarChar(255)
+  passwordResetExpires  DateTime? @db.Timestamp(6)
+  
+  // Relationships
+  passwords         Password[]
+  sessions          Session[]
+  auditLogs         AuditLog[]
+  recoveryShares    RecoveryShare[]
+  
+  // Indexes
+  @@index([email])
+  @@index([webauthnId])
+  @@index([credentialId])
+  @@index([createdAt])
+  @@index([lastLoginAt])
+  
+  @@map("users")
+}
+
+// ========================================
+// PASSWORDS TABLE - Contraseñas cifradas
+// ========================================
+model Password {
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId            String    @db.Uuid
+  
+  // Encrypted fields (using AES-256-GCM)
+  titleEncrypted    String    @db.Text  // Título cifrado
+  usernameEncrypted String    @db.Text  // Usuario cifrado
+  passwordEncrypted String    @db.Text  // Contraseña cifrada
+  notesEncrypted    String?   @db.Text  // Notas cifradas
+  
+  // Metadata (not encrypted)
+  website           String?   @db.VarChar(500)
+  category          String    @default("other") @db.VarChar(50)
+  favorite          Boolean   @default(false)
+  
+  // Security metadata
+  isQuantum         Boolean   @default(false)
+  entropySource     String?   @db.VarChar(100)
+  algorithmUsed     String?   @db.VarChar(50)
+  
+  // Post-quantum encryption metadata
+  kemEncrypted      Boolean   @default(false) // ML-KEM-768 encrypted
+  encapsulatedKey   Bytes?    // KEM encapsulated key
+  nonce             Bytes?    // ChaCha20-Poly1305 nonce
+  
+  // Version control
+  version           Int       @default(1)
+  schemaVersion     String    @default("1.0") @db.VarChar(10)
+  
+  // Timestamps
+  createdAt         DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt         DateTime  @updatedAt @db.Timestamp(6)
+  lastAccessedAt    DateTime? @db.Timestamp(6)
+  expiresAt         DateTime? @db.Timestamp(6) // For temporary passwords
+  
+  // Relationships
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Indexes
+  @@index([userId])
+  @@index([website])
+  @@index([category])
+  @@index([createdAt])
+  @@index([updatedAt])
+  @@index([isQuantum])
+  @@index([kemEncrypted])
+  
+  @@map("passwords")
+}
+
+// ========================================
+// SESSIONS TABLE - Sesiones de usuario
+// ========================================
+model Session {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId      String    @db.Uuid
+  sessionId   String    @db.VarChar(64)
+  
+  // Session metadata
+  ipAddress   String?   @db.Inet
+  userAgent   String?   @db.Text
+  location    String?   @db.VarChar(100)
+  
+  // Security info
+  isQuantum   Boolean   @default(false)
+  deviceId    String?   @db.VarChar(64)
+  
+  // Status
+  active      Boolean   @default(true)
+  revoked     Boolean   @default(false)
+  
+  // Timestamps
+  createdAt   DateTime  @default(now()) @db.Timestamp(6)
+  expiresAt   DateTime  @db.Timestamp(6)
+  revokedAt   DateTime? @db.Timestamp(6)
+  lastUsedAt  DateTime  @default(now()) @db.Timestamp(6)
+  
+  // Relationships
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Constraints
+  @@unique([userId, sessionId])
+  @@index([sessionId])
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([active])
+  @@index([createdAt])
+  
+  @@map("sessions")
+}
+
+// ========================================
+// AUDIT_LOGS TABLE - Registro de auditoría
+// ========================================
+model AuditLog {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId      String?   @db.Uuid  // Nullable para eventos anónimos
+  
+  // Event details
+  action      String    @db.VarChar(100)
+  tableName   String?   @db.VarChar(50)
+  recordId    String?   @db.Uuid
+  
+  // Request metadata
+  ipAddress   String?   @db.Inet
+  userAgent   String?   @db.Text
+  
+  // Data changes (encrypted if sensitive)
+  oldData     Json?     // Previous state
+  newData     Json?     // New state
+  metadata    Json?     // Additional context
+  
+  // Security
+  hash        String    @db.VarChar(64)  // SHA-256 for integrity
+  signature   Bytes?    // ML-DSA-65 signature
+  
+  // Timestamps
+  timestamp   DateTime  @default(now()) @db.Timestamp(6)
+  
+  // Relationships
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  // Indexes
+  @@index([userId])
+  @@index([action])
+  @@index([timestamp])
+  @@index([hash])
+  @@index([ipAddress])
+  
+  @@map("audit_logs")
+}
+
+// ========================================
+// RECOVERY_SHARES TABLE - Quantum Recovery
+// ========================================
+model RecoveryShare {
+  id              String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId          String    @db.Uuid
+  
+  // Shamir Secret Sharing
+  shareIndex      Int       // Share number (1-5)
+  shareData       Bytes     // Encrypted share
+  threshold       Int       // Minimum shares needed
+  
+  // Recovery metadata
+  recoveryType    String    @db.VarChar(50)  // 'master_key', 'vault_key', etc.
+  algorithm       String    @default("shamir") @db.VarChar(50)
+  
+  // Security
+  quantumProof    Boolean   @default(false)
+  signature       Bytes?    // ML-DSA-65 signature
+  
+  // Status
+  active          Boolean   @default(true)
+  used            Boolean   @default(false)
+  
+  // Timestamps
+  createdAt       DateTime  @default(now()) @db.Timestamp(6)
+  expiresAt       DateTime? @db.Timestamp(6)
+  usedAt          DateTime? @db.Timestamp(6)
+  
+  // Relationships
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Constraints
+  @@unique([userId, shareIndex, recoveryType])
+  @@index([userId])
+  @@index([recoveryType])
+  @@index([active])
+  
+  @@map("recovery_shares")
+}
+
+// ========================================
+// QUANTUM_KEYS TABLE - Post-quantum keys
+// ========================================
+model QuantumKey {
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId            String?   @db.Uuid  // Null for system keys
+  
+  // Key metadata
+  keyType           String    @db.VarChar(50)  // 'ML_KEM_768', 'ML_DSA_65'
+  purpose           String    @db.VarChar(50)  // 'vault', 'auth', 'recovery'
+  algorithm         String    @db.VarChar(50)
+  
+  // Key data (encrypted with master key)
+  publicKey         Bytes?    // Public key
+  privateKeyEnc     Bytes?    // Encrypted private key
+  keyParameters     Json?     // Algorithm parameters
+  
+  // Security metadata
+  hsmStored         Boolean   @default(false)  // Stored in HSM
+  keyId             String?   @db.VarChar(100) // HSM key ID
+  
+  // Status
+  active            Boolean   @default(true)
+  revoked           Boolean   @default(false)
+  
+  // Timestamps
+  createdAt         DateTime  @default(now()) @db.Timestamp(6)
+  expiresAt         DateTime? @db.Timestamp(6)
+  revokedAt         DateTime? @db.Timestamp(6)
+  
+  // Indexes
+  @@index([userId])
+  @@index([keyType])
+  @@index([purpose])
+  @@index([active])
+  
+  @@map("quantum_keys")
+}
+
+// ========================================
+// RATE_LIMITS TABLE - Rate limiting data
+// ========================================
+model RateLimit {
+  id            String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  
+  // Identification
+  identifier    String    @db.VarChar(255)  // IP or IP:UserID
+  endpoint      String    @db.VarChar(100)  // Endpoint type
+  
+  // Counters
+  requests      Int       @default(0)
+  windowStart   DateTime  @db.Timestamp(6)
+  windowEnd     DateTime  @db.Timestamp(6)
+  
+  // Metadata
+  blocked       Boolean   @default(false)
+  lastRequest   DateTime  @default(now()) @db.Timestamp(6)
+  
+  // Constraints
+  @@unique([identifier, endpoint])
+  @@index([windowEnd])
+  @@index([blocked])
+  
+  @@map("rate_limits")
+}
+
+// ========================================
+// SYSTEM_CONFIG TABLE - Configuración
+// ========================================
+model SystemConfig {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  
+  // Configuration
+  key         String    @unique @db.VarChar(100)
+  value       Json
+  encrypted   Boolean   @default(false)
+  
+  // Metadata
+  description String?   @db.Text
+  category    String    @db.VarChar(50)
+  
+  // Security
+  hash        String    @db.VarChar(64)  // Integrity check
+  
+  // Timestamps
+  createdAt   DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamp(6)
+  
+  @@index([category])
+  
+  @@map("system_config")
+}
