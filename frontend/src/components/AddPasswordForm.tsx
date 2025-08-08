@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { VaultService } from '../services/vaultService';
 import { EncryptedVaultService } from '../services/vaultService';
+import { LoadingSpinner, InlineSpinner } from './LoadingSpinner';
+import { useToast } from './ToastNotification';
 // Importar los iconos profesionales
 import { 
   PlusIcon,
@@ -60,6 +62,9 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
   const [includeSymbols, setIncludeSymbols] = useState(true);
   const [currentEntropy, setCurrentEntropy] = useState(entropy);
   const [isCurrentQuantum, setIsCurrentQuantum] = useState(isQuantum);
+  
+  // Toast notifications
+  const { success, error, quantum, warning } = useToast();
 
   // 🚀 QUANTUM VAULT: Initialize quantum keys when component mounts
   useEffect(() => {
@@ -125,13 +130,16 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
         console.log(`🔮 [${generationId}] Quantum info:`, result.quantumInfo);
         console.log(`⚛️ [${generationId}] Source: ${result.quantumInfo?.source || 'Unknown'}`);
         console.log(`📈 [${generationId}] Entropy: ${result.quantumInfo?.theoretical_entropy || 'Unknown'}`);
+        
+        // Show success toast
+        quantum(`Quantum password generated! Source: ${result.quantumInfo?.source || 'Multi-source'}`, 4000);
       } else {
         console.error(`❌ [${generationId}] Generation failed:`, result.error);
-        alert('Failed to generate quantum password: ' + (result.error || 'Unknown error'));
+        error('Failed to generate quantum password: ' + (result.error || 'Unknown error'));
       }
     } catch (error) {
       console.error(`❌ [${generationId}] Generation error:`, error);
-      alert('Failed to connect to quantum backend');
+      error('Failed to connect to quantum backend');
     }
     
     setGenerating(false);
@@ -146,7 +154,7 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
    */
   const handleSave = async () => {
     if (!formData.title.trim() || !formData.website.trim() || !formData.password.trim()) {
-      alert('Please fill in all required fields (Title, Website, Password)');
+      warning('Please fill in all required fields (Title, Website, Password)');
       return;
     }
 
@@ -179,10 +187,11 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
       
       console.log(`✅ [${saveId}] PASSWORD QUANTUM-ENCRYPTED AND SAVED TO QUANTUM VAULT`);
       
+      success(`Password saved successfully! ${isCurrentQuantum ? 'Quantum-generated and ' : ''}quantum-encrypted.`);
       onSaved();
     } catch (error) {
       console.error(`❌ [${saveId}] Save error:`, error);
-      alert('Failed to save password');
+      error('Failed to save password');
     } finally {
       setLoading(false);
     }
@@ -387,8 +396,17 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
                 gap: '6px'
               }}
             >
-              <QuantumIcon size={16} color="currentColor" />
-              {generating ? 'Generating Quantum Password...' : 'Generate Quantum Password'}
+              {generating ? (
+                <>
+                  <InlineSpinner size={14} color="currentColor" />
+                  Generating Quantum Password...
+                </>
+              ) : (
+                <>
+                  <QuantumIcon size={16} color="currentColor" />
+                  Generate Quantum Password
+                </>
+              )}
             </button>
           </div>
 
@@ -538,7 +556,12 @@ export const AddPasswordForm: React.FC<AddPasswordFormProps> = ({
               gap: '6px'
             }}
           >
-            {loading ? 'Saving...' : (
+{loading ? (
+              <>
+                <InlineSpinner size={14} color="currentColor" />
+                Saving...
+              </>
+            ) : (
               <>
                 <SaveIcon size={16} color="currentColor" />
                 Save Password

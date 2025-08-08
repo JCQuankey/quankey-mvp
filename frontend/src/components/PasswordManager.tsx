@@ -5,10 +5,18 @@ import { PasswordList } from './PasswordList';
 import { AddPasswordForm } from './AddPasswordForm';
 import { QuantumVault } from './QuantumVault';
 import { SecurityDashboard } from './SecurityDashboard';
+import { QuantumComparison } from './QuantumComparison';
 import RecoveryPage from './RecoveryPage';
 import Logo from './LogoComp';
 import { User } from '../services/authService';
-import { VaultService } from '../services/vaultService';
+import { VaultService, VaultEntry } from '../services/vaultService';
+import { 
+  generateDemoEntries, 
+  isDemoDataLoaded, 
+  clearDemoData,
+  generateDemoStats 
+} from '../services/demoDataService';
+import { ToastContainer, useToast } from './ToastNotification';
 
 import { 
   WarningIcon,
@@ -60,6 +68,13 @@ const PasswordManager: React.FC = () => {
   const [copied, setCopied] = useState<boolean>(false);
   const [copyFeedback, setCopyFeedback] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const [entropy, setEntropy] = useState<string>('');
+  
+  // Demo data state
+  const [vaultEntries, setVaultEntries] = useState<VaultEntry[]>([]);
+  const [demoLoaded, setDemoLoaded] = useState<boolean>(false);
+  
+  // Toast notifications
+  const { toasts, showToast, removeToast, success, error, info, quantum } = useToast();
 
   const handleAuthenticated = (user: User) => {
     setCurrentUser(user);
@@ -178,6 +193,52 @@ const PasswordManager: React.FC = () => {
   const getVaultStats = () => {
     if (!currentUser) return null;
     return VaultService.getVaultStats(currentUser.id);
+  };
+  
+  // Demo data handlers
+  const loadDemoData = () => {
+    if (demoLoaded) {
+      info('Demo data is already loaded');
+      return;
+    }
+    
+    const demoEntries = generateDemoEntries();
+    // Save demo entries to local storage
+    demoEntries.forEach(entry => {
+      VaultService.saveEntry(currentUser!.id, entry);
+    });
+    
+    setDemoLoaded(true);
+    quantum('Demo data loaded successfully! 15 sample passwords added to your vault.', 5000);
+    
+    // Refresh the view
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+  };
+  
+  const clearDemoDataHandler = () => {
+    if (!demoLoaded) {
+      info('No demo data to clear');
+      return;
+    }
+    
+    const allEntries = VaultService.getAllEntries(currentUser!.id);
+    const cleanedEntries = clearDemoData(allEntries);
+    
+    // Clear all entries and re-save non-demo ones
+    localStorage.removeItem(`quankey_vault_${currentUser!.id}`);
+    cleanedEntries.forEach(entry => {
+      VaultService.saveEntry(currentUser!.id, entry);
+    });
+    
+    setDemoLoaded(false);
+    success('Demo data cleared successfully!');
+    
+    // Refresh the view
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
   };
 
   const vaultStats = getVaultStats();
@@ -326,6 +387,73 @@ const PasswordManager: React.FC = () => {
               <LogoutIcon size={16} color="currentColor" />
               Logout
             </button>
+          </div>
+
+          {/* Demo Data Controls */}
+          <div style={{
+            marginBottom: '20px',
+            padding: '16px',
+            background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(0, 166, 251, 0.1))',
+            borderRadius: '12px',
+            border: '1px solid rgba(147, 51, 234, 0.3)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <div>
+              <div style={{ 
+                color: 'var(--quankey-gray-light)', 
+                fontSize: '14px', 
+                fontWeight: '600',
+                marginBottom: '4px'
+              }}>
+                Investor Demo Mode
+              </div>
+              <div style={{ color: 'var(--quankey-gray)', fontSize: '12px' }}>
+                Load sample passwords to showcase Quankey's capabilities
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={loadDemoData}
+                disabled={demoLoaded}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(147, 51, 234, 0.3)',
+                  background: demoLoaded ? 'rgba(0, 0, 0, 0.2)' : 'rgba(147, 51, 234, 0.2)',
+                  color: demoLoaded ? 'var(--quankey-gray)' : 'var(--quankey-quantum)',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: demoLoaded ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <QuantumIcon size={14} color="currentColor" />
+                {demoLoaded ? 'Demo Loaded' : 'Load Demo Data'}
+              </button>
+              {demoLoaded && (
+                <button
+                  onClick={clearDemoDataHandler}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255, 59, 48, 0.3)',
+                    background: 'rgba(255, 59, 48, 0.2)',
+                    color: 'var(--quankey-error)',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Clear Demo
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Navigation Tabs */}
@@ -600,7 +728,20 @@ const PasswordManager: React.FC = () => {
         )}
 
         {currentView === 'security' && (
-          <SecurityDashboard entries={getVaultStats()?.entries || []} />
+          <div>
+            <SecurityDashboard entries={getVaultStats()?.entries || []} />
+            
+            {/* Quantum Comparison */}
+            {vaultStats && vaultStats.entries.length > 0 && (
+              <div style={{ marginTop: '24px' }}>
+                <QuantumComparison
+                  quantumCount={vaultStats.entries.filter(e => e.isQuantum).length}
+                  traditionalCount={vaultStats.entries.filter(e => !e.isQuantum).length}
+                  totalCount={vaultStats.entries.length}
+                />
+              </div>
+            )}
+          </div>
         )}
 
         {/* Footer */}
@@ -630,6 +771,9 @@ const PasswordManager: React.FC = () => {
           {copyFeedback.message}
         </div>
       )}
+      
+      {/* Toast Notifications Container */}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );
 };
