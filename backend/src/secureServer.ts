@@ -12,10 +12,18 @@ import { getSecureDatabase } from './services/secureDatabaseService';
 import { SecureAuthMiddleware } from './middleware/secureAuth.middleware';
 import { SecurityMiddleware } from './middleware/security.middleware';
 import { QuantumSecurityService } from './services/quantumSecurity.service';
+import { AuditLogger } from './services/auditLogger.service';
+
+// 🔒 COMPREHENSIVE SECURITY MIDDLEWARES
+import { inputValidation } from './middleware/inputValidation.middleware';
+import { csrfProtection } from './middleware/csrf.middleware';
+import { sessionSecurity } from './middleware/sessionSecurity.middleware';
+import { securityHeaders } from './middleware/securityHeaders.middleware';
 
 // 🛡️ SECURE ROUTES - Quantum-resistant
 import secureAuthRoutes from './routes/secureAuth.routes';
 import secureVaultRoutes from './routes/secureVault.routes';
+import quantumRoutes from './routes/quantum.routes';
 
 // Load environment variables first
 dotenv.config();
@@ -77,11 +85,15 @@ class SecureQuankeyServer {
       }
     }));
 
-    // 🔒 Security headers (Helmet)
+    // 🔒 Security headers (Comprehensive)
+    this.app.use(securityHeaders.applyHeaders);
     this.app.use(this.security.securityHeaders);
 
     // 🌐 CORS - Strict origin validation
     this.app.use(this.security.corsMiddleware);
+
+    // 🛡️ Session Security Initialization
+    this.app.use(sessionSecurity.initializeSession);
 
     // 📝 Request parsing with size limits
     this.app.use(express.json(this.security.requestSizeLimits.json));
@@ -89,8 +101,15 @@ class SecureQuankeyServer {
     this.app.use(express.text(this.security.requestSizeLimits.text));
     this.app.use(express.raw(this.security.requestSizeLimits.raw));
 
-    // 🧹 Input sanitization (before routes)
+    // 🧹 Input sanitization (comprehensive)
+    this.app.use(inputValidation.sanitizeRequest);
     this.app.use(this.security.sanitizeMiddleware);
+
+    // 🔐 Session validation
+    this.app.use(sessionSecurity.validateSession);
+
+    // 🛡️ CSRF Protection (provide tokens)
+    this.app.use(csrfProtection.provideToken);
 
     console.log('✅ Security middleware initialized');
   }
@@ -135,76 +154,25 @@ class SecureQuankeyServer {
       }
     });
 
-    // 🔐 Authentication routes
-    this.app.use('/api/auth', secureAuthRoutes);
-
-    // 🔐 Vault routes (protected)
-    this.app.use('/api/vault', secureVaultRoutes);
-
-    // 🌌 Quantum password generation
-    this.app.post('/api/quantum/password', 
-      this.auth.validateToken,
-      this.security.passwordGenerationLimiter,
-      async (req: Request, res: Response) => {
-        try {
-          const { length = 32, includeSymbols = true } = req.body;
-          
-          // Validate parameters
-          if (length < 8 || length > 128) {
-            return res.status(400).json({
-              success: false,
-              error: 'Password length must be between 8 and 128 characters'
-            });
-          }
-
-          console.log(`🌌 Generating quantum password (length: ${length})`);
-
-          // Generate quantum entropy
-          const entropy = await this.quantum.gatherQuantumEntropy(64);
-          
-          // Generate password from quantum entropy
-          const charset = includeSymbols 
-            ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?'
-            : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-          
-          let password = '';
-          for (let i = 0; i < length; i++) {
-            const randomIndex = entropy[i % entropy.length] % charset.length;
-            password += charset[randomIndex];
-          }
-
-          // Calculate entropy
-          const entropyBits = Math.log2(charset.length) * length;
-
-          // Audit generation
-          const user = (req as any).user;
-          await this.db.auditLog(user?.id || 'anonymous', 'QUANTUM_PASSWORD_GENERATED', {
-            length,
-            includeSymbols,
-            entropyBits: entropyBits.toFixed(1),
-            source: 'multi-quantum'
-          });
-
-          res.json({
-            success: true,
-            password,
-            quantumInfo: {
-              source: 'Multi-source quantum entropy',
-              entropyBits: entropyBits.toFixed(1) + ' bits',
-              algorithm: 'Quantum entropy + CSPRNG',
-              generatedAt: new Date().toISOString()
-            }
-          });
-
-        } catch (error) {
-          console.error('❌ Quantum password generation error:', error);
-          res.status(500).json({
-            success: false,
-            error: 'Quantum password generation failed'
-          });
-        }
-      }
+    // 🔐 Authentication routes (with CSRF protection and session regeneration on login)
+    this.app.use('/api/auth', 
+      sessionSecurity.regenerateOnLogin,
+      csrfProtection.validateCSRF,
+      secureAuthRoutes
     );
+
+    // 🔐 Vault routes (protected with CSRF)
+    this.app.use('/api/vault',
+      csrfProtection.validateCSRF,
+      secureVaultRoutes
+    );
+
+    // 🌌 Quantum Security routes (protected)
+    this.app.use('/api/quantum',
+      csrfProtection.validateCSRF,
+      quantumRoutes
+    );
+
 
     // 📊 Security metrics endpoint (protected)
     this.app.get('/api/security/metrics',
@@ -237,6 +205,11 @@ class SecureQuankeyServer {
         }
       }
     );
+
+    // 🔐 Security status endpoints
+    this.app.get('/api/security/headers', securityHeaders.getHeadersStatus);
+    this.app.get('/api/security/session', sessionSecurity.getSessionStatus);
+    this.app.get('/api/security/csrf', csrfProtection.getStatus);
 
     // 🚫 Catch-all for unmatched routes
     this.app.all('*', (req: Request, res: Response) => {

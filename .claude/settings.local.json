@@ -52,7 +52,14 @@
       "WebFetch(domain:bundlejs.com)",
       "WebFetch(domain:bundlephobia.com)",
       "Bash(npm run:*)",
-      "WebFetch(domain:api.quankey.xyz)"
+      "WebFetch(domain:api.quankey.xyz)",
+      "Bash(psql:*)",
+      "Bash(chmod:*)",
+      "Bash(docker:*)",
+      "Bash(docker-compose:*)",
+      "Bash(./scripts/validate-production-ready.sh:*)",
+      "Bash(bash:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }
