@@ -5,6 +5,19 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   
+  // ES Module support
+  extensionsToTreatAsEsm: ['.ts'],
+  globals: {
+    'ts-jest': {
+      useESM: true
+    }
+  },
+  
+  // Transform ES modules
+  transformIgnorePatterns: [
+    'node_modules/(?!(jose)/)'
+  ],
+  
   // Root directory
   rootDir: '.',
   

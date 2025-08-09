@@ -59,7 +59,11 @@
       "Bash(docker-compose:*)",
       "Bash(./scripts/validate-production-ready.sh:*)",
       "Bash(bash:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(../scripts/validate-security.sh:*)",
+      "Bash(NODE_ENV=test npx jest src/tests/basic.security.test.ts --verbose --no-coverage)",
+      "Bash(NODE_ENV=test npx jest src/tests/basic.security.test.ts --no-coverage --verbose --passWithNoTests)",
+      "Bash(echo \"Exit code: $?\")"
     ],
     "deny": []
   }

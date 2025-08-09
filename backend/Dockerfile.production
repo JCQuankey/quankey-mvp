@@ -1,0 +1,88 @@
+# 🔒 QUANKEY SECURE PRODUCTION DOCKERFILE
+# Military-grade security configuration
+
+# Use official Node.js LTS Alpine for minimal attack surface
+FROM node:18-alpine AS base
+
+# Security: Create non-root user
+RUN addgroup -g 1001 -S quankey && \
+    adduser -S quankey -u 1001
+
+# Security: Update system packages
+RUN apk update && apk upgrade && \
+    apk add --no-cache \
+    dumb-init \
+    curl \
+    && rm -rf /var/cache/apk/*
+
+# Build stage
+FROM base AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install ALL dependencies (including dev)
+RUN npm ci --only=production=false && npm cache clean --force
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client and build
+RUN npx prisma generate
+RUN npm run build
+
+# Production stage
+FROM base AS production
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install only production dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Generate Prisma client for production
+RUN npx prisma generate
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist ./dist
+
+# Copy production environment template
+COPY .env.production.template .env.production
+
+# Security: Change ownership to non-root user
+RUN chown -R quankey:quankey /app
+
+# Switch to non-root user
+USER quankey
+
+# Security: Set file permissions
+RUN chmod 444 package*.json
+RUN chmod -R 444 dist/
+RUN chmod -R 444 prisma/
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-5000}/health || exit 1
+
+# Expose port
+EXPOSE ${PORT:-5000}
+
+# Use dumb-init for proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start application
+CMD ["npm", "run", "start:prod"]
+
+# Security metadata
+LABEL security.level="maximum" \
+      security.scan="required" \
+      version="2.5.0-secure" \
+      maintainer="Quankey Security Team"

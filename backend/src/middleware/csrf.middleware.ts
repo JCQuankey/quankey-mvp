@@ -1,16 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 
-// Extend Express Request interface to include session
+// Express Request interface is extended in types/express.d.ts
 declare global {
   namespace Express {
     interface Request {
       session?: {
         csrfToken?: string;
         [key: string]: any;
-      };
-      user?: {
-        id: string;
-        email: string;
       };
     }
   }
