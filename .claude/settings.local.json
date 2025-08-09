@@ -63,7 +63,13 @@
       "Bash(../scripts/validate-security.sh:*)",
       "Bash(NODE_ENV=test npx jest src/tests/basic.security.test.ts --verbose --no-coverage)",
       "Bash(NODE_ENV=test npx jest src/tests/basic.security.test.ts --no-coverage --verbose --passWithNoTests)",
-      "Bash(echo \"Exit code: $?\")"
+      "Bash(echo \"Exit code: $?\")",
+      "Bash(NODE_ENV=test npm run test:security --silent)",
+      "Bash(if grep -r \"simulation\\|mock.*quantum\" backend/src --include=\"*.ts\")",
+      "Bash(then echo \"❌ TODAVÍA HAY CÓDIGO FALSO\")",
+      "Bash(else echo \"✅ Código quantum limpio\")",
+      "Bash(fi)",
+      "Bash(set NODE_ENV=test)"
     ],
     "deny": []
   }
