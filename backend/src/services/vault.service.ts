@@ -23,12 +23,12 @@ export class VaultService {
       throw new Error('Password too long');
     }
     
-    // Cifrar datos sensibles
+    // Cifrar datos sensibles con QUANTUM
     const { encrypted: encryptedPassword, keyHash } = 
-      encryption.encryptPassword(data.password);
+      await encryption.encryptPassword(data.password);
     
     const encryptedNotes = data.notes ? 
-      encryption.encrypt(data.notes) : null;
+      await encryption.encrypt(data.notes) : null;
     
     // Transacción atómica
     return await prisma.$transaction(async (tx) => {
@@ -126,8 +126,8 @@ export class VaultService {
       throw new Error('Password not found');
     }
     
-    // Descifrar
-    const password = encryption.decryptPassword(
+    // Descifrar con QUANTUM
+    const password = await encryption.decryptPassword(
       item.encryptedPassword,
       item.keyDerivation
     );

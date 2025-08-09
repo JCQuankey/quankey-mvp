@@ -1,3 +1,4 @@
+import './types/express';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -9,6 +10,7 @@ import {
   vaultLimiter 
 } from './middleware/rateLimiter';
 import { db, prisma } from './services/database.service';
+import quantumRoutes from './routes/quantum.routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -148,6 +150,9 @@ async function initialize() {
       });
     }
   });
+  
+  // Quantum API routes - PUBLIC (no auth required for status endpoints)
+  app.use('/api/quantum', apiLimiter, quantumRoutes);
   
   // Apply rate limiting to all other API routes
   app.use('/api', AuthMiddleware.validateRequest, apiLimiter);

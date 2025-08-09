@@ -69,7 +69,9 @@
       "Bash(then echo \"❌ TODAVÍA HAY CÓDIGO FALSO\")",
       "Bash(else echo \"✅ Código quantum limpio\")",
       "Bash(fi)",
-      "Bash(set NODE_ENV=test)"
+      "Bash(set NODE_ENV=test)",
+      "Bash(NODE_ENV=test DB_ENCRYPTION_KEY=\"87d730491dd45bca1f557b8dede3e0dec86c8f85b5b47aeddf42f798eb6e356a87d730491dd45bca1f557b8dede3e0dec86c8f85b5b47aeddf42f798eb6e356a\" npm test src/tests/quantum.test.ts -- --no-coverage)",
+      "Bash(NODE_ENV=test DB_ENCRYPTION_KEY=\"87d730491dd45bca1f557b8dede3e0dec86c8f85b5b47aeddf42f798eb6e356a87d730491dd45bca1f557b8dede3e0dec86c8f85b5b47aeddf42f798eb6e356a\" JWT_PUBLIC_KEY=\"MCowBQYDK2VwAyEAEQVI2Ronbx8S4X5HTsoq1FKiEBSztiyTi5SuLqyomxM=\" JWT_PRIVATE_KEY=\"MC4CAQAwBQYDK2VwBCIEICeBFhpu4ZT9Te1JS+jeRiChHUoWeEDcxq4Xjv8/2TuX\" DATABASE_URL=\"postgresql://username:password@localhost:5432/quankey_test?sslmode=require\" timeout 10 npx ts-node src/server.secure.ts)"
     ],
     "deny": []
   }
