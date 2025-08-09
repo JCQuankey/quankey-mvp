@@ -1,38 +1,44 @@
 services:
-  # Quankey Backend API Service
+  # Quankey Backend API Service - Military-Grade Security
   - type: web
     name: quankey-backend
     env: node
     region: oregon
-    plan: free
-    buildCommand: "cd backend && npm install"
-    startCommand: "cd backend && npm start"
-    healthCheckPath: /api/health
+    plan: starter  # Upgraded from free for better performance
+    buildCommand: "cd backend && npm install && npm run build"
+    startCommand: "cd backend && npm run start:prod"
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 5000
+        value: 10000  # Render default port
+      # CRITICAL SECURITY VARIABLES - Must be configured in Render Dashboard
       - key: DATABASE_URL
-        sync: false  # Must be configured in Render Dashboard
-      - key: JWT_SECRET
-        sync: false  # Must be configured in Render Dashboard
-      - key: IBM_QUANTUM_TOKEN
-        sync: false  # Must be configured in Render Dashboard
-      - key: AUDIT_SECRET_KEY
-        sync: false  # Must be configured in Render Dashboard
+        sync: false  # PostgreSQL connection string
+      - key: JWT_PRIVATE_KEY
+        sync: false  # Ed25519 private key for JWT signing
+      - key: JWT_PUBLIC_KEY
+        sync: false   # Ed25519 public key for JWT validation
+      - key: DB_ENCRYPTION_KEY
+        sync: false  # 64-hex AES-256-GCM encryption key
+      - key: REDIS_PASSWORD
+        sync: false  # Redis authentication password
+      - key: REDIS_URL
+        sync: false  # Redis connection URL
+      # APPLICATION CONFIGURATION
       - key: FRONTEND_URL
+        value: https://quankey-frontend.onrender.com
+      - key: CORS_ORIGIN
         value: https://quankey-frontend.onrender.com
       - key: API_URL
         value: https://quankey-backend.onrender.com
-      - key: BASIC_AUTH_ENABLED
+      # QUANTUM SECURITY CONFIGURATION
+      - key: ANU_QRNG_ENABLED
         value: true
-      - key: BASIC_AUTH_USERNAME
-        sync: false  # Must be configured in Render Dashboard
-      - key: BASIC_AUTH_PASSWORD
-        sync: false  # Must be configured in Render Dashboard
-      - key: BASIC_AUTH_REALM
-        value: Quankey Staging
+      - key: QUANTUM_ENTROPY_SOURCES
+        value: anu,system,hardware,atmospheric
+      # WEBAUTHN CONFIGURATION
       - key: WEBAUTHN_DOMAIN
         value: quankey.xyz
       - key: WEBAUTHN_RP_ID
@@ -41,6 +47,13 @@ services:
         value: Quankey
       - key: WEBAUTHN_ORIGIN
         value: https://quankey.xyz
+      # SECURITY HARDENING
+      - key: RATE_LIMIT_ENABLED
+        value: true
+      - key: CSRF_ENABLED
+        value: true
+      - key: SESSION_SECURITY_ENABLED
+        value: true
 
   # Quankey Frontend Static Site
   - type: static
@@ -65,6 +78,12 @@ services:
         value: production
       - key: GENERATE_SOURCEMAP
         value: false
+
+  # Redis Cache Service
+  - type: redis
+    name: quankey-redis
+    plan: starter
+    region: oregon
 
   # PostgreSQL Database
 databases:
