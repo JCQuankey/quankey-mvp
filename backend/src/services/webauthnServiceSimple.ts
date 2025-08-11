@@ -133,11 +133,13 @@ export class WebAuthnServiceSimple {
       console.log(`✅ [WEBAUTHN-REAL] User ${userId} registered with REAL biometric verification`);
       
       return {
+        success: true,
         verified: true,
         user: {
           id: user.id,
           username: user.username,
-          displayName: user.displayName
+          email: user.email || '',
+          displayName: user.username
         },
         authenticator: {
           credentialID: response.id,
@@ -190,6 +192,20 @@ export class WebAuthnServiceSimple {
   }
 
   /**
+   * PATENT-CRITICAL: Verify Registration Response
+   */
+  static async verifyRegistrationResponse(response: any) {
+    return this.verifyRegistration(response);
+  }
+
+  /**
+   * PATENT-CRITICAL: Verify Authentication Response  
+   */
+  static async verifyAuthenticationResponse(response: any) {
+    return this.verifyAuthentication(response);
+  }
+
+  /**
    * PATENT-CRITICAL: Real Authentication Verification
    */
   static async verifyAuthentication(response: any, challengeId?: string) {
@@ -234,11 +250,13 @@ export class WebAuthnServiceSimple {
       console.log(`✅ [WEBAUTHN-REAL] User ${user.username} authenticated with REAL biometric verification`);
       
       return {
+        success: true,
         verified: true,
         user: {
           id: user.id,
           username: user.username,
-          displayName: user.displayName
+          email: user.email,
+          displayName: user.username
         },
         authenticationInfo: {
           newCounter: authenticator.counter + 1,

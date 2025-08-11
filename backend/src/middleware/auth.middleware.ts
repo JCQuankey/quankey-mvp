@@ -7,23 +7,50 @@ import { createHash } from 'crypto';
 
 export class AuthMiddleware {
   private static publicKey: any;
+  private static privateKey: any;
   private static blacklistedTokens = new Set<string>();
   
   static async initialize() {
     // Cargar clave pública Ed25519 - O MORIR
-    const key = process.env.JWT_PUBLIC_KEY;
-    if (!key) {
-      console.error('FATAL: JWT_PUBLIC_KEY not configured');
+    const publicKey = process.env.JWT_PUBLIC_KEY;
+    const privateKey = process.env.JWT_PRIVATE_KEY;
+    
+    if (!publicKey || !privateKey) {
+      console.error('FATAL: JWT_PUBLIC_KEY or JWT_PRIVATE_KEY not configured');
       process.exit(1);
     }
     
     try {
-      this.publicKey = await jose.importSPKI(key, 'EdDSA');
-      console.log('✅ Ed25519 JWT verification initialized');
+      this.publicKey = await jose.importSPKI(publicKey, 'EdDSA');
+      this.privateKey = await jose.importPKCS8(privateKey, 'EdDSA');
+      console.log('✅ Ed25519 JWT signing/verification initialized');
     } catch (error) {
-      console.error('FATAL: Invalid JWT_PUBLIC_KEY');
+      console.error('FATAL: Invalid JWT keys');
       process.exit(1);
     }
+  }
+  
+  static async generateToken(user: { userId: string; email: string }) {
+    if (!this.privateKey) {
+      throw new Error('JWT not initialized');
+    }
+    
+    const jwt = await new jose.SignJWT({
+      sub: user.userId,
+      email: user.email
+    })
+      .setProtectedHeader({ alg: 'EdDSA' })
+      .setIssuedAt()
+      .setIssuer('quankey-auth')
+      .setAudience('quankey-api')
+      .setExpirationTime('15m')
+      .sign(this.privateKey);
+    
+    return jwt;
+  }
+  
+  static async verifyToken(req: Request, res: Response, next: NextFunction) {
+    return AuthMiddleware.validateRequest(req, res, next);
   }
   
   static async validateRequest(

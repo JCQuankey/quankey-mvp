@@ -118,6 +118,112 @@ export class DatabaseService {
       return { status: 'unhealthy', error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
+
+  // User Management Methods for WebAuthn
+  async getUserByEmail(email: string) {
+    try {
+      return await this.prisma.user.findUnique({
+        where: { email }
+      });
+    } catch (error) {
+      console.error('Error getting user by email:', error);
+      return null;
+    }
+  }
+
+  async getUserByUsername(username: string) {
+    try {
+      return await this.prisma.user.findUnique({
+        where: { username }
+      });
+    } catch (error) {
+      console.error('Error getting user by username:', error);
+      return null;
+    }
+  }
+
+  async getUserById(id: string) {
+    try {
+      return await this.prisma.user.findUnique({
+        where: { id }
+      });
+    } catch (error) {
+      console.error('Error getting user by ID:', error);
+      return null;
+    }
+  }
+
+  async storeTemporaryRegistration(data: {
+    userId: string;
+    username: string;
+    email: string;
+    challenge: string;
+    expiresAt: Date;
+  }) {
+    try {
+      // Store in a temporary table or cache
+      // For now, using the User table with a flag
+      return await this.prisma.user.create({
+        data: {
+          id: data.userId,
+          username: data.username,
+          email: data.email,
+          passwordHash: '', // No password for WebAuthn users
+          biometricEnabled: false, // Will be true after registration completes
+          metadata: JSON.stringify({
+            challenge: data.challenge,
+            expiresAt: data.expiresAt.toISOString(),
+            registrationPending: true
+          })
+        }
+      });
+    } catch (error) {
+      console.error('Error storing temporary registration:', error);
+      throw error;
+    }
+  }
+
+  async createUser(data: {
+    id: string;
+    username: string;
+    email: string;
+    biometricEnabled?: boolean;
+    metadata?: any;
+  }) {
+    try {
+      return await this.prisma.user.create({
+        data: {
+          id: data.id,
+          username: data.username,
+          email: data.email,
+          passwordHash: '', // No password for WebAuthn users
+          biometricEnabled: data.biometricEnabled || true,
+          metadata: data.metadata ? JSON.stringify(data.metadata) : null
+        }
+      });
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  }
+
+  async updateUser(id: string, data: Partial<{
+    biometricEnabled: boolean;
+    metadata: any;
+  }>) {
+    try {
+      return await this.prisma.user.update({
+        where: { id },
+        data: {
+          biometricEnabled: data.biometricEnabled,
+          metadata: data.metadata ? JSON.stringify(data.metadata) : undefined
+        }
+      });
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+  }
 }
 
 // Exportar singleton

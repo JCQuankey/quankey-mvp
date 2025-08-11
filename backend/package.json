@@ -5,7 +5,7 @@
   "main": "dist/server.secure.js",
   "scripts": {
     "start:prod": "npx prisma migrate deploy && node dist/server.secure.js",
-    "start": "ts-node src/server.ts",
+    "start": "ts-node src/server.secure.ts",
     "build": "prisma generate && tsc -p tsconfig.prod.json",
     "postinstall": "prisma generate",
     "dev": "nodemon src/server.secure.ts",

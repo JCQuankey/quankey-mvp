@@ -1,4 +1,4 @@
-import './types/express';
+/// <reference path="./types/express.d.ts" />
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -9,8 +9,10 @@ import {
   apiLimiter, 
   vaultLimiter 
 } from './middleware/rateLimiter';
+import { inputValidation } from './middleware/inputValidation.middleware';
 import { db, prisma } from './services/database.service';
 import quantumRoutes from './routes/quantum.routes';
+import authRoutes from './routes/auth.routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -37,20 +39,33 @@ async function initialize() {
   // Inicializar servicios
   await AuthMiddleware.initialize();
   
-  // Security headers - ESTRICTOS
+  // Security headers - MILITARY-GRADE STRICT CSP
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"], // Para React
-        imgSrc: ["'self'", 'data:'],
-        connectSrc: ["'self'"],
-        fontSrc: ["'self'"],
+        defaultSrc: ["'none'"], // Deny all by default
+        scriptSrc: ["'self'", "'strict-dynamic'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: [
+          "'self'", 
+          'https://quankey.xyz',
+          'https://api.quankey.xyz',
+          'https://qrng.anu.edu.au' // ANU QRNG for quantum entropy
+        ],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         objectSrc: ["'none'"],
         mediaSrc: ["'none'"],
         frameSrc: ["'none'"],
-      }
+        childSrc: ["'none'"],
+        workerSrc: ["'self'"],
+        manifestSrc: ["'self'"],
+        formAction: ["'self'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+        upgradeInsecureRequests: []
+      },
+      reportOnly: false // Enforce, don't just report
     },
     hsts: {
       maxAge: 31536000,
@@ -59,18 +74,46 @@ async function initialize() {
     }
   }));
   
-  // CORS restrictivo
+  // CORS restrictivo - permite www y sin www
+  const allowedOrigins = [
+    'https://quankey.xyz',
+    'https://www.quankey.xyz',
+    'http://localhost:3000', // Para desarrollo local
+    'http://localhost:3001'  // Puerto alternativo
+  ];
+  
+  // Añadir FRONTEND_URL y CORS_ORIGIN si están configurados
+  if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+  }
+  if (process.env.CORS_ORIGIN) {
+    allowedOrigins.push(process.env.CORS_ORIGIN);
+  }
+  
   app.use(cors({
-    origin: process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'https://quankey.xyz',
+    origin: function(origin, callback) {
+      // Permitir requests sin origin (Postman, curl, etc) solo en desarrollo
+      if (!origin && process.env.NODE_ENV === 'development') {
+        return callback(null, true);
+      }
+      
+      if (origin && allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`CORS blocked origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
   }));
   
   app.use(express.json({ limit: '1mb' })); // Límite estricto
+  app.use(inputValidation.sanitizeRequest); // Global input sanitization
   
-  // Health check SIN autenticación
-  app.get('/health', async (req, res) => {
+  // Health check SIN autenticación - with rate limiting
+  app.get('/health', apiLimiter, async (req, res) => {
     try {
       const dbHealth = await db.healthCheck();
       res.status(200).json({ 
@@ -86,6 +129,9 @@ async function initialize() {
     }
   });
 
+  // Authentication routes - REAL WebAuthn implementation
+  app.use('/api/auth', authRoutes);
+  
   // Basic vault operations (simplified for security focus)
   app.use('/api/vault', AuthMiddleware.validateRequest, vaultLimiter);
   
@@ -104,7 +150,7 @@ async function initialize() {
   });
 
   // Create vault item
-  app.post('/api/vault/items', AuthMiddleware.validateRequest, async (req, res) => {
+  app.post('/api/vault/items', AuthMiddleware.validateRequest, inputValidation.validateVaultItem(), async (req, res) => {
     try {
       const { VaultService } = await import('./services/vault.service');
       const item = await VaultService.createItem(req.user!.id, {
@@ -124,7 +170,7 @@ async function initialize() {
   });
 
   // Get password (separate endpoint for security)
-  app.get('/api/vault/items/:id/password', AuthMiddleware.validateRequest, async (req, res) => {
+  app.get('/api/vault/items/:id/password', AuthMiddleware.validateRequest, inputValidation.validateId(), async (req, res) => {
     try {
       const { VaultService } = await import('./services/vault.service');
       const password = await VaultService.getPassword(req.user!.id, req.params.id);
@@ -138,7 +184,7 @@ async function initialize() {
   });
 
   // Delete vault item
-  app.delete('/api/vault/items/:id', AuthMiddleware.validateRequest, async (req, res) => {
+  app.delete('/api/vault/items/:id', AuthMiddleware.validateRequest, inputValidation.validateId(), async (req, res) => {
     try {
       const { VaultService } = await import('./services/vault.service');
       await VaultService.deleteItem(req.user!.id, req.params.id);
@@ -162,6 +208,13 @@ async function initialize() {
     res.status(404).json({ error: 'Not found' });
   });
   
+  // Admin routes (SECURE - only with proper authentication)
+  if (process.env.ADMIN_SECRET_KEY && process.env.ADMIN_CLEANUP_TOKEN) {
+    const adminRoutes = require('./routes/admin.secure.routes').default;
+    app.use('/api/admin', adminRoutes);
+    console.log('🔐 Admin routes enabled (secure)');
+  }
+
   // Error handler
   app.use((err: any, req: any, res: any, next: any) => {
     console.error('Error:', err);

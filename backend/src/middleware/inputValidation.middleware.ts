@@ -46,13 +46,21 @@ export class InputValidationMiddleware {
     // 2. Remove JavaScript protocols
     cleaned = cleaned.replace(/javascript:|data:|vbscript:/gi, '');
 
-    // 3. Remove SQL injection patterns
+    // 3. Remove SQL injection patterns - AGGRESSIVE BLOCKING
     cleaned = cleaned.replace(/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi, '');
+    cleaned = cleaned.replace(/[';]/g, ''); // Remove dangerous SQL characters
+    cleaned = cleaned.replace(/--/g, ''); // Remove SQL comments
+    cleaned = cleaned.replace(/['"]/g, ''); // Remove quotes entirely
 
-    // 4. Remove dangerous HTML entities
+    // 4. Remove command injection patterns - AGGRESSIVE BLOCKING
+    cleaned = cleaned.replace(/[;&|`$(){}[\]]/g, ''); // Remove dangerous shell characters
+    cleaned = cleaned.replace(/\.\.\//g, ''); // Remove path traversal
+    cleaned = cleaned.replace(/\.\.\\/g, ''); // Remove Windows path traversal
+
+    // 5. Remove dangerous HTML entities
     cleaned = cleaned.replace(/&[#x]?[0-9a-f]+;/gi, '');
 
-    // 5. Normalize whitespace
+    // 6. Normalize whitespace
     cleaned = cleaned.replace(/\s+/g, ' ').trim();
 
     return cleaned;
@@ -163,9 +171,23 @@ export class InputValidationMiddleware {
    */
   static validateVaultItem() {
     return [
-      body('title')
+      body('site')
         .isLength({ min: 1, max: this.LIMITS.TITLE_MAX })
-        .withMessage('Title is required and must be less than 200 characters')
+        .withMessage('Site is required and must be less than 200 characters')
+        .customSanitizer(this.sanitizeInput)
+        .custom((value) => {
+          const threats = this.detectMaliciousPatterns(value);
+          if (threats.length > 0) {
+            throw new Error(`Security violation in site: ${threats.join(', ')}`);
+          }
+          return true;
+        }),
+
+      // Legacy support for 'title' field
+      body('title')
+        .optional()
+        .isLength({ min: 1, max: this.LIMITS.TITLE_MAX })
+        .withMessage('Title must be less than 200 characters')
         .customSanitizer(this.sanitizeInput)
         .custom((value) => {
           const threats = this.detectMaliciousPatterns(value);
@@ -358,6 +380,27 @@ export class InputValidationMiddleware {
     }
 
     return obj;
+  }
+
+  /**
+   * 🧪 QUANTUM TEST VALIDATION
+   */
+  static validateQuantumTest() {
+    return [
+      body('plaintext')
+        .isLength({ min: 1, max: 1000 })
+        .withMessage('Plaintext is required and must be less than 1000 characters')
+        .customSanitizer(this.sanitizeInput)
+        .custom((value) => {
+          const threats = this.detectMaliciousPatterns(value);
+          if (threats.length > 0) {
+            throw new Error(`Security violation in plaintext: ${threats.join(', ')}`);
+          }
+          return true;
+        }),
+
+      this.handleValidationErrors
+    ];
   }
 }
 

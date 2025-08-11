@@ -9,6 +9,7 @@ import { Router, Request, Response } from 'express';
 import { quantumCrypto } from '../services/quantumCrypto.service';
 import { encryption } from '../services/encryption.service';
 import { AuditLogger } from '../services/auditLogger.service';
+import { inputValidation } from '../middleware/inputValidation.middleware';
 
 const router = Router();
 const auditLogger = new AuditLogger();
@@ -163,7 +164,7 @@ router.get('/keys', async (req: Request, res: Response) => {
 /**
  * 🧪 QUANTUM ENCRYPTION TEST ENDPOINT
  */
-router.post('/test-encrypt', async (req: Request, res: Response) => {
+router.post('/test-encrypt', inputValidation.validateQuantumTest(), async (req: Request, res: Response) => {
   try {
     const { plaintext } = req.body;
 
