@@ -402,6 +402,170 @@ export class InputValidationMiddleware {
       this.handleValidationErrors
     ];
   }
+
+  /**
+   * 🔐 PASSKEY REGISTRATION VALIDATION
+   */
+  static validatePasskeyRegister() {
+    return [
+      body('username')
+        .isLength({ min: 1, max: this.LIMITS.USERNAME_MAX })
+        .withMessage('Username is required and must be less than 100 characters')
+        .matches(this.PATTERNS.SAFE_STRING)
+        .withMessage('Username contains invalid characters')
+        .customSanitizer(this.sanitizeInput)
+        .custom((value) => {
+          const threats = this.detectMaliciousPatterns(value);
+          if (threats.length > 0) {
+            throw new Error('Invalid username');
+          }
+          return true;
+        }),
+
+      this.handleValidationErrors
+    ];
+  }
+
+  /**
+   * 📱 DEVICE REGISTRATION VALIDATION
+   */
+  static validateDeviceRegister() {
+    return [
+      body('deviceName')
+        .isLength({ min: 1, max: 100 })
+        .withMessage('Device name is required and must be less than 100 characters')
+        .customSanitizer(this.sanitizeInput)
+        .custom((value) => {
+          const threats = this.detectMaliciousPatterns(value);
+          if (threats.length > 0) {
+            throw new Error('Invalid device name');
+          }
+          return true;
+        }),
+
+      body('publicKey')
+        .isBase64()
+        .withMessage('Public key must be valid base64')
+        .isLength({ min: 1 })
+        .withMessage('Public key is required'),
+
+      this.handleValidationErrors
+    ];
+  }
+
+  /**
+   * 🔄 PAIRING CONSUME VALIDATION
+   */
+  static validatePairingConsume() {
+    return [
+      body('token')
+        .isLength({ min: 64, max: 64 })
+        .withMessage('Invalid token format')
+        .isHexadecimal()
+        .withMessage('Token must be hexadecimal'),
+
+      body('devicePublicKey')
+        .isBase64()
+        .withMessage('Device public key must be valid base64')
+        .isLength({ min: 1 })
+        .withMessage('Device public key is required'),
+
+      body('deviceName')
+        .optional()
+        .isLength({ max: 100 })
+        .withMessage('Device name must be less than 100 characters')
+        .customSanitizer(this.sanitizeInput),
+
+      this.handleValidationErrors
+    ];
+  }
+
+  /**
+   * 👥 GUARDIAN SETUP VALIDATION
+   */
+  static validateGuardianSetup() {
+    return [
+      body('guardians')
+        .isArray({ min: 3, max: 3 })
+        .withMessage('Exactly 3 guardians required'),
+
+      body('guardians.*.id')
+        .isLength({ min: 1, max: 100 })
+        .withMessage('Guardian ID is required')
+        .customSanitizer(this.sanitizeInput),
+
+      body('guardians.*.name')
+        .isLength({ min: 1, max: 100 })
+        .withMessage('Guardian name is required')
+        .customSanitizer(this.sanitizeInput),
+
+      body('guardians.*.publicKey')
+        .isBase64()
+        .withMessage('Guardian public key must be valid base64')
+        .isLength({ min: 1 })
+        .withMessage('Guardian public key is required'),
+
+      this.handleValidationErrors
+    ];
+  }
+
+  /**
+   * 🔄 RECOVERY INITIATION VALIDATION
+   */
+  static validateRecoveryInit() {
+    return [
+      body('username')
+        .isLength({ min: 1, max: this.LIMITS.USERNAME_MAX })
+        .withMessage('Username is required')
+        .customSanitizer(this.sanitizeInput),
+
+      body('guardianIds')
+        .isArray({ min: 2, max: 3 })
+        .withMessage('At least 2 guardian IDs required'),
+
+      body('guardianIds.*')
+        .isLength({ min: 1, max: 100 })
+        .withMessage('Invalid guardian ID')
+        .customSanitizer(this.sanitizeInput),
+
+      this.handleValidationErrors
+    ];
+  }
+
+  /**
+   * ✅ RECOVERY COMPLETION VALIDATION
+   */
+  static validateRecoveryComplete() {
+    return [
+      body('recoveryRequestId')
+        .isLength({ min: 32, max: 32 })
+        .withMessage('Invalid recovery request ID')
+        .isHexadecimal()
+        .withMessage('Recovery request ID must be hexadecimal'),
+
+      body('decryptedShares')
+        .isArray({ min: 2, max: 3 })
+        .withMessage('At least 2 decrypted shares required'),
+
+      body('decryptedShares.*.data')
+        .isBase64()
+        .withMessage('Share data must be valid base64'),
+
+      body('newDevicePublicKey')
+        .isBase64()
+        .withMessage('New device public key must be valid base64')
+        .isLength({ min: 1 })
+        .withMessage('New device public key is required'),
+
+      body('newDeviceName')
+        .optional()
+        .isLength({ max: 100 })
+        .withMessage('Device name must be less than 100 characters')
+        .customSanitizer(this.sanitizeInput),
+
+      this.handleValidationErrors
+    ];
+  }
 }
 
 /**

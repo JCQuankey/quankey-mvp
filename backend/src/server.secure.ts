@@ -13,6 +13,7 @@ import { inputValidation } from './middleware/inputValidation.middleware';
 import { db, prisma } from './services/database.service';
 import quantumRoutes from './routes/quantum.routes';
 import authRoutes from './routes/auth.routes';
+import quantumBiometricRoutes from './routes/quantum.biometric.routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -129,8 +130,11 @@ async function initialize() {
     }
   });
 
-  // Authentication routes - REAL WebAuthn implementation
+  // Authentication routes - REAL WebAuthn implementation (legacy)
   app.use('/api/auth', authRoutes);
+  
+  // QUANTUM BIOMETRIC IDENTITY ROUTES - NO PASSWORDS
+  app.use('/api/auth', quantumBiometricRoutes);
   
   // Basic vault operations (simplified for security focus)
   app.use('/api/vault', AuthMiddleware.validateRequest, vaultLimiter);

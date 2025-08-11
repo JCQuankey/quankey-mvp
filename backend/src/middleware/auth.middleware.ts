@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import * as jose from 'jose';
-import { db } from '../services/database.service';
+import { PrismaClient } from '@prisma/client';
 import { createHash } from 'crypto';
+
+const prisma = new PrismaClient();
 
 // Use the global Express.Request type with user property defined in types/express.d.ts
 
@@ -149,6 +151,82 @@ export class AuthMiddleware {
     setTimeout(() => {
       this.blacklistedTokens.delete(tokenHash);
     }, 60 * 60 * 1000);
+  }
+}
+
+/**
+ * 🔐 PASSKEY AUTHENTICATION MIDDLEWARE - REALISTIC ARCHITECTURE
+ * 
+ * Authenticates users based on session tokens from passkey authentication
+ * Validates session tokens and loads user context
+ */
+export async function authenticatePasskey(req: Request, res: Response, next: NextFunction) {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.startsWith('Bearer ') 
+      ? authHeader.substring(7) 
+      : null;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication token required'
+      });
+    }
+
+    // Find valid session
+    const session = await prisma.session.findUnique({
+      where: { token },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            createdAt: true,
+            lastLogin: true
+          }
+        }
+      }
+    });
+
+    if (!session) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid authentication token'
+      });
+    }
+
+    // Check if session is expired
+    if (session.expiresAt < new Date()) {
+      // Clean up expired session
+      await prisma.session.delete({
+        where: { id: session.id }
+      });
+
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication token expired'
+      });
+    }
+
+    // Update session activity
+    await prisma.session.update({
+      where: { id: session.id },
+      data: { lastActivity: new Date() }
+    });
+
+    // Attach user to request
+    req.user = session.user;
+
+    next();
+
+  } catch (error) {
+    console.error('Authentication error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Authentication service error'
+    });
   }
 }
 

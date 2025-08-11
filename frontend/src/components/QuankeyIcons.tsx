@@ -242,3 +242,23 @@ export const FileIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor
     <path d="M20 32h12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
   </svg>
 );
+
+// Icono de Dispositivos para multi-device management
+export const DevicesIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="10" width="24" height="16" rx="2" stroke={color} strokeWidth="2"/>
+    <rect x="20" y="22" width="20" height="14" rx="2" stroke={color} strokeWidth="2"/>
+    <circle cx="16" cy="32" r="2" fill={color}/>
+    <circle cx="30" cy="40" r="1" fill={color}/>
+    <path d="M10 26h8" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+
+// Icono de Seguridad para security dashboard
+export const SecurityIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 4L8 12v8c0 8.84 6.78 17.12 16 18.96C33.22 37.12 40 28.84 40 20v-8L24 4z" stroke={color} strokeWidth="2" fill="none"/>
+    <path d="M18 24l4 4 8-8" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="24" cy="24" r="2" fill={color} opacity="0.5"/>
+  </svg>
+);

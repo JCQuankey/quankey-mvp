@@ -1,14 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ProfessionalLandingPage from './components/ProfessionalLandingPage';
-import PasswordManager from './components/PasswordManager';
+import QuantumIdentityManager from './components/QuantumIdentityManager';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<ProfessionalLandingPage />} />
-        <Route path="/app" element={<PasswordManager />} />
+        <Route path="/app" element={<QuantumIdentityManager />} />
       </Routes>
     </Router>
   );

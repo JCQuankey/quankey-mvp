@@ -224,6 +224,142 @@ export class DatabaseService {
       throw error;
     }
   }
+
+  // =========================================
+  // QUANTUM BIOMETRIC IDENTITY METHODS
+  // =========================================
+
+  async createQuantumIdentity(data: {
+    id: string;
+    username: string;
+    credentialId: string;
+    credentialPublicKey: string;
+    quantumPublicKey: string;
+    counter: number;
+    deviceId: string;
+    biometricType: string;
+    algorithm: string;
+    createdAt: Date;
+  }) {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        // Create quantum identity
+        const identity = await tx.quantumIdentity.create({
+          data: {
+            id: data.id,
+            username: data.username,
+            quantumPublicKey: data.quantumPublicKey,
+            biometricType: data.biometricType,
+            algorithm: data.algorithm,
+            deviceId: data.deviceId,
+            createdAt: data.createdAt
+          }
+        });
+
+        // Store credential
+        await tx.biometricCredential.create({
+          data: {
+            id: data.credentialId,
+            identityId: data.id,
+            credentialPublicKey: data.credentialPublicKey,
+            counter: data.counter,
+            deviceId: data.deviceId
+          }
+        });
+
+        return identity;
+      });
+    } catch (error) {
+      console.error('Error creating quantum identity:', error);
+      throw error;
+    }
+  }
+
+  async getQuantumIdentity(username: string) {
+    try {
+      return await this.prisma.quantumIdentity.findUnique({
+        where: { username }
+      });
+    } catch (error) {
+      console.error('Error getting quantum identity:', error);
+      throw error;
+    }
+  }
+
+  async getQuantumIdentityById(id: string) {
+    try {
+      return await this.prisma.quantumIdentity.findUnique({
+        where: { id }
+      });
+    } catch (error) {
+      console.error('Error getting quantum identity by id:', error);
+      throw error;
+    }
+  }
+
+  async getUserCredentials(identityId: string) {
+    try {
+      return await this.prisma.biometricCredential.findMany({
+        where: { identityId }
+      });
+    } catch (error) {
+      console.error('Error getting user credentials:', error);
+      throw error;
+    }
+  }
+
+  async getCredentialById(credentialId: string) {
+    try {
+      return await this.prisma.biometricCredential.findUnique({
+        where: { id: credentialId }
+      });
+    } catch (error) {
+      console.error('Error getting credential by id:', error);
+      throw error;
+    }
+  }
+
+  async updateCredentialCounter(credentialId: string, newCounter: number) {
+    try {
+      return await this.prisma.biometricCredential.update({
+        where: { id: credentialId },
+        data: { counter: newCounter }
+      });
+    } catch (error) {
+      console.error('Error updating credential counter:', error);
+      throw error;
+    }
+  }
+
+  async getTemporaryRegistration(username: string) {
+    try {
+      const tempReg = await this.prisma.temporaryRegistration.findUnique({
+        where: { username }
+      });
+
+      // Check if expired
+      if (tempReg && tempReg.expiresAt < new Date()) {
+        await this.deleteTemporaryRegistration(username);
+        return null;
+      }
+
+      return tempReg;
+    } catch (error) {
+      console.error('Error getting temporary registration:', error);
+      throw error;
+    }
+  }
+
+  async deleteTemporaryRegistration(username: string) {
+    try {
+      return await this.prisma.temporaryRegistration.delete({
+        where: { username }
+      });
+    } catch (error) {
+      console.error('Error deleting temporary registration:', error);
+      throw error;
+    }
+  }
 }
 
 // Exportar singleton

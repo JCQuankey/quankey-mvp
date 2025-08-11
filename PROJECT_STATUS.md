@@ -1,44 +1,48 @@
-# 🔐 QUANKEY MVP - QUANTUM BIOMETRIC IDENTITY SYSTEM
+# 🔐 QUANKEY MVP - REALISTIC PASSKEY + PQC ARCHITECTURE
 
-⚠️ **GOLDEN RULE - ABSOLUTE**: **NO PASSWORDS, NO SIMULATIONS, NO RECOVERY CODES - YOUR BIOMETRIC IS YOUR QUANTUM IDENTITY**
+⚠️ **GOLDEN RULE - ABSOLUTE**: **PASSKEYS REALES + PQC POR DISPOSITIVO + QR PAIRING + GUARDIANES 2-DE-3**
 
 **Fecha última actualización:** 11 Agosto 2025  
-**Versión:** QUANTUM BIOMETRIC IDENTITY ARCHITECTURE v6.0  
-**Estado:** 🔄 PIVOTING TO TRUE PASSWORDLESS - Eliminating ALL password infrastructure  
-**Budget:** €10K Phase 1 complete, €5K Phase 2 (biometric implementation)
+**Versión:** REALISTIC PASSKEY + PQC ARCHITECTURE v7.0  
+**Estado:** ✅ ARQUITECTURA REALISTA IMPLEMENTADA - Passkeys + ML-KEM-768 per device  
+**Budget:** €10K Phase 1 complete, €3K Phase 2 (realistic implementation)
 
-## 🔄 ACTUALIZACIÓN CRÍTICA - PARADIGM SHIFT (11/08/2025)
+## 🚨 CORRECCIÓN CRÍTICA - ARQUITECTURA REALISTA (11/08/2025)
 
-### 🚨 **NUEVA VISIÓN - PASSWORDLESS QUANTUM IDENTITY**
+### ⚡ **ARQUITECTURA REALISTA - PASSKEYS + PQC**
 
-**ELIMINAMOS**:
-- ❌ TODOS los campos de password
-- ❌ TODOS los recovery codes  
-- ❌ TODA la infraestructura de passwords
-- ❌ TODO el código de simulación biométrica
+**CORREGIMOS CONCEPTOS ERRÓNEOS**:
+- ❌ ELIMINADO: "Derivar claves desde biometría" (técnicamente imposible)
+- ❌ ELIMINADO: "Quantum-encrypt public keys" (innecesario)
+- ❌ ELIMINADO: Recovery codes obligatorios
 
-**IMPLEMENTAMOS**:
-- ✅ Tu huella/cara/voz ES tu identidad
-- ✅ Quantum keys derivadas de biometría
-- ✅ Sistema 3-capas sin recovery codes
-- ✅ Multi-biométrico para empresas
+**IMPLEMENTAMOS ARQUITECTURA CORRECTA**:
+- ✅ **Passkeys REALES**: La biometría AUTORIZA la clave del Secure Enclave
+- ✅ **PQC por dispositivo**: Cada dispositivo = par ML-KEM-768 único  
+- ✅ **QR pairing**: Device-to-device sin recovery codes
+- ✅ **Guardianes 2-de-3**: Shamir Secret Sharing para enterprise
 
-### 📋 **ARQUITECTURA 3-CAPAS HÍBRIDA**
+### 📋 **ARQUITECTURA 4-CAPAS REALISTA**
 
-#### **CAPA 1: Login Normal**
-- Huella en dispositivo registrado
-- Instantáneo y quantum-seguro
-- Zero passwords
+#### **CAPA 1: Autenticación Passkey**
+- WebAuthn/FIDO2 estándar con biometría OBLIGATORIA
+- Clave vive en Secure Enclave del dispositivo
+- La huella AUTORIZA (no deriva) la clave
 
-#### **CAPA 2: Nuevo Dispositivo** 
-- QR bridge desde dispositivo existente
-- O verificación multi-biométrica
-- Sin recovery codes
+#### **CAPA 2: PQC Vault Protection**
+- Cada dispositivo = par ML-KEM-768 único
+- Master Key envuelta para cada dispositivo  
+- Items cifrados con DEK + Master Key pattern
 
-#### **CAPA 3: Emergencia Total**
-- 3 biométricas registradas (huella + cara + voz)
-- Con 2 de 3 puedes entrar
-- Imposible de perder o robar
+#### **CAPA 3: QR Pairing Multi-Device**
+- Bridges temporales 60-90 segundos
+- Nuevo dispositivo obtiene MK envuelta
+- WebSocket real-time para pairing
+
+#### **CAPA 4: Guardian Recovery 2-de-3**
+- Shamir Secret Sharing threshold scheme
+- Cada guardián tiene share cifrado con su clave PQC
+- Recuperación enterprise sin recovery codes
 
 ## 🎯 IMPLEMENTATION ROADMAP - 30 DÍAS
 
