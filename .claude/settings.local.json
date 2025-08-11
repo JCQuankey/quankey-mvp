@@ -77,7 +77,9 @@
       "Bash(NODE_ENV=test DB_ENCRYPTION_KEY=\"87d730491dd45bca1f557b8dede3e0dec86c8f85b5b47aeddf42f798eb6e356a87d730491dd45bca1f557b8dede3e0dec86c8f85b5b47aeddf42f798eb6e356a\" npm test src/tests/security.comprehensive.test.ts -- --no-coverage --testNamePattern=\"should block (SQL injection|command injection)\")",
       "Bash(sudo tail:*)",
       "Bash(timeout 5 npm start)",
-      "Bash(timeout 15 npm start)"
+      "Bash(timeout 15 npm start)",
+      "Bash(git pull:*)",
+      "Bash(git merge:*)"
     ],
     "deny": []
   }
