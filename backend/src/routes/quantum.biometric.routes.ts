@@ -29,7 +29,7 @@ import { AuditLogger } from '../services/auditLogger.service';
 import * as crypto from 'crypto';
 
 const router = Router();
-const db = new DatabaseService();
+const db = DatabaseService.getInstance();
 const auditLogger = new AuditLogger();
 
 // WebAuthn Configuration
@@ -187,15 +187,7 @@ router.post('/register/finish',
 
       // Verify registration response
       const opts: VerifyRegistrationResponseOpts = {
-        response: {
-          id: credential.id,
-          rawId: new Uint8Array(Buffer.from(credential.rawId, 'base64')),
-          response: {
-            attestationObject: new Uint8Array(Buffer.from(credential.response.attestationObject, 'base64')),
-            clientDataJSON: new Uint8Array(Buffer.from(credential.response.clientDataJSON, 'base64'))
-          },
-          type: credential.type
-        },
+        response: credential,
         expectedChallenge: storedChallenge.challenge,
         expectedOrigin: origin,
         expectedRPID: rpID,

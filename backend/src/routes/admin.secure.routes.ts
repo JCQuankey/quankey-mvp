@@ -171,7 +171,7 @@ router.get('/database-status',
         sampleUsers: sampleUsers.map(u => ({
           id: u.id,
           username: u.username?.substring(0, 3) + '***', // Partially hide username
-          vaultItemCount: u._count.passwords,
+          vaultItemCount: u._count.vaultItems,
           created: u.createdAt
         }))
       });

@@ -137,6 +137,7 @@ export class MultiBiometricService {
         ip: 'pending',
         userAgent: 'MultiBiometricService',
         endpoint: 'multi-biometric.register',
+        severity: 'low',
         details: {
           username: data.username,
           biometricTypes: biometricTypes,
@@ -235,6 +236,7 @@ export class MultiBiometricService {
         ip: 'pending',
         userAgent: 'MultiBiometricService',
         endpoint: 'multi-biometric.authenticate',
+        severity: 'low',
         details: {
           username: identity.username,
           biometricsUsed: validatedBiometrics.map(vb => vb.type),
@@ -264,6 +266,7 @@ export class MultiBiometricService {
         ip: 'pending',
         userAgent: 'MultiBiometricService',
         endpoint: 'multi-biometric.authenticate',
+        severity: 'medium',
         details: {
           error: error instanceof Error ? error.message : 'Unknown error',
           biometricsAttempted: data.biometricProofSet.proofs.length
@@ -337,6 +340,7 @@ export class MultiBiometricService {
         ip: 'pending',
         userAgent: 'MultiBiometricService',
         endpoint: 'multi-biometric.add',
+        severity: 'low',
         details: {
           newBiometricType: data.newBiometricType,
           totalBiometrics: identity.biometricShares.length,

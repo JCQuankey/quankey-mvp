@@ -80,6 +80,7 @@ export class QuantumBiometricService {
         ip: 'localhost',
         userAgent: 'QuantumBiometricService',
         endpoint: 'service.init',
+        severity: 'low',
         details: {
           algorithm: 'ML-KEM-768',
           keyGenerated: true,
@@ -157,6 +158,7 @@ export class QuantumBiometricService {
         ip: 'pending',
         userAgent: 'QuantumBiometricService',
         endpoint: 'identity.register',
+        severity: 'low',
         details: {
           username: data.username,
           biometricTypes: data.biometricTypes,
@@ -184,6 +186,7 @@ export class QuantumBiometricService {
         ip: 'pending',
         userAgent: 'QuantumBiometricService',
         endpoint: 'identity.register',
+        severity: 'medium',
         details: {
           error: error instanceof Error ? error.message : 'Unknown error',
           username: data.username
@@ -233,6 +236,7 @@ export class QuantumBiometricService {
         ip: 'pending',
         userAgent: 'QuantumBiometricService',
         endpoint: 'identity.authenticate',
+        severity: 'low',
         details: {
           username: identity.username,
           deviceFingerprint: data.deviceFingerprint,
@@ -257,6 +261,7 @@ export class QuantumBiometricService {
         ip: 'pending',
         userAgent: 'QuantumBiometricService',
         endpoint: 'identity.authenticate',
+        severity: 'medium',
         details: {
           error: error instanceof Error ? error.message : 'Unknown error',
           deviceFingerprint: data.deviceFingerprint
@@ -332,6 +337,7 @@ export class QuantumBiometricService {
         ip: 'pending',
         userAgent: 'QuantumBiometricService',
         endpoint: 'bridge.create',
+        severity: 'low',
         details: {
           bridgeToken,
           expiresInSeconds: 60,
@@ -456,7 +462,7 @@ export class QuantumBiometricService {
     const dataBytes = new TextEncoder().encode(JSON.stringify(data));
     const encrypted = ml_kem768.encapsulate(dataBytes as any, this.serverQuantumKeys.publicKey);
     
-    return this.uint8ArrayToBase64(encrypted.ciphertext);
+    return this.uint8ArrayToBase64(encrypted.cipherText);
   }
 
   private async storeQuantumBridge(bridge: QuantumBridgeToken): Promise<void> {
