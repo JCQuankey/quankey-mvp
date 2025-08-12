@@ -384,6 +384,119 @@ class InputValidationMiddleware {
         ];
     }
     /**
+     * 🧬 QUANTUM BIOMETRIC IDENTITY REGISTRATION VALIDATION - Master Plan v6.0
+     */
+    static validateQuantumBiometricRegistration() {
+        return [
+            (0, express_validator_1.body)('username')
+                .isLength({ min: 1, max: this.LIMITS.USERNAME_MAX })
+                .withMessage('Username is required and must be less than 100 characters')
+                .matches(this.PATTERNS.SAFE_STRING)
+                .withMessage('Username contains invalid characters')
+                .customSanitizer(this.sanitizeInput)
+                .custom((value) => {
+                const threats = this.detectMaliciousPatterns(value);
+                if (threats.length > 0) {
+                    throw new Error('Invalid username');
+                }
+                return true;
+            }),
+            (0, express_validator_1.body)('quantumPublicKey')
+                .isBase64()
+                .withMessage('Quantum public key must be valid base64')
+                .isLength({ min: 1500, max: 2000 })
+                .withMessage('ML-KEM-768 public key must be correct size (encrypted)')
+                .custom((value) => {
+                // Validate this looks like an encrypted ML-KEM-768 key
+                if (!value.match(/^[A-Za-z0-9+/=]+$/)) {
+                    throw new Error('Invalid quantum public key format');
+                }
+                return true;
+            }),
+            (0, express_validator_1.body)('biometricProof')
+                .isObject()
+                .withMessage('Biometric proof must be a valid object')
+                .custom((value) => {
+                if (!value.proof || !value.challenge || !value.algorithm) {
+                    throw new Error('Biometric proof missing required fields');
+                }
+                if (value.algorithm !== 'ML-DSA-65') {
+                    throw new Error('Only ML-DSA-65 biometric proofs accepted');
+                }
+                // CRITICAL: Ensure no raw biometric data
+                if (value.biometricData || value.fingerprint || value.faceData) {
+                    throw new Error('SECURITY VIOLATION: Raw biometric data must not be sent');
+                }
+                return true;
+            }),
+            (0, express_validator_1.body)('deviceFingerprint')
+                .isLength({ min: 10, max: 100 })
+                .withMessage('Device fingerprint must be between 10-100 characters')
+                .customSanitizer(this.sanitizeInput),
+            (0, express_validator_1.body)('biometricTypes')
+                .isArray({ min: 1, max: 3 })
+                .withMessage('Must specify 1-3 biometric types')
+                .custom((value) => {
+                const allowed = ['fingerprint', 'faceId', 'voiceprint'];
+                if (!value.every((type) => allowed.includes(type))) {
+                    throw new Error('Invalid biometric types');
+                }
+                return true;
+            }),
+            // CRITICAL SECURITY: Block any biometric data fields
+            (0, express_validator_1.body)('biometricData').not().exists().withMessage('SECURITY: Biometric data must not be sent'),
+            (0, express_validator_1.body)('fingerprint').not().exists().withMessage('SECURITY: Raw fingerprint data must not be sent'),
+            (0, express_validator_1.body)('faceData').not().exists().withMessage('SECURITY: Raw face data must not be sent'),
+            this.handleValidationErrors
+        ];
+    }
+    /**
+     * 🔓 QUANTUM BIOMETRIC AUTHENTICATION VALIDATION
+     */
+    static validateQuantumBiometricAuth() {
+        return [
+            (0, express_validator_1.body)('biometricProof')
+                .isObject()
+                .withMessage('Biometric proof must be a valid object')
+                .custom((value) => {
+                if (!value.proof || !value.challenge || !value.algorithm) {
+                    throw new Error('Biometric proof missing required fields');
+                }
+                if (value.algorithm !== 'ML-DSA-65') {
+                    throw new Error('Only ML-DSA-65 biometric proofs accepted');
+                }
+                return true;
+            }),
+            (0, express_validator_1.body)('deviceFingerprint')
+                .isLength({ min: 10, max: 100 })
+                .withMessage('Device fingerprint required')
+                .customSanitizer(this.sanitizeInput),
+            // CRITICAL SECURITY: Block any raw biometric data
+            (0, express_validator_1.body)('biometricData').not().exists().withMessage('SECURITY: Raw biometric data must not be sent'),
+            (0, express_validator_1.body)('rawFingerprint').not().exists().withMessage('SECURITY: Raw fingerprint must not be sent'),
+            this.handleValidationErrors
+        ];
+    }
+    /**
+     * 📱 QUANTUM BRIDGE CREATION VALIDATION
+     */
+    static validateQuantumBridgeCreate() {
+        return [
+            (0, express_validator_1.body)('biometricSignature')
+                .isLength({ min: 1, max: 500 })
+                .withMessage('Biometric signature required')
+                .customSanitizer(this.sanitizeInput),
+            (0, express_validator_1.body)('challengeResponse')
+                .isLength({ min: 1, max: 500 })
+                .withMessage('Challenge response required')
+                .customSanitizer(this.sanitizeInput),
+            (0, express_validator_1.body)('newDeviceRequest')
+                .isBoolean()
+                .withMessage('New device request flag required'),
+            this.handleValidationErrors
+        ];
+    }
+    /**
      * 🔄 PAIRING CONSUME VALIDATION
      */
     static validatePairingConsume() {
