@@ -89,7 +89,7 @@ class WebAuthnServiceSimple {
                 ],
                 authenticatorSelection: {
                     authenticatorAttachment: 'platform',
-                    userVerification: 'preferred',
+                    userVerification: 'required',
                     residentKey: 'preferred',
                     requireResidentKey: false
                 },
@@ -146,11 +146,13 @@ class WebAuthnServiceSimple {
             await this.clearChallenge(userId);
             console.log(`✅ [WEBAUTHN-REAL] User ${userId} registered with REAL biometric verification`);
             return {
+                success: true,
                 verified: true,
                 user: {
                     id: user.id,
                     username: user.username,
-                    displayName: user.displayName
+                    email: user.email || '',
+                    displayName: user.username
                 },
                 authenticator: {
                     credentialID: response.id,
@@ -181,7 +183,7 @@ class WebAuthnServiceSimple {
                 timeout: this.config.timeout,
                 rpID: this.config.rpID,
                 allowCredentials: [], // In production, would load user's registered credentials
-                userVerification: 'preferred'
+                userVerification: 'required'
             };
             console.log(`✅ [WEBAUTHN-REAL] Real auth challenge generated: ${challenge.substring(0, 16)}...`);
             return {
@@ -194,6 +196,18 @@ class WebAuthnServiceSimple {
             console.error('❌ [WEBAUTHN-REAL] Authentication options failed:', error);
             throw new Error(`WebAuthn authentication preparation failed: ${error.message}`);
         }
+    }
+    /**
+     * PATENT-CRITICAL: Verify Registration Response
+     */
+    static async verifyRegistrationResponse(response) {
+        return this.verifyRegistration(response);
+    }
+    /**
+     * PATENT-CRITICAL: Verify Authentication Response
+     */
+    static async verifyAuthenticationResponse(response) {
+        return this.verifyAuthentication(response);
     }
     /**
      * PATENT-CRITICAL: Real Authentication Verification
@@ -231,11 +245,13 @@ class WebAuthnServiceSimple {
             await this.clearChallenge(challengeId || authenticator.userId);
             console.log(`✅ [WEBAUTHN-REAL] User ${user.username} authenticated with REAL biometric verification`);
             return {
+                success: true,
                 verified: true,
                 user: {
                     id: user.id,
                     username: user.username,
-                    displayName: user.displayName
+                    email: user.email,
+                    displayName: user.username
                 },
                 authenticationInfo: {
                     newCounter: authenticator.counter + 1,

@@ -57,7 +57,7 @@ class SecurityHeadersMiddleware {
             }
             // 15. Custom Quankey Security Headers
             res.setHeader('X-Quankey-Security', 'military-grade');
-            res.setHeader('X-Quantum-Protected', 'ML-KEM-768,ML-DSA-65');
+            // Quantum security headers removed - no false claims
             next();
         }
         catch (error) {
@@ -162,7 +162,7 @@ class SecurityHeadersMiddleware {
             mime_sniffing_blocked: headers['X-Content-Type-Options'] === 'nosniff',
             quantum_headers: {
                 'X-Quankey-Security': res.getHeader('X-Quankey-Security'),
-                'X-Quantum-Protected': res.getHeader('X-Quantum-Protected')
+                'X-Security-Level': 'maximum'
             },
             timestamp: new Date().toISOString()
         };

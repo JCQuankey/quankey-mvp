@@ -16,10 +16,10 @@ class VaultService {
         if (data.password.length > 500) {
             throw new Error('Password too long');
         }
-        // Cifrar datos sensibles
-        const { encrypted: encryptedPassword, keyHash } = encryption_service_1.encryption.encryptPassword(data.password);
+        // Cifrar datos sensibles con QUANTUM
+        const { encrypted: encryptedPassword, keyHash } = await encryption_service_1.encryption.encryptPassword(data.password);
         const encryptedNotes = data.notes ?
-            encryption_service_1.encryption.encrypt(data.notes) : null;
+            await encryption_service_1.encryption.encrypt(data.notes) : null;
         // Transacción atómica
         return await database_service_1.prisma.$transaction(async (tx) => {
             // Crear item
@@ -107,8 +107,8 @@ class VaultService {
             });
             throw new Error('Password not found');
         }
-        // Descifrar
-        const password = encryption_service_1.encryption.decryptPassword(item.encryptedPassword, item.keyDerivation);
+        // Descifrar con QUANTUM
+        const password = await encryption_service_1.encryption.decryptPassword(item.encryptedPassword, item.keyDerivation);
         // Update last accessed
         await database_service_1.prisma.password.update({
             where: { id: itemId },

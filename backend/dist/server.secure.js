@@ -37,13 +37,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
+/// <reference path="./types/express.d.ts" />
 const express_1 = __importDefault(require("express"));
 const helmet_1 = __importDefault(require("helmet"));
 const cors_1 = __importDefault(require("cors"));
 const crypto_1 = require("crypto");
 const auth_middleware_1 = require("./middleware/auth.middleware");
 const rateLimiter_1 = require("./middleware/rateLimiter");
+const inputValidation_middleware_1 = require("./middleware/inputValidation.middleware");
 const database_service_1 = require("./services/database.service");
+const quantum_routes_1 = __importDefault(require("./routes/quantum.routes"));
+const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
+const quantum_biometric_routes_1 = __importDefault(require("./routes/quantum.biometric.routes"));
 const app = (0, express_1.default)();
 exports.app = app;
 const PORT = process.env.PORT || 5000;
@@ -65,20 +70,33 @@ async function initialize() {
     }
     // Inicializar servicios
     await auth_middleware_1.AuthMiddleware.initialize();
-    // Security headers - ESTRICTOS
+    // Security headers - MILITARY-GRADE STRICT CSP
     app.use((0, helmet_1.default)({
         contentSecurityPolicy: {
             directives: {
-                defaultSrc: ["'self'"],
-                scriptSrc: ["'self'"],
-                styleSrc: ["'self'", "'unsafe-inline'"], // Para React
-                imgSrc: ["'self'", 'data:'],
-                connectSrc: ["'self'"],
-                fontSrc: ["'self'"],
+                defaultSrc: ["'none'"], // Deny all by default
+                scriptSrc: ["'self'", "'strict-dynamic'"],
+                styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+                imgSrc: ["'self'", 'data:', 'https:'],
+                connectSrc: [
+                    "'self'",
+                    'https://quankey.xyz',
+                    'https://api.quankey.xyz',
+                    'https://qrng.anu.edu.au' // ANU QRNG for quantum entropy
+                ],
+                fontSrc: ["'self'", 'https://fonts.gstatic.com'],
                 objectSrc: ["'none'"],
                 mediaSrc: ["'none'"],
                 frameSrc: ["'none'"],
-            }
+                childSrc: ["'none'"],
+                workerSrc: ["'self'"],
+                manifestSrc: ["'self'"],
+                formAction: ["'self'"],
+                frameAncestors: ["'none'"],
+                baseUri: ["'self'"],
+                upgradeInsecureRequests: []
+            },
+            reportOnly: false // Enforce, don't just report
         },
         hsts: {
             maxAge: 31536000,
@@ -86,16 +104,42 @@ async function initialize() {
             preload: true
         }
     }));
-    // CORS restrictivo
+    // CORS restrictivo - permite www y sin www
+    const allowedOrigins = [
+        'https://quankey.xyz',
+        'https://www.quankey.xyz',
+        'http://localhost:3000', // Para desarrollo local
+        'http://localhost:3001' // Puerto alternativo
+    ];
+    // Añadir FRONTEND_URL y CORS_ORIGIN si están configurados
+    if (process.env.FRONTEND_URL) {
+        allowedOrigins.push(process.env.FRONTEND_URL);
+    }
+    if (process.env.CORS_ORIGIN) {
+        allowedOrigins.push(process.env.CORS_ORIGIN);
+    }
     app.use((0, cors_1.default)({
-        origin: process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'https://quankey.xyz',
+        origin: function (origin, callback) {
+            // Permitir requests sin origin (Postman, curl, etc) solo en desarrollo
+            if (!origin && process.env.NODE_ENV === 'development') {
+                return callback(null, true);
+            }
+            if (origin && allowedOrigins.includes(origin)) {
+                callback(null, true);
+            }
+            else {
+                console.warn(`CORS blocked origin: ${origin}`);
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
         allowedHeaders: ['Content-Type', 'Authorization']
     }));
     app.use(express_1.default.json({ limit: '1mb' })); // Límite estricto
-    // Health check SIN autenticación
-    app.get('/health', async (req, res) => {
+    app.use(inputValidation_middleware_1.inputValidation.sanitizeRequest); // Global input sanitization
+    // Health check SIN autenticación - with rate limiting
+    app.get('/health', rateLimiter_1.apiLimiter, async (req, res) => {
         try {
             const dbHealth = await database_service_1.db.healthCheck();
             res.status(200).json({
@@ -111,6 +155,10 @@ async function initialize() {
             });
         }
     });
+    // Authentication routes - REAL WebAuthn implementation (legacy)
+    app.use('/api/auth', auth_routes_1.default);
+    // QUANTUM BIOMETRIC IDENTITY ROUTES - NO PASSWORDS
+    app.use('/api/auth', quantum_biometric_routes_1.default);
     // Basic vault operations (simplified for security focus)
     app.use('/api/vault', auth_middleware_1.AuthMiddleware.validateRequest, rateLimiter_1.vaultLimiter);
     // Get vault items
@@ -128,7 +176,7 @@ async function initialize() {
         }
     });
     // Create vault item
-    app.post('/api/vault/items', auth_middleware_1.AuthMiddleware.validateRequest, async (req, res) => {
+    app.post('/api/vault/items', auth_middleware_1.AuthMiddleware.validateRequest, inputValidation_middleware_1.inputValidation.validateVaultItem(), async (req, res) => {
         try {
             const { VaultService } = await Promise.resolve().then(() => __importStar(require('./services/vault.service')));
             const item = await VaultService.createItem(req.user.id, {
@@ -148,7 +196,7 @@ async function initialize() {
         }
     });
     // Get password (separate endpoint for security)
-    app.get('/api/vault/items/:id/password', auth_middleware_1.AuthMiddleware.validateRequest, async (req, res) => {
+    app.get('/api/vault/items/:id/password', auth_middleware_1.AuthMiddleware.validateRequest, inputValidation_middleware_1.inputValidation.validateId(), async (req, res) => {
         try {
             const { VaultService } = await Promise.resolve().then(() => __importStar(require('./services/vault.service')));
             const password = await VaultService.getPassword(req.user.id, req.params.id);
@@ -162,7 +210,7 @@ async function initialize() {
         }
     });
     // Delete vault item
-    app.delete('/api/vault/items/:id', auth_middleware_1.AuthMiddleware.validateRequest, async (req, res) => {
+    app.delete('/api/vault/items/:id', auth_middleware_1.AuthMiddleware.validateRequest, inputValidation_middleware_1.inputValidation.validateId(), async (req, res) => {
         try {
             const { VaultService } = await Promise.resolve().then(() => __importStar(require('./services/vault.service')));
             await VaultService.deleteItem(req.user.id, req.params.id);
@@ -175,12 +223,20 @@ async function initialize() {
             });
         }
     });
+    // Quantum API routes - PUBLIC (no auth required for status endpoints)
+    app.use('/api/quantum', rateLimiter_1.apiLimiter, quantum_routes_1.default);
     // Apply rate limiting to all other API routes
     app.use('/api', auth_middleware_1.AuthMiddleware.validateRequest, rateLimiter_1.apiLimiter);
     // 404 handler
     app.use((req, res) => {
         res.status(404).json({ error: 'Not found' });
     });
+    // Admin routes (SECURE - only with proper authentication)
+    if (process.env.ADMIN_SECRET_KEY && process.env.ADMIN_CLEANUP_TOKEN) {
+        const adminRoutes = require('./routes/admin.secure.routes').default;
+        app.use('/api/admin', adminRoutes);
+        console.log('🔐 Admin routes enabled (secure)');
+    }
     // Error handler
     app.use((err, req, res, next) => {
         console.error('Error:', err);

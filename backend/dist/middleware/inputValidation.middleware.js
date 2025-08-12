@@ -26,11 +26,18 @@ class InputValidationMiddleware {
         });
         // 2. Remove JavaScript protocols
         cleaned = cleaned.replace(/javascript:|data:|vbscript:/gi, '');
-        // 3. Remove SQL injection patterns
+        // 3. Remove SQL injection patterns - AGGRESSIVE BLOCKING
         cleaned = cleaned.replace(/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi, '');
-        // 4. Remove dangerous HTML entities
+        cleaned = cleaned.replace(/[';]/g, ''); // Remove dangerous SQL characters
+        cleaned = cleaned.replace(/--/g, ''); // Remove SQL comments
+        cleaned = cleaned.replace(/['"]/g, ''); // Remove quotes entirely
+        // 4. Remove command injection patterns - AGGRESSIVE BLOCKING
+        cleaned = cleaned.replace(/[;&|`$(){}[\]]/g, ''); // Remove dangerous shell characters
+        cleaned = cleaned.replace(/\.\.\//g, ''); // Remove path traversal
+        cleaned = cleaned.replace(/\.\.\\/g, ''); // Remove Windows path traversal
+        // 5. Remove dangerous HTML entities
         cleaned = cleaned.replace(/&[#x]?[0-9a-f]+;/gi, '');
-        // 5. Normalize whitespace
+        // 6. Normalize whitespace
         cleaned = cleaned.replace(/\s+/g, ' ').trim();
         return cleaned;
     }
@@ -126,9 +133,22 @@ class InputValidationMiddleware {
      */
     static validateVaultItem() {
         return [
-            (0, express_validator_1.body)('title')
+            (0, express_validator_1.body)('site')
                 .isLength({ min: 1, max: this.LIMITS.TITLE_MAX })
-                .withMessage('Title is required and must be less than 200 characters')
+                .withMessage('Site is required and must be less than 200 characters')
+                .customSanitizer(this.sanitizeInput)
+                .custom((value) => {
+                const threats = this.detectMaliciousPatterns(value);
+                if (threats.length > 0) {
+                    throw new Error(`Security violation in site: ${threats.join(', ')}`);
+                }
+                return true;
+            }),
+            // Legacy support for 'title' field
+            (0, express_validator_1.body)('title')
+                .optional()
+                .isLength({ min: 1, max: this.LIMITS.TITLE_MAX })
+                .withMessage('Title must be less than 200 characters')
                 .customSanitizer(this.sanitizeInput)
                 .custom((value) => {
                 const threats = this.detectMaliciousPatterns(value);
@@ -298,6 +318,165 @@ class InputValidationMiddleware {
             return sanitized;
         }
         return obj;
+    }
+    /**
+     * 🧪 QUANTUM TEST VALIDATION
+     */
+    static validateQuantumTest() {
+        return [
+            (0, express_validator_1.body)('plaintext')
+                .isLength({ min: 1, max: 1000 })
+                .withMessage('Plaintext is required and must be less than 1000 characters')
+                .customSanitizer(this.sanitizeInput)
+                .custom((value) => {
+                const threats = this.detectMaliciousPatterns(value);
+                if (threats.length > 0) {
+                    throw new Error(`Security violation in plaintext: ${threats.join(', ')}`);
+                }
+                return true;
+            }),
+            this.handleValidationErrors
+        ];
+    }
+    /**
+     * 🔐 PASSKEY REGISTRATION VALIDATION
+     */
+    static validatePasskeyRegister() {
+        return [
+            (0, express_validator_1.body)('username')
+                .isLength({ min: 1, max: this.LIMITS.USERNAME_MAX })
+                .withMessage('Username is required and must be less than 100 characters')
+                .matches(this.PATTERNS.SAFE_STRING)
+                .withMessage('Username contains invalid characters')
+                .customSanitizer(this.sanitizeInput)
+                .custom((value) => {
+                const threats = this.detectMaliciousPatterns(value);
+                if (threats.length > 0) {
+                    throw new Error('Invalid username');
+                }
+                return true;
+            }),
+            this.handleValidationErrors
+        ];
+    }
+    /**
+     * 📱 DEVICE REGISTRATION VALIDATION
+     */
+    static validateDeviceRegister() {
+        return [
+            (0, express_validator_1.body)('deviceName')
+                .isLength({ min: 1, max: 100 })
+                .withMessage('Device name is required and must be less than 100 characters')
+                .customSanitizer(this.sanitizeInput)
+                .custom((value) => {
+                const threats = this.detectMaliciousPatterns(value);
+                if (threats.length > 0) {
+                    throw new Error('Invalid device name');
+                }
+                return true;
+            }),
+            (0, express_validator_1.body)('publicKey')
+                .isBase64()
+                .withMessage('Public key must be valid base64')
+                .isLength({ min: 1 })
+                .withMessage('Public key is required'),
+            this.handleValidationErrors
+        ];
+    }
+    /**
+     * 🔄 PAIRING CONSUME VALIDATION
+     */
+    static validatePairingConsume() {
+        return [
+            (0, express_validator_1.body)('token')
+                .isLength({ min: 64, max: 64 })
+                .withMessage('Invalid token format')
+                .isHexadecimal()
+                .withMessage('Token must be hexadecimal'),
+            (0, express_validator_1.body)('devicePublicKey')
+                .isBase64()
+                .withMessage('Device public key must be valid base64')
+                .isLength({ min: 1 })
+                .withMessage('Device public key is required'),
+            (0, express_validator_1.body)('deviceName')
+                .optional()
+                .isLength({ max: 100 })
+                .withMessage('Device name must be less than 100 characters')
+                .customSanitizer(this.sanitizeInput),
+            this.handleValidationErrors
+        ];
+    }
+    /**
+     * 👥 GUARDIAN SETUP VALIDATION
+     */
+    static validateGuardianSetup() {
+        return [
+            (0, express_validator_1.body)('guardians')
+                .isArray({ min: 3, max: 3 })
+                .withMessage('Exactly 3 guardians required'),
+            (0, express_validator_1.body)('guardians.*.id')
+                .isLength({ min: 1, max: 100 })
+                .withMessage('Guardian ID is required')
+                .customSanitizer(this.sanitizeInput),
+            (0, express_validator_1.body)('guardians.*.name')
+                .isLength({ min: 1, max: 100 })
+                .withMessage('Guardian name is required')
+                .customSanitizer(this.sanitizeInput),
+            (0, express_validator_1.body)('guardians.*.publicKey')
+                .isBase64()
+                .withMessage('Guardian public key must be valid base64')
+                .isLength({ min: 1 })
+                .withMessage('Guardian public key is required'),
+            this.handleValidationErrors
+        ];
+    }
+    /**
+     * 🔄 RECOVERY INITIATION VALIDATION
+     */
+    static validateRecoveryInit() {
+        return [
+            (0, express_validator_1.body)('username')
+                .isLength({ min: 1, max: this.LIMITS.USERNAME_MAX })
+                .withMessage('Username is required')
+                .customSanitizer(this.sanitizeInput),
+            (0, express_validator_1.body)('guardianIds')
+                .isArray({ min: 2, max: 3 })
+                .withMessage('At least 2 guardian IDs required'),
+            (0, express_validator_1.body)('guardianIds.*')
+                .isLength({ min: 1, max: 100 })
+                .withMessage('Invalid guardian ID')
+                .customSanitizer(this.sanitizeInput),
+            this.handleValidationErrors
+        ];
+    }
+    /**
+     * ✅ RECOVERY COMPLETION VALIDATION
+     */
+    static validateRecoveryComplete() {
+        return [
+            (0, express_validator_1.body)('recoveryRequestId')
+                .isLength({ min: 32, max: 32 })
+                .withMessage('Invalid recovery request ID')
+                .isHexadecimal()
+                .withMessage('Recovery request ID must be hexadecimal'),
+            (0, express_validator_1.body)('decryptedShares')
+                .isArray({ min: 2, max: 3 })
+                .withMessage('At least 2 decrypted shares required'),
+            (0, express_validator_1.body)('decryptedShares.*.data')
+                .isBase64()
+                .withMessage('Share data must be valid base64'),
+            (0, express_validator_1.body)('newDevicePublicKey')
+                .isBase64()
+                .withMessage('New device public key must be valid base64')
+                .isLength({ min: 1 })
+                .withMessage('New device public key is required'),
+            (0, express_validator_1.body)('newDeviceName')
+                .optional()
+                .isLength({ max: 100 })
+                .withMessage('Device name must be less than 100 characters')
+                .customSanitizer(this.sanitizeInput),
+            this.handleValidationErrors
+        ];
     }
 }
 exports.InputValidationMiddleware = InputValidationMiddleware;

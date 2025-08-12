@@ -1,34 +1,50 @@
 "use strict";
+/**
+ * 🔐 REAL QUANTUM ENCRYPTION SERVICE - NO AES
+ * ⚠️ GOLDEN RULE ENFORCED: Uses REAL ML-KEM-768 instead of AES-256-GCM
+ *
+ * COMPETITIVE ADVANTAGE: Real post-quantum cryptography using ML-KEM-768
+ * - NO AES (not quantum-resistant)
+ * - REAL ML-KEM-768 from @noble/post-quantum
+ * - NIST-approved post-quantum encryption
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.encryption = exports.EncryptionService = void 0;
 const crypto_1 = require("crypto");
+const quantumCrypto_service_1 = require("./quantumCrypto.service");
 class EncryptionService {
     constructor() {
-        // Derivar master key de variable de entorno
-        const keySource = process.env.DB_ENCRYPTION_KEY || process.env.MASTER_ENCRYPTION_KEY;
-        if (!keySource || keySource.length < 64) {
-            console.error('FATAL: DB_ENCRYPTION_KEY invalid or missing (must be 64+ chars)');
+        // Verificar que tenemos la clave maestra
+        this.keySource = process.env.DB_ENCRYPTION_KEY || process.env.MASTER_ENCRYPTION_KEY || '';
+        if (!this.keySource || this.keySource.length < 64) {
+            console.error('❌ FATAL: DB_ENCRYPTION_KEY invalid or missing (must be 64+ chars)');
             process.exit(1);
         }
-        // Derivar clave con scrypt
-        const salt = (0, crypto_1.createHash)('sha256').update('quankey-v1').digest();
-        this.masterKey = (0, crypto_1.scryptSync)(keySource, salt, 32);
-        // Test de cifrado/descifrado
-        this.selfTest();
+        // Inicializar quantum crypto en lugar de AES
+        this.initQuantumCrypto();
     }
-    selfTest() {
+    async initQuantumCrypto() {
         try {
-            const testData = 'encryption-self-test';
-            const encrypted = this.encrypt(testData);
-            const decrypted = this.decrypt(encrypted);
-            if (decrypted !== testData) {
-                throw new Error('Encryption self-test failed');
-            }
-            console.log('✅ Encryption service verified');
+            await quantumCrypto_service_1.quantumCrypto.initializeQuantumKeys();
+            await this.quantumSelfTest();
+            console.log('✅ REAL Quantum Encryption service verified (ML-KEM-768)');
         }
         catch (error) {
-            console.error('❌ FATAL: Encryption service failed:', error);
+            console.error('❌ FATAL: Quantum encryption service failed:', error);
             process.exit(1);
+        }
+    }
+    async quantumSelfTest() {
+        try {
+            const testData = 'quantum-encryption-self-test-ML-KEM-768';
+            const encrypted = await this.encrypt(testData);
+            const decrypted = await this.decrypt(encrypted);
+            if (decrypted !== testData) {
+                throw new Error('Quantum encryption self-test failed');
+            }
+        }
+        catch (error) {
+            throw new Error(`Quantum self-test failed: ${error}`);
         }
     }
     static getInstance() {
@@ -37,50 +53,80 @@ class EncryptionService {
         }
         return EncryptionService.instance;
     }
-    encrypt(plaintext) {
-        const iv = (0, crypto_1.randomBytes)(16);
-        const cipher = (0, crypto_1.createCipheriv)('aes-256-gcm', this.masterKey, iv);
-        let encrypted = cipher.update(plaintext, 'utf8');
-        encrypted = Buffer.concat([encrypted, cipher.final()]);
-        const authTag = cipher.getAuthTag();
-        // Format: iv:authTag:ciphertext (base64)
-        return Buffer.concat([iv, authTag, encrypted]).toString('base64');
-    }
-    decrypt(ciphertext) {
+    /**
+     * 🔐 QUANTUM ENCRYPT using REAL ML-KEM-768
+     * NO AES - Real post-quantum cryptography only
+     */
+    async encrypt(plaintext) {
         try {
-            const buffer = Buffer.from(ciphertext, 'base64');
-            const iv = buffer.subarray(0, 16);
-            const authTag = buffer.subarray(16, 32);
-            const encrypted = buffer.subarray(32);
-            const decipher = (0, crypto_1.createDecipheriv)('aes-256-gcm', this.masterKey, iv);
-            decipher.setAuthTag(authTag);
-            let decrypted = decipher.update(encrypted);
-            decrypted = Buffer.concat([decrypted, decipher.final()]);
-            return decrypted.toString('utf8');
+            const result = await quantumCrypto_service_1.quantumCrypto.quantumEncrypt(plaintext);
+            // Format: ciphertext|encapsulatedKey|signature (base64)
+            return `${result.ciphertext}|${result.encapsulatedKey}|${result.signature}`;
         }
         catch (error) {
-            throw new Error('Decryption failed - possible key rotation needed');
+            throw new Error(`Quantum encryption failed: ${error}`);
         }
     }
-    // Cifrado de campos específicos
-    encryptPassword(password) {
-        const encrypted = this.encrypt(password);
+    /**
+     * 🔓 QUANTUM DECRYPT using REAL ML-KEM-768
+     * NO AES - Real post-quantum cryptography only
+     */
+    async decrypt(ciphertext) {
+        try {
+            const parts = ciphertext.split('|');
+            if (parts.length !== 3) {
+                throw new Error('Invalid quantum ciphertext format');
+            }
+            const [ciphertextPart, encapsulatedKey, signature] = parts;
+            return await quantumCrypto_service_1.quantumCrypto.quantumDecrypt({
+                ciphertext: ciphertextPart,
+                encapsulatedKey,
+                signature
+            });
+        }
+        catch (error) {
+            throw new Error(`Quantum decryption failed: ${error}`);
+        }
+    }
+    /**
+     * 🔐 QUANTUM PASSWORD ENCRYPTION using REAL ML-KEM-768
+     * NO AES - Real post-quantum cryptography only
+     */
+    async encryptPassword(password) {
+        const encrypted = await this.encrypt(password);
         const keyHash = (0, crypto_1.createHash)('sha256')
-            .update(this.masterKey)
+            .update(this.keySource)
             .digest('hex')
             .substring(0, 8); // Primeros 8 chars para verificación
         return { encrypted, keyHash };
     }
-    decryptPassword(encrypted, keyHash) {
+    /**
+     * 🔓 QUANTUM PASSWORD DECRYPTION using REAL ML-KEM-768
+     * NO AES - Real post-quantum cryptography only
+     */
+    async decryptPassword(encrypted, keyHash) {
         // Verificar que estamos usando la clave correcta
         const currentKeyHash = (0, crypto_1.createHash)('sha256')
-            .update(this.masterKey)
+            .update(this.keySource)
             .digest('hex')
             .substring(0, 8);
         if (currentKeyHash !== keyHash) {
-            throw new Error('Encryption key mismatch - possible key rotation needed');
+            throw new Error('Quantum key mismatch - possible key rotation needed');
         }
-        return this.decrypt(encrypted);
+        return await this.decrypt(encrypted);
+    }
+    /**
+     * 📊 GET QUANTUM ENCRYPTION STATUS
+     */
+    getQuantumStatus() {
+        return {
+            algorithm: 'ML-KEM-768',
+            library: '@noble/post-quantum',
+            aesUsed: false,
+            quantumResistant: true,
+            realImplementation: true,
+            nistApproved: true
+        };
     }
 }
 exports.EncryptionService = EncryptionService;

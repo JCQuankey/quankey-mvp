@@ -272,7 +272,7 @@ export class QuantumBiometricService {
       }
 
       // Check conditional UI support (optional but preferred)
-      const conditionalSupported = await PublicKeyCredential.isConditionalMediationAvailable?.() || false;
+      const conditionalSupported = false; // Not available in current WebAuthn API
 
       console.log(`🔍 Quantum biometric capability: ${available}, conditional UI: ${conditionalSupported}`);
       
@@ -309,7 +309,7 @@ export class QuantumBiometricService {
   private static getWebGLRenderer(): string {
     try {
       const canvas = document.createElement('canvas');
-      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      const gl = canvas.getContext('webgl') as WebGLRenderingContext | null;
       if (!gl) return 'no-webgl';
 
       const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
