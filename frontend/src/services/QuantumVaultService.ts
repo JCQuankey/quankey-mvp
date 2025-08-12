@@ -14,8 +14,8 @@
  * 4. Items se cifran con DEK envueltas por MK
  */
 
-// Note: In production, use @noble/post-quantum when available
-// For now, simulating the interface until we can integrate the real library
+// ⚠️ GOLDEN RULE: REAL ML-KEM-768 + ML-DSA-65 ONLY - NO SIMULATIONS
+// Using @noble/post-quantum for NIST-approved post-quantum cryptography
 
 export interface DeviceKeyPair {
   publicKey: Uint8Array;   // ML-KEM-768 public key (1184 bytes)
@@ -284,72 +284,64 @@ export class QuantumVaultService {
 
   /**
    * 🔑 GENERATE ML-KEM-768 KEYPAIR
-   * TODO: Replace with @noble/post-quantum when available
+   * ✅ REAL @noble/post-quantum implementation
    */
   private static async generateMLKEM768KeyPair(): Promise<DeviceKeyPair> {
-    // Simulate ML-KEM-768 keypair generation
-    // In production: const keypair = ml_kem768.keygen();
+    // 🔐 REAL ML-KEM-768 keypair generation - NO SIMULATIONS
+    const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js');
     
-    const publicKey = crypto.getRandomValues(new Uint8Array(1184));  // ML-KEM-768 public key size
-    const secretKey = crypto.getRandomValues(new Uint8Array(2400));  // ML-KEM-768 secret key size
+    const keypair = ml_kem768.keygen();
     
-    return { publicKey, secretKey };
+    return { 
+      publicKey: keypair.publicKey, 
+      secretKey: keypair.secretKey 
+    };
   }
 
   /**
    * 🔓 DECAPSULATE MASTER KEY
-   * TODO: Replace with @noble/post-quantum when available
+   * ✅ REAL ML-KEM-768 decapsulation - NO SIMULATIONS
    */
   private static async decapsulateMasterKey(
     wrappedMK: string, 
     deviceSecretKey: Uint8Array
   ): Promise<Uint8Array> {
-    // Simulate ML-KEM-768 decapsulation
-    // In production: const masterKey = ml_kem768.decapsulate(ciphertext, secretKey);
+    // 🔐 REAL ML-KEM-768 decapsulation - NO SIMULATIONS
+    const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js');
     
     const wrappedBytes = this.base64ToUint8Array(wrappedMK);
     
-    // For now, return a deterministic key based on device secret
-    const masterKey = new Uint8Array(32);
-    const hash = await crypto.subtle.digest('SHA-256', deviceSecretKey);
-    masterKey.set(new Uint8Array(hash));
+    // Real ML-KEM-768 decapsulation
+    const masterKey = ml_kem768.decapsulate(wrappedBytes, deviceSecretKey);
     
     return masterKey;
   }
 
   /**
    * 🔒 ChaCha20-Poly1305 ENCRYPT
-   * TODO: Use @noble/ciphers when available
+   * ✅ REAL ChaCha20-Poly1305 - NO AES SUBSTITUTES
    */
   private static async chaCha20Poly1305Encrypt(
     data: Uint8Array, 
     key: Uint8Array, 
     iv: Uint8Array
   ): Promise<{ ciphertext: Uint8Array; tag: Uint8Array }> {
-    // For now, use AES-GCM as a substitute
-    const cryptoKey = await crypto.subtle.importKey(
-      'raw',
-      key,
-      { name: 'AES-GCM' },
-      false,
-      ['encrypt']
-    );
-
-    const encrypted = await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv },
-      cryptoKey,
-      data
-    );
-
-    const ciphertext = new Uint8Array(encrypted.slice(0, -16));
-    const tag = new Uint8Array(encrypted.slice(-16));
-
+    // 🔐 REAL ChaCha20-Poly1305 encryption - NO AES SUBSTITUTES
+    const { chacha20poly1305 } = await import('@noble/ciphers/chacha.js');
+    
+    const cipher = chacha20poly1305(key, iv);
+    const encrypted = cipher.encrypt(data);
+    
+    // ChaCha20-Poly1305 returns ciphertext + tag concatenated
+    const ciphertext = encrypted.slice(0, -16);
+    const tag = encrypted.slice(-16);
+    
     return { ciphertext, tag };
   }
 
   /**
    * 🔓 ChaCha20-Poly1305 DECRYPT
-   * TODO: Use @noble/ciphers when available
+   * ✅ REAL ChaCha20-Poly1305 - NO AES SUBSTITUTES
    */
   private static async chaCha20Poly1305Decrypt(
     ciphertext: Uint8Array,
@@ -357,27 +349,19 @@ export class QuantumVaultService {
     iv?: Uint8Array,
     tag?: Uint8Array
   ): Promise<Uint8Array> {
-    // For now, use AES-GCM as a substitute
-    const cryptoKey = await crypto.subtle.importKey(
-      'raw',
-      key,
-      { name: 'AES-GCM' },
-      false,
-      ['decrypt']
-    );
-
-    // Combine ciphertext and tag for AES-GCM
-    const combined = new Uint8Array(ciphertext.length + (tag?.length || 0));
+    // 🔐 REAL ChaCha20-Poly1305 decryption - NO AES SUBSTITUTES
+    const { chacha20poly1305 } = await import('@noble/ciphers/chacha.js');
+    
+    const cipher = chacha20poly1305(key, iv || new Uint8Array(12));
+    
+    // Combine ciphertext and tag for ChaCha20-Poly1305 decryption
+    const combined = new Uint8Array(ciphertext.length + (tag?.length || 16));
     combined.set(ciphertext);
     if (tag) combined.set(tag, ciphertext.length);
 
-    const decrypted = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: iv || new Uint8Array(12) },
-      cryptoKey,
-      combined
-    );
-
-    return new Uint8Array(decrypted);
+    const decrypted = cipher.decrypt(combined);
+    
+    return decrypted;
   }
 
   /**

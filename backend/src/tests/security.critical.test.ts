@@ -89,12 +89,12 @@ describe('🚨 CRITICAL Security Tests - MUST PASS', () => {
     const { encryption } = await import('../services/encryption.service');
     
     const testData = 'test-encryption-data';
-    const encrypted = encryption.encrypt(testData);
-    const decrypted = encryption.decrypt(encrypted);
+    const encrypted = await encryption.encrypt(testData);
+    const decrypted = await encryption.decrypt(encrypted);
     
     expect(decrypted).toBe(testData);
     expect(encrypted).not.toBe(testData);
-    expect(encrypted).toMatch(/^[A-Za-z0-9+/=]+$/); // Base64 format
+    expect(encrypted).toMatch(/^[A-Za-z0-9+/=|]+$/); // Base64 with pipe separators for quantum format
   });
 
   test('✅ Audit logging is functional', async () => {
@@ -141,13 +141,13 @@ describe('🔐 Encryption Security Tests', () => {
     const { encryption } = await import('../services/encryption.service');
     
     const password = 'test-password-123';
-    const { encrypted, keyHash } = encryption.encryptPassword(password);
+    const { encrypted, keyHash } = await encryption.encryptPassword(password);
     
     expect(encrypted).toBeDefined();
     expect(keyHash).toBeDefined();
     expect(keyHash).toHaveLength(8); // First 8 chars of key hash
     
-    const decrypted = encryption.decryptPassword(encrypted, keyHash);
+    const decrypted = await encryption.decryptPassword(encrypted, keyHash);
     expect(decrypted).toBe(password);
   });
 
@@ -155,11 +155,11 @@ describe('🔐 Encryption Security Tests', () => {
     const { encryption } = await import('../services/encryption.service');
     
     const password = 'test-password-123';
-    const { encrypted } = encryption.encryptPassword(password);
+    const { encrypted } = await encryption.encryptPassword(password);
     
     // Should fail with wrong key hash
-    expect(() => {
-      encryption.decryptPassword(encrypted, 'wrongkey');
-    }).toThrow('Encryption key mismatch');
+    await expect(async () => {
+      await encryption.decryptPassword(encrypted, 'wrongkey');
+    }).rejects.toThrow('Encryption key mismatch');
   });
 });

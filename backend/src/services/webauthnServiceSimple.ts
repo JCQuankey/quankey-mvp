@@ -66,8 +66,8 @@ export class WebAuthnServiceSimple {
         authenticatorSelection: {
           authenticatorAttachment: 'platform',
           userVerification: 'required',
-          residentKey: 'preferred',
-          requireResidentKey: false
+          residentKey: 'required',
+          requireResidentKey: true
         },
         timeout: this.config.timeout,
         attestation: 'direct' // PATENT-CRITICAL: Direct attestation for production
