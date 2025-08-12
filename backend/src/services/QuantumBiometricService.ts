@@ -80,6 +80,7 @@ export class QuantumBiometricService {
         ip: 'localhost',
         userAgent: 'QuantumBiometricService',
         endpoint: 'service.init',
+        severity: 'low',
         details: {
           algorithm: 'ML-KEM-768',
           keyGenerated: true,

@@ -13,7 +13,7 @@
 import { Router, Request, Response } from 'express';
 import { quantumBiometricService } from '../services/QuantumBiometricService';
 import { inputValidation } from '../middleware/inputValidation.middleware';
-import { rateLimiter } from '../middleware/rateLimiter';
+import { authLimiter } from '../middleware/rateLimiter';
 import { AuditLogger } from '../services/auditLogger.service';
 
 const router = Router();
@@ -29,7 +29,7 @@ const auditLogger = new AuditLogger();
  * - Device fingerprint for identification
  */
 router.post('/quantum-biometric/register', 
-  rateLimiter.createLimiter({ windowMs: 15 * 60 * 1000, max: 3 }), // 3 registrations per 15 min
+  authLimiter, // Use existing auth limiter
   inputValidation.validateQuantumBiometricRegistration(),
   async (req: Request, res: Response) => {
     try {
@@ -51,6 +51,7 @@ router.post('/quantum-biometric/register',
           ip: req.ip,
           userAgent: req.headers['user-agent'],
           endpoint: '/identity/quantum-biometric/register',
+          severity: 'critical',
           details: {
             suspiciousFields: Object.keys(req.body).filter(key => 
               key.includes('biometric') && key !== 'biometricProof' && key !== 'biometricTypes'
@@ -81,6 +82,7 @@ router.post('/quantum-biometric/register',
           ip: req.ip,
           userAgent: req.headers['user-agent'],
           endpoint: '/identity/quantum-biometric/register',
+          severity: 'medium',
           details: {
             username,
             error: result.error
@@ -100,6 +102,7 @@ router.post('/quantum-biometric/register',
         ip: req.ip,
         userAgent: req.headers['user-agent'],
         endpoint: '/identity/quantum-biometric/register',
+        severity: 'low',
         details: {
           username,
           biometricTypes,
@@ -138,6 +141,7 @@ router.post('/quantum-biometric/register',
         ip: req.ip,
         userAgent: req.headers['user-agent'],
         endpoint: '/identity/quantum-biometric/register',
+        severity: 'high',
         details: {
           error: error instanceof Error ? error.message : 'Unknown error'
         }
@@ -158,7 +162,7 @@ router.post('/quantum-biometric/register',
  * Zero-knowledge biometric authentication - server validates without seeing biometric
  */
 router.post('/quantum-biometric/authenticate',
-  rateLimiter.createLimiter({ windowMs: 5 * 60 * 1000, max: 10 }), // 10 attempts per 5 min
+  authLimiter, // Use existing auth limiter
   inputValidation.validateQuantumBiometricAuth(),
   async (req: Request, res: Response) => {
     try {
@@ -174,6 +178,7 @@ router.post('/quantum-biometric/authenticate',
           ip: req.ip,
           userAgent: req.headers['user-agent'],
           endpoint: '/identity/quantum-biometric/authenticate',
+          severity: 'critical',
           details: { blocked: true }
         });
 
@@ -196,6 +201,7 @@ router.post('/quantum-biometric/authenticate',
           ip: req.ip,
           userAgent: req.headers['user-agent'],
           endpoint: '/identity/quantum-biometric/authenticate',
+          severity: 'medium',
           details: {
             deviceFingerprint: deviceFingerprint?.substring(0, 8) + '...',
             error: result.error
@@ -215,6 +221,7 @@ router.post('/quantum-biometric/authenticate',
         ip: req.ip,
         userAgent: req.headers['user-agent'],
         endpoint: '/identity/quantum-biometric/authenticate',
+        severity: 'low',
         details: {
           username: result.identity!.username,
           biometricDataAccessed: false, // ✅ CRITICAL AUDIT
@@ -256,6 +263,7 @@ router.post('/quantum-biometric/authenticate',
         ip: req.ip,
         userAgent: req.headers['user-agent'],
         endpoint: '/identity/quantum-biometric/authenticate',
+        severity: 'high',
         details: {
           error: error instanceof Error ? error.message : 'Unknown error'
         }
@@ -276,7 +284,7 @@ router.post('/quantum-biometric/authenticate',
  * Creates 60-second temporal bridge for adding devices without recovery codes
  */
 router.post('/quantum-bridge/create',
-  rateLimiter.createLimiter({ windowMs: 10 * 60 * 1000, max: 3 }), // 3 bridges per 10 min
+  authLimiter, // Use existing auth limiter
   inputValidation.validateQuantumBridgeCreate(),
   async (req: Request, res: Response) => {
     try {
@@ -306,6 +314,7 @@ router.post('/quantum-bridge/create',
           ip: req.ip,
           userAgent: req.headers['user-agent'],
           endpoint: '/identity/quantum-bridge/create',
+          severity: 'medium',
           details: {
             error: result.error
           }
@@ -324,6 +333,7 @@ router.post('/quantum-bridge/create',
         ip: req.ip,
         userAgent: req.headers['user-agent'],
         endpoint: '/identity/quantum-bridge/create',
+        severity: 'low',
         details: {
           bridgeToken: result.token,
           expiresInSeconds: 60,
@@ -357,6 +367,7 @@ router.post('/quantum-bridge/create',
         ip: req.ip,
         userAgent: req.headers['user-agent'],
         endpoint: '/identity/quantum-bridge/create',
+        severity: 'high',
         details: {
           error: error instanceof Error ? error.message : 'Unknown error'
         }
@@ -377,7 +388,7 @@ router.post('/quantum-bridge/create',
  * Returns identity information without biometric data
  */
 router.get('/quantum-biometric/status',
-  rateLimiter.createLimiter({ windowMs: 1 * 60 * 1000, max: 30 }), // 30 requests per minute
+  authLimiter, // Use existing auth limiter
   async (req: Request, res: Response) => {
     try {
       const userId = req.headers.authorization?.replace('Bearer ', '') || '';
@@ -429,6 +440,7 @@ router.all('/password/*', (req: Request, res: Response) => {
     ip: req.ip,
     userAgent: req.headers['user-agent'],
     endpoint: req.originalUrl,
+    severity: 'low',
     details: {
       deprecated: true,
       redirectTo: '/identity/quantum-biometric',
