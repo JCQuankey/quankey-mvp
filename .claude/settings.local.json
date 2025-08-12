@@ -79,7 +79,9 @@
       "Bash(timeout 5 npm start)",
       "Bash(timeout 15 npm start)",
       "Bash(git pull:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(NODE_ENV=test npm test src/tests/security.comprehensive.test.ts --no-coverage --silent)",
+      "Bash(git fetch:*)"
     ],
     "deny": []
   }
