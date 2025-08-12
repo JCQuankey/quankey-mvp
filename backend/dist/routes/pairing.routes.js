@@ -127,14 +127,7 @@ router.post('/consume', inputValidation_middleware_1.inputValidation.validatePai
         const { token, devicePublicKey, deviceName } = req.body;
         // Find pairing session
         const pairingSession = await prisma.pairingSession.findUnique({
-            where: { token },
-            include: {
-                user: {
-                    include: {
-                        devices: true
-                    }
-                }
-            }
+            where: { token }
         });
         if (!pairingSession) {
             return res.status(404).json({
@@ -180,7 +173,8 @@ router.post('/consume', inputValidation_middleware_1.inputValidation.validatePai
         const masterKey = (0, crypto_1.randomBytes)(32);
         // Encapsulate Master Key for new device
         const encapsulation = ml_kem_1.ml_kem768.encapsulate(newDevicePublicKey);
-        const cipher = (0, chacha_1.chacha20poly1305)(encapsulation.sharedSecret);
+        const nonce = (0, crypto_1.randomBytes)(12); // ChaCha20Poly1305 nonce
+        const cipher = (0, chacha_1.chacha20poly1305)(encapsulation.sharedSecret, nonce);
         const wrappedMasterKey = cipher.encrypt(masterKey);
         // Register new device
         const newDevice = await prisma.userDevice.create({

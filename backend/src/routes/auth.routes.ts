@@ -56,7 +56,6 @@ router.post('/register/begin',
       await db.storeTemporaryRegistration({
         userId,
         username,
-        email,
         challenge: options.options.challenge,
         expiresAt: new Date(Date.now() + 5 * 60 * 1000) // 5 minutes
       });
@@ -109,7 +108,7 @@ router.post('/register/finish',
       if (!result.success || !result.user) {
         return res.status(400).json({
           success: false,
-          error: result.error || 'Registration verification failed'
+          error: 'Registration verification failed'
         });
       }
 
@@ -289,7 +288,7 @@ router.post('/logout',
   AuthMiddleware.verifyToken,
   async (req: Request, res: Response) => {
     try {
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       
       if (userId) {
         // Audit logout
@@ -326,7 +325,7 @@ router.get('/verify',
   AuthMiddleware.verifyToken,
   async (req: Request, res: Response) => {
     try {
-      const user = await db.getUserById(req.user!.userId);
+      const user = await db.getUserById(req.user!.id);
       
       if (!user) {
         return res.status(401).json({
@@ -340,7 +339,7 @@ router.get('/verify',
         user: {
           id: user.id,
           username: user.username,
-          email: user.email
+          displayName: user.displayName
         }
       });
     } catch (error) {

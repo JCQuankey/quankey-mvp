@@ -101,7 +101,8 @@ router.post('/setup', auth_middleware_1.authenticatePasskey, inputValidation_mid
             const guardianPublicKey = Buffer.from(guardian.publicKey, 'base64');
             // Encapsulate share using guardian's ML-KEM-768 public key
             const encapsulation = ml_kem_1.ml_kem768.encapsulate(guardianPublicKey);
-            const cipher = (0, chacha_1.chacha20poly1305)(encapsulation.sharedSecret);
+            const nonce = (0, crypto_1.randomBytes)(12); // ChaCha20Poly1305 nonce
+            const cipher = (0, chacha_1.chacha20poly1305)(encapsulation.sharedSecret, nonce);
             const encryptedShare = cipher.encrypt(share);
             const guardianShare = await prisma.guardianShare.create({
                 data: {
@@ -355,7 +356,8 @@ router.post('/recovery/complete', inputValidation_middleware_1.inputValidation.v
             const recoveredMasterKey = await shamirLib.combine(shareBuffers);
             // Encapsulate Master Key for new device
             const encapsulation = ml_kem_1.ml_kem768.encapsulate(newDevicePQCKey);
-            const cipher = (0, chacha_1.chacha20poly1305)(encapsulation.sharedSecret);
+            const nonce = (0, crypto_1.randomBytes)(12); // ChaCha20Poly1305 nonce
+            const cipher = (0, chacha_1.chacha20poly1305)(encapsulation.sharedSecret, nonce);
             const wrappedMasterKey = cipher.encrypt(recoveredMasterKey);
             // Create recovery result (in production, create new device)
             const recoveryResult = {

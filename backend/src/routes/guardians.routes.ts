@@ -79,7 +79,8 @@ router.post('/setup', authenticatePasskey, inputValidation.validateGuardianSetup
 
       // Encapsulate share using guardian's ML-KEM-768 public key
       const encapsulation = ml_kem768.encapsulate(guardianPublicKey);
-      const cipher = chacha20poly1305(encapsulation.sharedSecret);
+      const nonce = randomBytes(12); // ChaCha20Poly1305 nonce
+      const cipher = chacha20poly1305(encapsulation.sharedSecret, nonce);
       const encryptedShare = cipher.encrypt(share);
 
       const guardianShare = await prisma.guardianShare.create({
@@ -360,7 +361,8 @@ router.post('/recovery/complete', inputValidation.validateRecoveryComplete(), as
 
       // Encapsulate Master Key for new device
       const encapsulation = ml_kem768.encapsulate(newDevicePQCKey);
-      const cipher = chacha20poly1305(encapsulation.sharedSecret);
+      const nonce = randomBytes(12); // ChaCha20Poly1305 nonce
+      const cipher = chacha20poly1305(encapsulation.sharedSecret, nonce);
       const wrappedMasterKey = cipher.encrypt(recoveredMasterKey);
 
       // Create recovery result (in production, create new device)

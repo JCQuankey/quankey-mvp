@@ -40,6 +40,7 @@ class QuantumBiometricService {
                 ip: 'localhost',
                 userAgent: 'QuantumBiometricService',
                 endpoint: 'service.init',
+                severity: 'low',
                 details: {
                     algorithm: 'ML-KEM-768',
                     keyGenerated: true,
@@ -101,6 +102,7 @@ class QuantumBiometricService {
                 ip: 'pending',
                 userAgent: 'QuantumBiometricService',
                 endpoint: 'identity.register',
+                severity: 'low',
                 details: {
                     username: data.username,
                     biometricTypes: data.biometricTypes,
@@ -125,6 +127,7 @@ class QuantumBiometricService {
                 ip: 'pending',
                 userAgent: 'QuantumBiometricService',
                 endpoint: 'identity.register',
+                severity: 'medium',
                 details: {
                     error: error instanceof Error ? error.message : 'Unknown error',
                     username: data.username
@@ -164,6 +167,7 @@ class QuantumBiometricService {
                 ip: 'pending',
                 userAgent: 'QuantumBiometricService',
                 endpoint: 'identity.authenticate',
+                severity: 'low',
                 details: {
                     username: identity.username,
                     deviceFingerprint: data.deviceFingerprint,
@@ -185,6 +189,7 @@ class QuantumBiometricService {
                 ip: 'pending',
                 userAgent: 'QuantumBiometricService',
                 endpoint: 'identity.authenticate',
+                severity: 'medium',
                 details: {
                     error: error instanceof Error ? error.message : 'Unknown error',
                     deviceFingerprint: data.deviceFingerprint
@@ -240,6 +245,7 @@ class QuantumBiometricService {
                 ip: 'pending',
                 userAgent: 'QuantumBiometricService',
                 endpoint: 'bridge.create',
+                severity: 'low',
                 details: {
                     bridgeToken,
                     expiresInSeconds: 60,
@@ -305,7 +311,7 @@ class QuantumBiometricService {
         return (0, crypto_1.createHash)('sha256').update(encryptedPublicKey).digest('hex').substring(0, 16);
     }
     generateQuantumBridgeToken() {
-        return (0, utils_js_1.randomBytes)(32).toString('hex');
+        return Buffer.from((0, utils_js_1.randomBytes)(32)).toString('hex');
     }
     base64ToUint8Array(base64) {
         return new Uint8Array(Buffer.from(base64, 'base64'));
@@ -344,7 +350,7 @@ class QuantumBiometricService {
         // Encrypt bridge data with server quantum key
         const dataBytes = new TextEncoder().encode(JSON.stringify(data));
         const encrypted = ml_kem_js_1.ml_kem768.encapsulate(dataBytes, this.serverQuantumKeys.publicKey);
-        return this.uint8ArrayToBase64(encrypted.ciphertext);
+        return this.uint8ArrayToBase64(encrypted.cipherText);
     }
     async storeQuantumBridge(bridge) {
         console.log('📦 Storing quantum bridge:', bridge.token);

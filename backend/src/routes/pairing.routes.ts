@@ -137,14 +137,7 @@ router.post('/consume', inputValidation.validatePairingConsume(), async (req: Re
 
     // Find pairing session
     const pairingSession = await prisma.pairingSession.findUnique({
-      where: { token },
-      include: {
-        user: {
-          include: {
-            devices: true
-          }
-        }
-      }
+      where: { token }
     });
 
     if (!pairingSession) {
@@ -199,7 +192,8 @@ router.post('/consume', inputValidation.validatePairingConsume(), async (req: Re
 
     // Encapsulate Master Key for new device
     const encapsulation = ml_kem768.encapsulate(newDevicePublicKey);
-    const cipher = chacha20poly1305(encapsulation.sharedSecret);
+    const nonce = randomBytes(12); // ChaCha20Poly1305 nonce
+    const cipher = chacha20poly1305(encapsulation.sharedSecret, nonce);
     const wrappedMasterKey = cipher.encrypt(masterKey);
 
     // Register new device

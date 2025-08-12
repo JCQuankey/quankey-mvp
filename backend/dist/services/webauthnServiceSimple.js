@@ -201,7 +201,9 @@ class WebAuthnServiceSimple {
      * PATENT-CRITICAL: Verify Registration Response
      */
     static async verifyRegistrationResponse(response) {
-        return this.verifyRegistration(response);
+        // Extract userId from response or use a default
+        const userId = response.userId || 'unknown';
+        return this.verifyRegistration(userId, response);
     }
     /**
      * PATENT-CRITICAL: Verify Authentication Response

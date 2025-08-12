@@ -70,7 +70,8 @@ router.post('/register', authenticatePasskey, inputValidation.validateDeviceRegi
 
     // Encapsulate Master Key using the device's ML-KEM-768 public key
     const encapsulation = ml_kem768.encapsulate(publicKeyBuffer);
-    const cipher = chacha20poly1305(encapsulation.sharedSecret);
+    const nonce = randomBytes(12); // ChaCha20Poly1305 nonce
+    const cipher = chacha20poly1305(encapsulation.sharedSecret, nonce);
     const wrappedMasterKey = cipher.encrypt(masterKey);
 
     // Create device record
@@ -243,7 +244,7 @@ router.get('/wrapped-key/:deviceId', authenticatePasskey, async (req: Request, r
     res.json({
       success: true,
       data: {
-        encapsulatedKey: device.wrappedMasterKey.toString('base64'),
+        encapsulatedKey: Buffer.from(device.wrappedMasterKey).toString('base64'),
         deviceId: device.id,
         deviceName: device.deviceName
       },
