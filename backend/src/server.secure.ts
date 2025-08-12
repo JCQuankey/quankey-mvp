@@ -14,6 +14,7 @@ import { db, prisma } from './services/database.service';
 import quantumRoutes from './routes/quantum.routes';
 import authRoutes from './routes/auth.routes';
 import quantumBiometricRoutes from './routes/quantum.biometric.routes';
+import identityQuantumRoutes from './routes/identity.quantum.routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -130,10 +131,13 @@ async function initialize() {
     }
   });
 
-  // Authentication routes - REAL WebAuthn implementation (legacy)
+  // 🧬 MASTER PLAN v6.0: QUANTUM BIOMETRIC IDENTITY (PRIMARY)
+  app.use('/api/identity', identityQuantumRoutes);
+  
+  // Authentication routes - REAL WebAuthn implementation (legacy support)
   app.use('/api/auth', authRoutes);
   
-  // QUANTUM BIOMETRIC IDENTITY ROUTES - NO PASSWORDS
+  // QUANTUM BIOMETRIC ROUTES (legacy - being replaced by identity routes)
   app.use('/api/auth', quantumBiometricRoutes);
   
   // Basic vault operations (simplified for security focus)

@@ -87,7 +87,8 @@
       "Bash(CI=true npm run build)",
       "Bash(git checkout:*)",
       "Bash(DB_ENCRYPTION_KEY=\"9646ffde83656acf05e921d969e244211613da07e9c1586cbeb755f69260be64ad7d17be1111d635371b489faef0a23465b4cd32d3e42f97680d5345ab8eeed2\" npm test -- --testNamePattern=\"security.critical\" --verbose)",
-      "Bash(DB_ENCRYPTION_KEY=\"9646ffde83656acf05e921d969e244211613da07e9c1586cbeb755f69260be64ad7d17be1111d635371b489faef0a23465b4cd32d3e42f97680d5345ab8eeed2\" npm test -- --testNamePattern=\"investor\" --verbose)"
+      "Bash(DB_ENCRYPTION_KEY=\"9646ffde83656acf05e921d969e244211613da07e9c1586cbeb755f69260be64ad7d17be1111d635371b489faef0a23465b4cd32d3e42f97680d5345ab8eeed2\" npm test -- --testNamePattern=\"investor\" --verbose)",
+      "Bash(DB_ENCRYPTION_KEY=\"87d730491dd45bca1f557b8dede3e0dec86c8f85b5b47aeddf42f798eb6e356a87d730491dd45bca1f557b8dede3e0dec86c8f85b5b47aeddf42f798eb6e356a\" npm test src/tests/security.comprehensive.test.ts -- --no-coverage --verbose)"
     ],
     "deny": []
   }
