@@ -81,7 +81,11 @@
       "Bash(git pull:*)",
       "Bash(git merge:*)",
       "Bash(NODE_ENV=test npm test src/tests/security.comprehensive.test.ts --no-coverage --silent)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(npm search:*)",
+      "Bash(CI=false npm run build)",
+      "Bash(CI=true npm run build)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }

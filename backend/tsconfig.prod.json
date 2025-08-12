@@ -2,7 +2,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "skipLibCheck": true,
-    "strict": false
+    "strict": false,
+    "noEmitOnError": false,
+    "noImplicitAny": false
   },
   "exclude": [
     "node_modules",

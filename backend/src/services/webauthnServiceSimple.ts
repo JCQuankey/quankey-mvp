@@ -65,7 +65,7 @@ export class WebAuthnServiceSimple {
         ],
         authenticatorSelection: {
           authenticatorAttachment: 'platform',
-          userVerification: 'preferred',
+          userVerification: 'required',
           residentKey: 'preferred',
           requireResidentKey: false
         },
@@ -174,7 +174,7 @@ export class WebAuthnServiceSimple {
         timeout: this.config.timeout,
         rpID: this.config.rpID,
         allowCredentials: [], // In production, would load user's registered credentials
-        userVerification: 'preferred'
+        userVerification: 'required'
       };
       
       console.log(`✅ [WEBAUTHN-REAL] Real auth challenge generated: ${challenge.substring(0, 16)}...`);

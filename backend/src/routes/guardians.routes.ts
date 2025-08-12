@@ -13,7 +13,7 @@ import { PrismaClient } from '@prisma/client';
 import { ml_kem768 } from '@noble/post-quantum/ml-kem';
 import { chacha20poly1305 } from '@noble/ciphers/chacha';
 import { randomBytes } from 'crypto';
-import { split, combine } from '@stablelib/shamir';
+import * as shamirLib from 'shamir-secret-sharing';
 import { AuditLogger } from '../services/auditLogger.service';
 import { inputValidation } from '../middleware/inputValidation.middleware';
 import { authenticatePasskey } from '../middleware/auth.middleware';
@@ -67,7 +67,7 @@ router.post('/setup', authenticatePasskey, inputValidation.validateGuardianSetup
     const masterKey = randomBytes(32);
 
     // Split Master Key into 3 shares (need 2 to recover)
-    const shares = split(masterKey, 3, 2);
+    const shares = await shamirLib.split(masterKey, 3, 2);
 
     // Encrypt each share with guardian's PQC public key
     const encryptedShares = [];
@@ -87,7 +87,7 @@ router.post('/setup', authenticatePasskey, inputValidation.validateGuardianSetup
           userId,
           guardianId: guardian.id,
           encryptedShare: Buffer.concat([
-            Buffer.from(encapsulation.ciphertext),
+            Buffer.from(encapsulation.cipherText),
             Buffer.from(encryptedShare)
           ]),
           shareIndex: i
@@ -356,7 +356,7 @@ router.post('/recovery/complete', inputValidation.validateRecoveryComplete(), as
     try {
       // Combine the decrypted shares to recover Master Key
       const shareBuffers = decryptedShares.map(share => Buffer.from(share.data, 'base64'));
-      const recoveredMasterKey = combine(shareBuffers);
+      const recoveredMasterKey = await shamirLib.combine(shareBuffers);
 
       // Encapsulate Master Key for new device
       const encapsulation = ml_kem768.encapsulate(newDevicePQCKey);
@@ -367,7 +367,7 @@ router.post('/recovery/complete', inputValidation.validateRecoveryComplete(), as
       const recoveryResult = {
         deviceId: randomBytes(16).toString('hex'),
         deviceName: newDeviceName || 'Recovered Device',
-        encapsulatedKey: Buffer.from(encapsulation.ciphertext).toString('base64'),
+        encapsulatedKey: Buffer.from(encapsulation.cipherText).toString('base64'),
         recoveredAt: new Date()
       };
 

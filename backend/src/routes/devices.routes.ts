@@ -104,7 +104,7 @@ router.post('/register', authenticatePasskey, inputValidation.validateDeviceRegi
       data: {
         deviceId: device.id,
         deviceName: device.deviceName,
-        encapsulatedKey: Buffer.from(encapsulation.ciphertext).toString('base64'),
+        encapsulatedKey: Buffer.from(encapsulation.cipherText).toString('base64'),
         createdAt: device.createdAt
       },
       message: 'Device registered successfully with PQC protection'

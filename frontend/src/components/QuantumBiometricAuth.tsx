@@ -320,24 +320,25 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
         </div>
       </div>
       
-      <style jsx>{`
+      <style >{`
         .quantum-auth-container {
           min-height: 100vh;
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #0A1628 0%, #1E3A5F 100%);
           font-family: 'Inter', -apple-system, sans-serif;
         }
 
         .quantum-auth-card {
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 20px;
+          background: rgba(30, 58, 95, 0.4);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(0, 166, 251, 0.2);
+          border-radius: 16px;
           padding: 40px;
           min-width: 400px;
           max-width: 500px;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-          backdrop-filter: blur(10px);
+          box-shadow: 0 4px 24px rgba(0, 166, 251, 0.15);
         }
 
         .quantum-auth-header {
@@ -346,14 +347,14 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
         }
 
         .quantum-auth-header h1 {
-          color: #2d3748;
+          color: #FFFFFF;
           font-size: 24px;
           font-weight: 700;
           margin: 15px 0 10px 0;
         }
 
         .quantum-auth-header p {
-          color: #4a5568;
+          color: #E8E8F0;
           font-size: 16px;
           line-height: 1.5;
         }
@@ -361,7 +362,7 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
         .quantum-icon {
           width: 48px;
           height: 48px;
-          color: #667eea;
+          color: #00A6FB;
         }
 
         .quantum-icon-pulse {
@@ -369,11 +370,11 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
         }
 
         .quantum-icon-success {
-          color: #48bb78;
+          color: #00FF88;
         }
 
         .quantum-icon-warning {
-          color: #ed8936;
+          color: #FFB800;
         }
 
         @keyframes quantum-pulse {
@@ -389,16 +390,23 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
         .quantum-input {
           width: 100%;
           padding: 15px 15px 15px 50px;
-          border: 2px solid #e2e8f0;
-          border-radius: 12px;
+          background: rgba(30, 58, 95, 0.5);
+          border: 2px solid rgba(0, 166, 251, 0.2);
+          border-radius: 8px;
           font-size: 16px;
+          color: #FFFFFF;
           transition: all 0.3s ease;
         }
 
         .quantum-input:focus {
-          border-color: #667eea;
+          border-color: #00A6FB;
+          background: rgba(30, 58, 95, 0.7);
           outline: none;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          box-shadow: 0 0 0 3px rgba(0, 166, 251, 0.1);
+        }
+
+        .quantum-input::placeholder {
+          color: #8B8CA5;
         }
 
         .quantum-input-icon {
@@ -408,7 +416,7 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
           transform: translateY(-50%);
           width: 20px;
           height: 20px;
-          color: #a0aec0;
+          color: #8B8CA5;
         }
 
         .quantum-button {
@@ -428,26 +436,29 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
         }
 
         .quantum-button-primary {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #00A6FB 0%, #00D4FF 100%);
           color: white;
           margin-bottom: 15px;
+          box-shadow: 0 4px 14px rgba(0, 166, 251, 0.25);
         }
 
         .quantum-button-primary:hover:not(:disabled) {
           transform: translateY(-2px);
-          box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+          box-shadow: 0 8px 24px rgba(0, 166, 251, 0.35);
+          background: linear-gradient(135deg, #0095E8 0%, #00C3ED 100%);
         }
 
         .quantum-button-secondary {
-          background: #f7fafc;
-          color: #4a5568;
-          border: 2px solid #e2e8f0;
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #E8E8F0;
           margin-top: 15px;
         }
 
         .quantum-button-link {
           background: none;
-          color: #667eea;
+          color: #00A6FB;
           text-decoration: underline;
           padding: 10px;
         }
@@ -455,7 +466,7 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
         .quantum-auth-info {
           margin-top: 30px;
           padding-top: 20px;
-          border-top: 1px solid #e2e8f0;
+          border-top: 1px solid rgba(0, 166, 251, 0.2);
         }
 
         .quantum-info-item {
@@ -467,16 +478,16 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
 
         .quantum-info-label {
           font-weight: 600;
-          color: #2d3748;
+          color: #FFFFFF;
         }
 
         .quantum-info-text {
-          color: #4a5568;
+          color: #E8E8F0;
         }
 
         .quantum-success-details {
-          background: #f0fff4;
-          border: 1px solid #9ae6b4;
+          background: rgba(0, 255, 136, 0.2);
+          border: 1px solid rgba(0, 255, 136, 0.3);
           border-radius: 8px;
           padding: 15px;
           margin: 20px 0;
@@ -490,11 +501,11 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
 
         .quantum-success-label {
           font-weight: 600;
-          color: #2d3748;
+          color: #FFFFFF;
         }
 
         .quantum-success-value {
-          color: #38a169;
+          color: #00FF88;
           font-weight: 500;
         }
 
@@ -507,7 +518,7 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
         .quantum-loading-dots span {
           width: 8px;
           height: 8px;
-          background: #667eea;
+          background: #00A6FB;
           border-radius: 50%;
           margin: 0 4px;
           animation: quantum-bounce 1.4s infinite ease-in-out;
@@ -524,8 +535,8 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
         .quantum-spinner {
           width: 40px;
           height: 40px;
-          border: 4px solid #e2e8f0;
-          border-top: 4px solid #667eea;
+          border: 4px solid rgba(0, 166, 251, 0.2);
+          border-top: 4px solid #00A6FB;
           border-radius: 50%;
           animation: quantum-spin 1s linear infinite;
           margin: 0 auto 15px;
@@ -543,7 +554,7 @@ export const QuantumBiometricAuth: React.FC<QuantumBiometricAuthProps> = ({
 
         .quantum-auth-unsupported li {
           margin: 8px 0;
-          color: #4a5568;
+          color: #E8E8F0;
         }
       `}</style>
     </div>

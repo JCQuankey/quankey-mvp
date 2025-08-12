@@ -86,12 +86,12 @@ router.post('/cleanup-test-users',
       
       // Get current counts
       const userCount = await prisma.user.count();
-      const passwordCount = await prisma.password.count();
+      const vaultItemCount = await prisma.vaultItem.count();
       
       // Perform cleanup in transaction
       const result = await prisma.$transaction(async (tx) => {
         // Delete passwords first (foreign key)
-        const deletedPasswords = await tx.password.deleteMany({});
+        const deletedPasswords = await tx.vaultItem.deleteMany({});
         
         // Delete sessions
         const deletedSessions = await tx.session.deleteMany({});
@@ -110,19 +110,19 @@ router.post('/cleanup-test-users',
       
       // Verify cleanup
       const finalUserCount = await prisma.user.count();
-      const finalPasswordCount = await prisma.password.count();
+      const finalPasswordCount = await prisma.vaultItem.count();
       
       res.json({
         success: true,
         message: 'Test users cleaned successfully',
         before: {
           users: userCount,
-          passwords: passwordCount
+          vaultItems: vaultItemCount
         },
         deleted: result,
         after: {
           users: finalUserCount,
-          passwords: finalPasswordCount
+          vaultItems: finalPasswordCount
         }
       });
       
@@ -145,7 +145,7 @@ router.get('/database-status',
   async (req: Request, res: Response) => {
     try {
       const userCount = await prisma.user.count();
-      const passwordCount = await prisma.password.count();
+      const vaultItemCount = await prisma.vaultItem.count();
       const sessionCount = await prisma.session.count();
       
       // Get sample users (no sensitive data)
@@ -156,7 +156,7 @@ router.get('/database-status',
           username: true,
           createdAt: true,
           _count: {
-            select: { passwords: true }
+            select: { vaultItems: true }
           }
         },
         orderBy: { createdAt: 'desc' }
@@ -165,13 +165,13 @@ router.get('/database-status',
       res.json({
         counts: {
           users: userCount,
-          passwords: passwordCount,
+          vaultItems: vaultItemCount,
           sessions: sessionCount
         },
         sampleUsers: sampleUsers.map(u => ({
           id: u.id,
           username: u.username?.substring(0, 3) + '***', // Partially hide username
-          passwordCount: u._count.passwords,
+          vaultItemCount: u._count.passwords,
           created: u.createdAt
         }))
       });

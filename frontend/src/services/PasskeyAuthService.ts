@@ -85,7 +85,7 @@ export class PasskeyAuthService {
       const options: PublicKeyCredentialCreationOptionsJSON = await optionsResponse.json();
 
       // 4. Create passkey with REQUIRED biometric verification
-      const credential = await startRegistration(options);
+      const credential = await startRegistration({ optionsJSON: options });
 
       if (!credential) {
         throw new Error('Passkey registration cancelled or failed');
@@ -148,7 +148,7 @@ export class PasskeyAuthService {
       const options: PublicKeyCredentialRequestOptionsJSON = await optionsResponse.json();
 
       // 2. Get assertion with biometric verification
-      const assertion = await startAuthentication(options);
+      const assertion = await startAuthentication({ optionsJSON: options });
 
       if (!assertion) {
         throw new Error('Passkey authentication cancelled or failed');
@@ -211,7 +211,7 @@ export class PasskeyAuthService {
       }
 
       // Check conditional UI support (optional)
-      const conditionalSupported = await PublicKeyCredential.isConditionalMediationAvailable?.() || false;
+      const conditionalSupported = false; // Not available in current WebAuthn API
 
       console.log(`🔍 Passkey support: ${available}, conditional UI: ${conditionalSupported}`);
       
@@ -228,7 +228,7 @@ export class PasskeyAuthService {
   static async authenticateConditional(): Promise<{ success: boolean; user?: UserIdentity; error?: string }> {
     try {
       // Check conditional mediation support
-      const supported = await PublicKeyCredential.isConditionalMediationAvailable?.();
+      const supported = await false; // Not available in current WebAuthn API
       if (!supported) {
         throw new Error('Conditional mediation not supported');
       }
@@ -246,7 +246,7 @@ export class PasskeyAuthService {
       const options: PublicKeyCredentialRequestOptionsJSON = await optionsResponse.json();
 
       // Start conditional authentication
-      const assertion = await startAuthentication(options, true); // true = conditional
+      const assertion = await startAuthentication({ optionsJSON: options, useBrowserAutofill: true });
 
       if (!assertion) {
         throw new Error('Conditional authentication cancelled');

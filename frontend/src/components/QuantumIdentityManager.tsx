@@ -34,7 +34,7 @@ export const QuantumIdentityManager: React.FC<QuantumIdentityManagerProps> = () 
   const [currentIdentity, setCurrentIdentity] = useState<UserIdentity | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<'vault' | 'devices' | 'security' | 'profile'>('vault');
-  const { showToast } = useToast();
+  const { showToast, toasts, removeToast } = useToast();
 
   useEffect(() => {
     // Check if user is already authenticated with quantum biometric
@@ -136,10 +136,10 @@ export const QuantumIdentityManager: React.FC<QuantumIdentityManagerProps> = () 
           </div>
         </div>
 
-        <style jsx>{`
+        <style >{`
           .quantum-identity-app {
             min-height: 100vh;
-            background: linear-gradient(135deg, #0a1628 0%, #1a365d 100%);
+            background: linear-gradient(135deg, #0a1628 0%, #1E3A5F 100%);
             color: white;
             font-family: 'Inter', sans-serif;
           }
@@ -153,7 +153,7 @@ export const QuantumIdentityManager: React.FC<QuantumIdentityManagerProps> = () 
             font-size: 2.5rem;
             font-weight: 700;
             margin: 20px 0 10px 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00A6FB 0%, #00D4FF 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
           }
@@ -190,7 +190,7 @@ export const QuantumIdentityManager: React.FC<QuantumIdentityManagerProps> = () 
           .feature-icon {
             width: 48px;
             height: 48px;
-            color: #667eea;
+            color: #00A6FB;
             margin-bottom: 20px;
           }
 
@@ -206,7 +206,7 @@ export const QuantumIdentityManager: React.FC<QuantumIdentityManagerProps> = () 
           }
         `}</style>
 
-        <ToastContainer />
+        <ToastContainer toasts={toasts} onClose={removeToast} />
       </>
     );
   }
@@ -227,7 +227,7 @@ export const QuantumIdentityManager: React.FC<QuantumIdentityManagerProps> = () 
             <UserIcon className="identity-icon" />
             <div className="identity-info">
               <span className="identity-name">{currentIdentity?.username}</span>
-              <span className="identity-type">{currentIdentity?.biometricType}</span>
+              <span className="identity-type">Passkey Auth</span>
             </div>
           </div>
 
@@ -280,10 +280,10 @@ export const QuantumIdentityManager: React.FC<QuantumIdentityManagerProps> = () 
         </div>
       </div>
 
-      <style jsx>{`
+      <style >{`
         .quantum-dashboard {
           min-height: 100vh;
-          background: linear-gradient(135deg, #0a1628 0%, #1a365d 100%);
+          background: linear-gradient(135deg, #0a1628 0%, #1E3A5F 100%);
           color: white;
           font-family: 'Inter', sans-serif;
         }
@@ -305,7 +305,7 @@ export const QuantumIdentityManager: React.FC<QuantumIdentityManagerProps> = () 
         .brand-text {
           font-size: 1.5rem;
           font-weight: 700;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #00A6FB 0%, #00D4FF 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
@@ -319,7 +319,7 @@ export const QuantumIdentityManager: React.FC<QuantumIdentityManagerProps> = () 
         .identity-icon {
           width: 32px;
           height: 32px;
-          color: #667eea;
+          color: #00A6FB;
         }
 
         .identity-info {
@@ -394,7 +394,7 @@ export const QuantumIdentityManager: React.FC<QuantumIdentityManagerProps> = () 
         }
 
         .nav-item.active {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #00A6FB 0%, #00D4FF 100%);
           color: white;
         }
 
@@ -404,7 +404,7 @@ export const QuantumIdentityManager: React.FC<QuantumIdentityManagerProps> = () 
         }
       `}</style>
 
-      <ToastContainer />
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </>
   );
 };
@@ -438,7 +438,7 @@ const QuantumVaultView: React.FC<{ identity: UserIdentity }> = ({ identity }) =>
         <p>Your encrypted personal data will appear here.</p>
       </div>
 
-      <style jsx>{`
+      <style >{`
         .quantum-vault-view h2 {
           color: white;
           margin-bottom: 20px;
@@ -514,7 +514,7 @@ const DeviceManagerView: React.FC<{ identity: UserIdentity }> = ({ identity }) =
         <p>Add new devices with 60-second quantum bridge.</p>
       </div>
 
-      <style jsx>{`
+      <style >{`
         .device-manager-view h2 {
           color: white;
           margin-bottom: 20px;
@@ -578,7 +578,7 @@ const SecurityDashboardView: React.FC<{ identity: UserIdentity }> = ({ identity 
         </div>
       </div>
 
-      <style jsx>{`
+      <style >{`
         .security-dashboard-view h2 {
           color: white;
           margin-bottom: 20px;
@@ -666,7 +666,7 @@ const IdentityProfileView: React.FC<{ identity: UserIdentity }> = ({ identity })
         </div>
       </div>
 
-      <style jsx>{`
+      <style >{`
         .identity-profile-view h2 {
           color: white;
           margin-bottom: 20px;

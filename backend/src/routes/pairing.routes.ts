@@ -243,7 +243,7 @@ router.post('/consume', inputValidation.validatePairingConsume(), async (req: Re
       data: {
         deviceId: newDevice.id,
         deviceName: newDevice.deviceName,
-        encapsulatedKey: Buffer.from(encapsulation.ciphertext).toString('base64'),
+        encapsulatedKey: Buffer.from(encapsulation.cipherText).toString('base64'),
         userId: pairingSession.hostUserId,
         createdAt: newDevice.createdAt
       },

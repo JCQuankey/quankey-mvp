@@ -43,7 +43,7 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
   const [username, setUsername] = useState<string>('');
   const [pairingQR, setPairingQR] = useState<{ data: PairingQRData; qr: string } | null>(null);
   const [identity, setIdentity] = useState<UserIdentity | null>(null);
-  const { showToast } = useToast();
+  const { showToast, toasts, removeToast } = useToast();
 
   useEffect(() => {
     checkPasskeySupport();
@@ -168,7 +168,7 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
     
     try {
       const qrResult = await DevicePairingService.createPairingQR();
-      setPairingQR(qrResult);
+      setPairingQR({ data: qrResult.qrData, qr: qrResult.qrCode });
       setStep('pairing');
       
       showToast('QR code created! Scan with your new device (expires in 90s)', 'info');
@@ -226,13 +226,13 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
           </div>
         </div>
 
-        <style jsx>{`
+        <style>{`
           .passkey-auth-container {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #0a1628 0%, #1a365d 100%);
+            background: linear-gradient(135deg, #0a1628 0%, #1E3A5F 100%);
             font-family: 'Inter', sans-serif;
             padding: 20px;
           }
@@ -249,14 +249,14 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
           }
 
           .passkey-auth-header h1 {
-            color: #2d3748;
+            color: #FFFFFF;
             font-size: 24px;
             font-weight: 700;
             margin: 15px 0 10px 0;
           }
 
           .passkey-auth-header p {
-            color: #4a5568;
+            color: #E8E8F0;
             font-size: 16px;
             margin-bottom: 30px;
           }
@@ -285,7 +285,7 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
 
           .unsupported-info li {
             margin: 8px 0;
-            color: #4a5568;
+            color: #E8E8F0;
           }
         `}</style>
       </div>
@@ -327,20 +327,20 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
           </div>
         </div>
 
-        <style jsx>{`
+        <style>{`
           .success-content {
             text-align: center;
           }
 
           .success-content h2 {
-            color: #2d3748;
+            color: #FFFFFF;
             font-size: 24px;
             font-weight: 700;
             margin: 20px 0 10px 0;
           }
 
           .success-content p {
-            color: #4a5568;
+            color: #E8E8F0;
             font-size: 16px;
             margin-bottom: 30px;
           }
@@ -370,7 +370,7 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
 
           .success-label {
             font-weight: 600;
-            color: #2d3748;
+            color: #FFFFFF;
           }
 
           .success-value {
@@ -435,26 +435,26 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
           </div>
         </div>
 
-        <style jsx>{`
+        <style>{`
           .pairing-content {
             text-align: center;
           }
 
           .pairing-content h2 {
-            color: #2d3748;
+            color: #FFFFFF;
             font-size: 24px;
             font-weight: 700;
             margin: 20px 0 10px 0;
           }
 
           .pairing-content p {
-            color: #4a5568;
+            color: #E8E8F0;
             font-size: 16px;
             margin-bottom: 30px;
           }
 
           .auth-icon-primary {
-            color: #667eea;
+            color: #00A6FB;
           }
 
           .qr-container {
@@ -466,12 +466,12 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
             border: 2px dashed #cbd5e0;
             border-radius: 12px;
             padding: 40px;
-            color: #4a5568;
+            color: #E8E8F0;
           }
 
           .secondary-button {
             background: #f7fafc;
-            color: #4a5568;
+            color: #E8E8F0;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             padding: 12px 24px;
@@ -580,13 +580,13 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .passkey-auth-container {
           min-height: 100vh;
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #0a1628 0%, #1a365d 100%);
+          background: linear-gradient(135deg, #0a1628 0%, #1E3A5F 100%);
           font-family: 'Inter', sans-serif;
           padding: 20px;
         }
@@ -607,14 +607,14 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
         }
 
         .passkey-auth-header h1 {
-          color: #2d3748;
+          color: #FFFFFF;
           font-size: 24px;
           font-weight: 700;
           margin: 15px 0 10px 0;
         }
 
         .passkey-auth-header p {
-          color: #4a5568;
+          color: #E8E8F0;
           font-size: 16px;
         }
 
@@ -625,7 +625,7 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
         }
 
         .auth-icon-primary {
-          color: #667eea;
+          color: #00A6FB;
         }
 
         .input-group {
@@ -653,9 +653,9 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
         }
 
         .auth-input:focus {
-          border-color: #667eea;
+          border-color: #00A6FB;
           outline: none;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          box-shadow: 0 0 0 3px rgba(0, 166, 251, 0.1);
         }
 
         .auth-buttons {
@@ -680,18 +680,20 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
         }
 
         .primary-button {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #00A6FB 0%, #00D4FF 100%);
           color: white;
+          box-shadow: 0 4px 14px rgba(0, 166, 251, 0.25);
         }
 
         .primary-button:hover:not(:disabled) {
           transform: translateY(-2px);
-          box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+          box-shadow: 0 8px 24px rgba(0, 166, 251, 0.35);
+          background: linear-gradient(135deg, #0095E8 0%, #00C3ED 100%);
         }
 
         .secondary-button {
           background: #f7fafc;
-          color: #4a5568;
+          color: #E8E8F0;
           border: 2px solid #e2e8f0;
         }
 
@@ -703,7 +705,7 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
 
         .pairing-button {
           background: #f7fafc;
-          color: #4a5568;
+          color: #E8E8F0;
           border: 2px solid #e2e8f0;
           margin-top: 20px;
         }
@@ -754,15 +756,15 @@ export const PasskeyAuth: React.FC<PasskeyAuthProps> = ({
 
         .info-label {
           font-weight: 600;
-          color: #2d3748;
+          color: #FFFFFF;
         }
 
         .info-text {
-          color: #4a5568;
+          color: #E8E8F0;
         }
       `}</style>
 
-      <ToastContainer />
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );
 };
