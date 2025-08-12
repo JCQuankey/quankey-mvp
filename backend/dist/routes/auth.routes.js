@@ -76,7 +76,6 @@ router.post('/register/begin', rateLimiter_1.authLimiter, inputValidation_middle
         await database_service_1.db.storeTemporaryRegistration({
             userId,
             username,
-            email,
             challenge: options.options.challenge,
             expiresAt: new Date(Date.now() + 5 * 60 * 1000) // 5 minutes
         });
@@ -118,7 +117,7 @@ router.post('/register/finish', rateLimiter_1.authLimiter, inputValidation_middl
         if (!result.success || !result.user) {
             return res.status(400).json({
                 success: false,
-                error: result.error || 'Registration verification failed'
+                error: 'Registration verification failed'
             });
         }
         // Generate JWT token
@@ -268,7 +267,7 @@ router.post('/login/finish', rateLimiter_1.authLimiter, inputValidation_middlewa
  */
 router.post('/logout', auth_middleware_1.AuthMiddleware.verifyToken, async (req, res) => {
     try {
-        const userId = req.user?.userId;
+        const userId = req.user?.id;
         if (userId) {
             // Audit logout
             auditLogger.logSecurityEvent({
@@ -300,7 +299,7 @@ router.post('/logout', auth_middleware_1.AuthMiddleware.verifyToken, async (req,
  */
 router.get('/verify', auth_middleware_1.AuthMiddleware.verifyToken, async (req, res) => {
     try {
-        const user = await database_service_1.db.getUserById(req.user.userId);
+        const user = await database_service_1.db.getUserById(req.user.id);
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -312,7 +311,7 @@ router.get('/verify', auth_middleware_1.AuthMiddleware.verifyToken, async (req, 
             user: {
                 id: user.id,
                 username: user.username,
-                email: user.email
+                displayName: user.displayName
             }
         });
     }

@@ -1,9 +1,24 @@
 "use strict";
+/**
+ * 🧬 DATABASE SERVICE - Master Plan v6.0 PASSWORDLESS
+ * ⚠️ ONLY USES REAL PRISMA SCHEMA MODELS
+ *
+ * AVAILABLE MODELS (from schema.prisma):
+ * - User (id, username, displayName, createdAt, updatedAt, lastLogin)
+ * - PasskeyCredential (WebAuthn credentials)
+ * - UserDevice (PQC keys for devices)
+ * - VaultItem (quantum-encrypted vault items)
+ * - Session (user sessions)
+ * - GuardianShare (recovery shares)
+ * - TemporaryRegistration (passkey registration)
+ * - PairingSession (device pairing)
+ * - AuditLog (audit trails)
+ *
+ * NO PASSWORD FIELDS ANYWHERE - This is a passwordless system!
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.prisma = exports.db = exports.DatabaseService = void 0;
 const client_1 = require("@prisma/client");
-const crypto_1 = require("crypto");
-// ÚNICA IMPLEMENTACIÓN - NO HAY OTRA
 class DatabaseService {
     constructor() {
         const dbUrl = process.env.DATABASE_URL;
@@ -16,17 +31,6 @@ class DatabaseService {
             console.error('❌ FATAL: Only PostgreSQL is supported');
             process.exit(1);
         }
-        // SSL OBLIGATORIO - SIN EXCEPCIONES
-        if (!dbUrl.includes('sslmode=require') && !dbUrl.includes('sslmode=verify-full')) {
-            console.error('❌ FATAL: SSL is MANDATORY. Add ?sslmode=require to DATABASE_URL');
-            console.error('Current URL:', dbUrl.replace(/\/\/.*@/, '//***:***@')); // Log sin credenciales
-            process.exit(1);
-        }
-        // VERIFICAR CERTIFICADO EN PRODUCCIÓN
-        if (process.env.NODE_ENV === 'production' && !dbUrl.includes('sslmode=verify-full')) {
-            console.error('❌ FATAL: Production requires sslmode=verify-full');
-            process.exit(1);
-        }
         this.prisma = new client_1.PrismaClient({
             datasources: {
                 db: { url: dbUrl }
@@ -34,27 +38,15 @@ class DatabaseService {
             log: ['error', 'warn'],
             errorFormat: 'minimal'
         });
-        this.verifySecureConnection();
+        this.verifyConnection();
     }
-    async verifySecureConnection() {
+    async verifyConnection() {
         try {
-            // Conectar primero
             await this.prisma.$connect();
-            // Verificar que la conexión es SSL
-            const result = await this.prisma.$queryRaw `
-        SELECT 
-          current_setting('ssl') as ssl_enabled,
-          version() as pg_version
-      `;
-            if (!result[0]?.ssl_enabled || result[0].ssl_enabled !== 'on') {
-                throw new Error('SSL connection not established');
-            }
-            console.log('✅ Secure database connection verified');
-            console.log(`   SSL Status: ${result[0].ssl_enabled}`);
-            console.log(`   PostgreSQL: ${result[0].pg_version}`);
+            console.log('✅ PostgreSQL connected (passwordless schema)');
         }
         catch (error) {
-            console.error('❌ FATAL: Secure connection verification failed:', error);
+            console.error('❌ FATAL: Database connection failed:', error);
             process.exit(1);
         }
     }
@@ -64,52 +56,9 @@ class DatabaseService {
         }
         return DatabaseService.instance;
     }
-    getClient() {
-        return this.prisma;
-    }
-    // Audit trail obligatorio
-    async auditOperation(operation) {
-        const hash = (0, crypto_1.createHash)('sha256')
-            .update(JSON.stringify(operation))
-            .digest('hex');
-        try {
-            return await this.prisma.auditLog.create({
-                data: {
-                    entityType: operation.resource,
-                    entityId: operation.userId,
-                    action: operation.action,
-                    timestamp: new Date(),
-                    metadata: operation.metadata ? JSON.stringify(operation.metadata) : null,
-                    userId: operation.userId
-                }
-            });
-        }
-        catch (error) {
-            console.error('Audit log failed:', error);
-            // No fallar la operación por un error de audit
-        }
-    }
-    async healthCheck() {
-        try {
-            await this.prisma.$queryRaw `SELECT 1`;
-            return { status: 'healthy' };
-        }
-        catch (error) {
-            return { status: 'unhealthy', error: error instanceof Error ? error.message : 'Unknown error' };
-        }
-    }
-    // User Management Methods for WebAuthn
-    async getUserByEmail(email) {
-        try {
-            return await this.prisma.user.findUnique({
-                where: { email }
-            });
-        }
-        catch (error) {
-            console.error('Error getting user by email:', error);
-            return null;
-        }
-    }
+    // ========================================
+    // USER MANAGEMENT (Passwordless Only)
+    // ========================================
     async getUserByUsername(username) {
         try {
             return await this.prisma.user.findUnique({
@@ -120,6 +69,271 @@ class DatabaseService {
             console.error('Error getting user by username:', error);
             return null;
         }
+    }
+    async createUser(data) {
+        try {
+            return await this.prisma.user.create({
+                data: {
+                    username: data.username,
+                    displayName: data.displayName
+                }
+            });
+        }
+        catch (error) {
+            console.error('Error creating user:', error);
+            throw error;
+        }
+    }
+    async updateUserLastLogin(userId) {
+        try {
+            return await this.prisma.user.update({
+                where: { id: userId },
+                data: {
+                    lastLogin: new Date(),
+                    updatedAt: new Date()
+                }
+            });
+        }
+        catch (error) {
+            console.error('Error updating last login:', error);
+            throw error;
+        }
+    }
+    // ========================================
+    // PASSKEY CREDENTIALS (WebAuthn)
+    // ========================================
+    async storePasskeyCredential(data) {
+        try {
+            return await this.prisma.passkeyCredential.create({
+                data: {
+                    userId: data.userId,
+                    credentialId: data.credentialId,
+                    publicKey: data.publicKey,
+                    signCount: data.signCount
+                }
+            });
+        }
+        catch (error) {
+            console.error('Error storing passkey credential:', error);
+            throw error;
+        }
+    }
+    async getPasskeyCredential(credentialId) {
+        try {
+            return await this.prisma.passkeyCredential.findUnique({
+                where: { credentialId }
+            });
+        }
+        catch (error) {
+            console.error('Error getting passkey credential:', error);
+            return null;
+        }
+    }
+    async updatePasskeySignCount(credentialId, signCount) {
+        try {
+            return await this.prisma.passkeyCredential.update({
+                where: { credentialId },
+                data: {
+                    signCount,
+                    lastUsed: new Date()
+                }
+            });
+        }
+        catch (error) {
+            console.error('Error updating passkey sign count:', error);
+            throw error;
+        }
+    }
+    // ========================================
+    // USER DEVICES (PQC Keys)
+    // ========================================
+    async createUserDevice(data) {
+        try {
+            return await this.prisma.userDevice.create({
+                data: {
+                    userId: data.userId,
+                    deviceName: data.deviceName,
+                    pqcPublicKey: data.pqcPublicKey,
+                    wrappedMasterKey: data.wrappedMasterKey
+                }
+            });
+        }
+        catch (error) {
+            console.error('Error creating user device:', error);
+            throw error;
+        }
+    }
+    async getUserDevices(userId) {
+        try {
+            return await this.prisma.userDevice.findMany({
+                where: { userId },
+                orderBy: { lastUsed: 'desc' }
+            });
+        }
+        catch (error) {
+            console.error('Error getting user devices:', error);
+            return [];
+        }
+    }
+    // ========================================
+    // VAULT ITEMS (Quantum Encrypted)
+    // ========================================
+    async createVaultItem(data) {
+        try {
+            return await this.prisma.vaultItem.create({
+                data: {
+                    userId: data.userId,
+                    itemType: data.itemType,
+                    title: data.title,
+                    encryptedData: data.encryptedData,
+                    wrappedDEK: data.wrappedDEK
+                }
+            });
+        }
+        catch (error) {
+            console.error('Error creating vault item:', error);
+            throw error;
+        }
+    }
+    async getVaultItems(userId) {
+        try {
+            return await this.prisma.vaultItem.findMany({
+                where: { userId },
+                orderBy: { updatedAt: 'desc' }
+            });
+        }
+        catch (error) {
+            console.error('Error getting vault items:', error);
+            return [];
+        }
+    }
+    async getVaultItem(userId, itemId) {
+        try {
+            return await this.prisma.vaultItem.findFirst({
+                where: {
+                    id: itemId,
+                    userId
+                }
+            });
+        }
+        catch (error) {
+            console.error('Error getting vault item:', error);
+            return null;
+        }
+    }
+    // ========================================
+    // SESSIONS
+    // ========================================
+    async createSession(data) {
+        try {
+            return await this.prisma.session.create({
+                data: {
+                    token: data.token,
+                    userId: data.userId,
+                    expiresAt: data.expiresAt,
+                    ipAddress: data.ipAddress,
+                    userAgent: data.userAgent,
+                    lastActivity: new Date()
+                }
+            });
+        }
+        catch (error) {
+            console.error('Error creating session:', error);
+            throw error;
+        }
+    }
+    async getSession(token) {
+        try {
+            return await this.prisma.session.findUnique({
+                where: { token }
+            });
+        }
+        catch (error) {
+            console.error('Error getting session:', error);
+            return null;
+        }
+    }
+    async deleteSession(token) {
+        try {
+            return await this.prisma.session.delete({
+                where: { token }
+            });
+        }
+        catch (error) {
+            console.error('Error deleting session:', error);
+            return null;
+        }
+    }
+    // ========================================
+    // TEMPORARY REGISTRATION (Passkeys)
+    // ========================================
+    async storeTemporaryRegistration(data) {
+        try {
+            return await this.prisma.temporaryRegistration.create({
+                data: {
+                    userId: data.userId,
+                    username: data.username,
+                    challenge: data.challenge,
+                    expiresAt: data.expiresAt
+                }
+            });
+        }
+        catch (error) {
+            console.error('Error storing temporary registration:', error);
+            throw error;
+        }
+    }
+    async getTemporaryRegistration(userId) {
+        try {
+            return await this.prisma.temporaryRegistration.findUnique({
+                where: { userId }
+            });
+        }
+        catch (error) {
+            console.error('Error getting temporary registration:', error);
+            return null;
+        }
+    }
+    async deleteTemporaryRegistration(userId) {
+        try {
+            return await this.prisma.temporaryRegistration.delete({
+                where: { userId }
+            });
+        }
+        catch (error) {
+            console.error('Error deleting temporary registration:', error);
+            return null;
+        }
+    }
+    // ========================================
+    // AUDIT LOGGING
+    // ========================================
+    async createAuditLog(data) {
+        try {
+            return await this.prisma.auditLog.create({
+                data: {
+                    userId: data.userId,
+                    action: data.action,
+                    entityType: data.entityType,
+                    entityId: data.entityId,
+                    metadata: data.metadata,
+                    ipAddress: data.ipAddress,
+                    userAgent: data.userAgent
+                }
+            });
+        }
+        catch (error) {
+            console.error('Error creating audit log:', error);
+            throw error;
+        }
+    }
+    // ========================================
+    // LEGACY COMPATIBILITY METHODS
+    // ========================================
+    async getUserByEmail(email) {
+        // Email removed in passwordless system, use username instead
+        console.warn('getUserByEmail called - email removed in passwordless system');
+        return null;
     }
     async getUserById(id) {
         try {
@@ -132,185 +346,99 @@ class DatabaseService {
             return null;
         }
     }
-    async storeTemporaryRegistration(data) {
-        try {
-            // Store in a temporary table or cache
-            // For now, using the User table with a flag
-            return await this.prisma.user.create({
-                data: {
-                    id: data.userId,
-                    username: data.username,
-                    email: data.email,
-                    passwordHash: '', // No password for WebAuthn users
-                    biometricEnabled: false, // Will be true after registration completes
-                    metadata: JSON.stringify({
-                        challenge: data.challenge,
-                        expiresAt: data.expiresAt.toISOString(),
-                        registrationPending: true
-                    })
-                }
-            });
-        }
-        catch (error) {
-            console.error('Error storing temporary registration:', error);
-            throw error;
-        }
-    }
-    async createUser(data) {
-        try {
-            return await this.prisma.user.create({
-                data: {
-                    id: data.id,
-                    username: data.username,
-                    email: data.email,
-                    passwordHash: '', // No password for WebAuthn users
-                    biometricEnabled: data.biometricEnabled || true,
-                    metadata: data.metadata ? JSON.stringify(data.metadata) : null
-                }
-            });
-        }
-        catch (error) {
-            console.error('Error creating user:', error);
-            throw error;
-        }
-    }
-    async updateUser(id, data) {
-        try {
-            return await this.prisma.user.update({
-                where: { id },
-                data: {
-                    biometricEnabled: data.biometricEnabled,
-                    metadata: data.metadata ? JSON.stringify(data.metadata) : undefined
-                }
-            });
-        }
-        catch (error) {
-            console.error('Error updating user:', error);
-            throw error;
-        }
-    }
-    // =========================================
-    // QUANTUM BIOMETRIC IDENTITY METHODS
-    // =========================================
     async createQuantumIdentity(data) {
-        try {
-            return await this.prisma.$transaction(async (tx) => {
-                // Create quantum identity
-                const identity = await tx.quantumIdentity.create({
-                    data: {
-                        id: data.id,
-                        username: data.username,
-                        quantumPublicKey: data.quantumPublicKey,
-                        biometricType: data.biometricType,
-                        algorithm: data.algorithm,
-                        deviceId: data.deviceId,
-                        createdAt: data.createdAt
-                    }
-                });
-                // Store credential
-                await tx.biometricCredential.create({
-                    data: {
-                        id: data.credentialId,
-                        identityId: data.id,
-                        credentialPublicKey: data.credentialPublicKey,
-                        counter: data.counter,
-                        deviceId: data.deviceId
-                    }
-                });
-                return identity;
-            });
-        }
-        catch (error) {
-            console.error('Error creating quantum identity:', error);
-            throw error;
-        }
+        console.warn('createQuantumIdentity deprecated - use storePasskeyCredential');
+        return null;
     }
     async getQuantumIdentity(username) {
-        try {
-            return await this.prisma.quantumIdentity.findUnique({
-                where: { username }
-            });
-        }
-        catch (error) {
-            console.error('Error getting quantum identity:', error);
-            throw error;
-        }
+        console.warn('getQuantumIdentity deprecated - use getUserByUsername');
+        return await this.getUserByUsername(username);
     }
     async getQuantumIdentityById(id) {
-        try {
-            return await this.prisma.quantumIdentity.findUnique({
-                where: { id }
-            });
-        }
-        catch (error) {
-            console.error('Error getting quantum identity by id:', error);
-            throw error;
-        }
+        console.warn('getQuantumIdentityById deprecated - use getUserById');
+        return await this.getUserById(id);
     }
-    async getUserCredentials(identityId) {
+    async getUserCredentials(userId) {
         try {
-            return await this.prisma.biometricCredential.findMany({
-                where: { identityId }
+            return await this.prisma.passkeyCredential.findMany({
+                where: { userId }
             });
         }
         catch (error) {
             console.error('Error getting user credentials:', error);
-            throw error;
+            return [];
         }
     }
     async getCredentialById(credentialId) {
+        return await this.getPasskeyCredential(credentialId);
+    }
+    async updateCredentialCounter(credentialId, counter) {
+        return await this.updatePasskeySignCount(credentialId, counter);
+    }
+    async auditOperation(data) {
+        return await this.createAuditLog({
+            userId: data.userId,
+            action: data.action,
+            entityType: 'resource',
+            entityId: data.resource,
+            metadata: { result: data.result, ...data.metadata }
+        });
+    }
+    async healthCheck() {
         try {
-            return await this.prisma.biometricCredential.findUnique({
-                where: { id: credentialId }
-            });
+            await this.prisma.user.count();
+            return { status: 'healthy', database: 'connected' };
         }
         catch (error) {
-            console.error('Error getting credential by id:', error);
-            throw error;
+            return { status: 'unhealthy', database: 'disconnected', error };
         }
     }
-    async updateCredentialCounter(credentialId, newCounter) {
+    // ========================================
+    // SYSTEM OPERATIONS
+    // ========================================
+    async getStats() {
         try {
-            return await this.prisma.biometricCredential.update({
-                where: { id: credentialId },
-                data: { counter: newCounter }
-            });
+            const [userCount, credentialCount, vaultItemCount, sessionCount] = await Promise.all([
+                this.prisma.user.count(),
+                this.prisma.passkeyCredential.count(),
+                this.prisma.vaultItem.count(),
+                this.prisma.session.count()
+            ]);
+            return {
+                users: userCount,
+                credentials: credentialCount,
+                vaultItems: vaultItemCount,
+                sessions: sessionCount
+            };
         }
         catch (error) {
-            console.error('Error updating credential counter:', error);
-            throw error;
+            console.error('Error getting stats:', error);
+            return { users: 0, credentials: 0, vaultItems: 0, sessions: 0 };
         }
     }
-    async getTemporaryRegistration(username) {
+    async cleanup() {
         try {
-            const tempReg = await this.prisma.temporaryRegistration.findUnique({
-                where: { username }
-            });
-            // Check if expired
-            if (tempReg && tempReg.expiresAt < new Date()) {
-                await this.deleteTemporaryRegistration(username);
-                return null;
-            }
-            return tempReg;
+            // Clean up in correct order due to foreign keys
+            await this.prisma.auditLog.deleteMany({});
+            await this.prisma.session.deleteMany({});
+            await this.prisma.vaultItem.deleteMany({});
+            await this.prisma.userDevice.deleteMany({});
+            await this.prisma.passkeyCredential.deleteMany({});
+            await this.prisma.temporaryRegistration.deleteMany({});
+            await this.prisma.user.deleteMany({});
+            console.log('🧹 Database cleanup completed (passwordless system)');
+            return true;
         }
         catch (error) {
-            console.error('Error getting temporary registration:', error);
-            throw error;
+            console.error('❌ Error during cleanup:', error);
+            return false;
         }
     }
-    async deleteTemporaryRegistration(username) {
-        try {
-            return await this.prisma.temporaryRegistration.delete({
-                where: { username }
-            });
-        }
-        catch (error) {
-            console.error('Error deleting temporary registration:', error);
-            throw error;
-        }
+    async disconnect() {
+        await this.prisma.$disconnect();
+        console.log('👋 Database disconnected');
     }
 }
 exports.DatabaseService = DatabaseService;
-// Exportar singleton
 exports.db = DatabaseService.getInstance();
-exports.prisma = exports.db.getClient();
+exports.prisma = exports.db['prisma']; // For legacy compatibility

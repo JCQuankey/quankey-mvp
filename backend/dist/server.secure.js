@@ -49,6 +49,7 @@ const database_service_1 = require("./services/database.service");
 const quantum_routes_1 = __importDefault(require("./routes/quantum.routes"));
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const quantum_biometric_routes_1 = __importDefault(require("./routes/quantum.biometric.routes"));
+const identity_quantum_routes_1 = __importDefault(require("./routes/identity.quantum.routes"));
 const app = (0, express_1.default)();
 exports.app = app;
 const PORT = process.env.PORT || 5000;
@@ -155,9 +156,11 @@ async function initialize() {
             });
         }
     });
-    // Authentication routes - REAL WebAuthn implementation (legacy)
+    // 🧬 MASTER PLAN v6.0: QUANTUM BIOMETRIC IDENTITY (PRIMARY)
+    app.use('/api/identity', identity_quantum_routes_1.default);
+    // Authentication routes - REAL WebAuthn implementation (legacy support)
     app.use('/api/auth', auth_routes_1.default);
-    // QUANTUM BIOMETRIC IDENTITY ROUTES - NO PASSWORDS
+    // QUANTUM BIOMETRIC ROUTES (legacy - being replaced by identity routes)
     app.use('/api/auth', quantum_biometric_routes_1.default);
     // Basic vault operations (simplified for security focus)
     app.use('/api/vault', auth_middleware_1.AuthMiddleware.validateRequest, rateLimiter_1.vaultLimiter);
@@ -180,11 +183,15 @@ async function initialize() {
         try {
             const { VaultService } = await Promise.resolve().then(() => __importStar(require('./services/vault.service')));
             const item = await VaultService.createItem(req.user.id, {
-                site: req.body.site || req.body.title, // Support legacy API
-                username: req.body.username,
-                password: req.body.password,
-                notes: req.body.notes,
-                category: req.body.category
+                itemType: req.body.itemType || 'credential',
+                title: req.body.title || req.body.site,
+                itemData: {
+                    site: req.body.site,
+                    username: req.body.username,
+                    encryptedPassword: req.body.password, // Will be encrypted by service
+                    notes: req.body.notes,
+                    category: req.body.category
+                }
             });
             res.json({ success: true, item });
         }
@@ -199,7 +206,8 @@ async function initialize() {
     app.get('/api/vault/items/:id/password', auth_middleware_1.AuthMiddleware.validateRequest, inputValidation_middleware_1.inputValidation.validateId(), async (req, res) => {
         try {
             const { VaultService } = await Promise.resolve().then(() => __importStar(require('./services/vault.service')));
-            const password = await VaultService.getPassword(req.user.id, req.params.id);
+            const vaultItem = await VaultService.getItemDecrypted(req.user.id, req.params.id);
+            const password = vaultItem?.data?.encryptedPassword;
             res.json({ success: true, password });
         }
         catch (error) {

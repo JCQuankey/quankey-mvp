@@ -90,8 +90,8 @@ class WebAuthnServiceSimple {
                 authenticatorSelection: {
                     authenticatorAttachment: 'platform',
                     userVerification: 'required',
-                    residentKey: 'preferred',
-                    requireResidentKey: false
+                    residentKey: 'required',
+                    requireResidentKey: true
                 },
                 timeout: this.config.timeout,
                 attestation: 'direct' // PATENT-CRITICAL: Direct attestation for production
@@ -201,7 +201,9 @@ class WebAuthnServiceSimple {
      * PATENT-CRITICAL: Verify Registration Response
      */
     static async verifyRegistrationResponse(response) {
-        return this.verifyRegistration(response);
+        // Extract userId from response or use a default
+        const userId = response.userId || 'unknown';
+        return this.verifyRegistration(userId, response);
     }
     /**
      * PATENT-CRITICAL: Verify Authentication Response

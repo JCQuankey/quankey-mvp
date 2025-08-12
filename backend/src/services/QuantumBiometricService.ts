@@ -413,7 +413,7 @@ export class QuantumBiometricService {
   }
 
   private generateQuantumBridgeToken(): string {
-    return randomBytes(32).toString('hex');
+    return Buffer.from(randomBytes(32)).toString('hex');
   }
 
   private base64ToUint8Array(base64: string): Uint8Array {

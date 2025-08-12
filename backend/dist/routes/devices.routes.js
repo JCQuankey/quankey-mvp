@@ -62,7 +62,8 @@ router.post('/register', auth_middleware_1.authenticatePasskey, inputValidation_
         }
         // Encapsulate Master Key using the device's ML-KEM-768 public key
         const encapsulation = ml_kem_1.ml_kem768.encapsulate(publicKeyBuffer);
-        const cipher = (0, chacha_1.chacha20poly1305)(encapsulation.sharedSecret);
+        const nonce = (0, crypto_1.randomBytes)(12); // ChaCha20Poly1305 nonce
+        const cipher = (0, chacha_1.chacha20poly1305)(encapsulation.sharedSecret, nonce);
         const wrappedMasterKey = cipher.encrypt(masterKey);
         // Create device record
         const device = await prisma.userDevice.create({
@@ -219,7 +220,7 @@ router.get('/wrapped-key/:deviceId', auth_middleware_1.authenticatePasskey, asyn
         res.json({
             success: true,
             data: {
-                encapsulatedKey: device.wrappedMasterKey.toString('base64'),
+                encapsulatedKey: Buffer.from(device.wrappedMasterKey).toString('base64'),
                 deviceId: device.id,
                 deviceName: device.deviceName
             },

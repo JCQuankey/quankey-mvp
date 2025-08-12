@@ -174,11 +174,11 @@ export class VaultService {
     
     // Decrypt with quantum keys (derived from biometric)
     // 1. Unwrap DEK using user's biometric-derived key
-    const wrappedDEKData = await encryption.decrypt(item.wrappedDEK.toString('utf8'));
+    const wrappedDEKData = await encryption.decrypt(item.wrappedDEK.toString());
     const dek = Buffer.from(wrappedDEKData, 'base64');
     
     // 2. Decrypt item data with DEK
-    const decryptedData = await encryption.decrypt(item.encryptedData.toString('utf8'));
+    const decryptedData = await encryption.decrypt(item.encryptedData.toString());
     
     // Update last accessed
     await prisma.vaultItem.update({
