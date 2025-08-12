@@ -162,11 +162,15 @@ async function initialize() {
     try {
       const { VaultService } = await import('./services/vault.service');
       const item = await VaultService.createItem(req.user!.id, {
-        site: req.body.site || req.body.title, // Support legacy API
-        username: req.body.username,
-        password: req.body.password,
-        notes: req.body.notes,
-        category: req.body.category
+        itemType: req.body.itemType || 'credential',
+        title: req.body.title || req.body.site,
+        itemData: {
+          site: req.body.site,
+          username: req.body.username,
+          encryptedPassword: req.body.password, // Will be encrypted by service
+          notes: req.body.notes,
+          category: req.body.category
+        }
       });
       res.json({ success: true, item });
     } catch (error) {
@@ -181,7 +185,8 @@ async function initialize() {
   app.get('/api/vault/items/:id/password', AuthMiddleware.validateRequest, inputValidation.validateId(), async (req, res) => {
     try {
       const { VaultService } = await import('./services/vault.service');
-      const password = await VaultService.getPassword(req.user!.id, req.params.id);
+      const vaultItem = await VaultService.getItemDecrypted(req.user!.id, req.params.id);
+      const password = vaultItem?.data?.encryptedPassword;
       res.json({ success: true, password });
     } catch (error) {
       res.status(404).json({ 
