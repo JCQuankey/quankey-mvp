@@ -248,7 +248,13 @@ export const QuantumBiometricIdentity: React.FC = () => {
   const generateMLKEM768FromBiometric = async (credential: PublicKeyCredential) => {
     // 🔐 REAL ML-KEM-768 key derivation from biometric signature
     const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js');
-    const biometricSeed = new Uint8Array(credential.rawId);
+    // Fix: Expand biometric seed to required 64 bytes
+    const biometricSeed = new Uint8Array(64);
+    const rawIdBytes = new Uint8Array(credential.rawId);
+    biometricSeed.set(rawIdBytes);
+    // Fill remaining bytes with hash for full entropy
+    const hash = await crypto.subtle.digest('SHA-256', rawIdBytes);
+    biometricSeed.set(new Uint8Array(hash), 32);
     
     // Generate deterministic keypair from biometric
     const keypair = ml_kem768.keygen(biometricSeed);
