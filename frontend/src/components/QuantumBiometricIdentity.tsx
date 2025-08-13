@@ -248,13 +248,24 @@ export const QuantumBiometricIdentity: React.FC = () => {
   const generateMLKEM768FromBiometric = async (credential: PublicKeyCredential) => {
     // 🔐 REAL ML-KEM-768 key derivation from biometric signature
     const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js');
-    // Fix: Expand biometric seed to required 64 bytes
+    // QUANTUM EXPANSION: Expand biometric with quantum entropy
     const biometricSeed = new Uint8Array(64);
-    const rawIdBytes = new Uint8Array(credential.rawId);
+    const rawIdBytes = new Uint8Array(credential.rawId); // Original biometric (32 bytes)
+
+    // First half: Original biometric data
     biometricSeed.set(rawIdBytes);
-    // Fill remaining bytes with hash for full entropy
-    const hash = await crypto.subtle.digest('SHA-256', rawIdBytes);
-    biometricSeed.set(new Uint8Array(hash), 32);
+
+    // Second half: Pure quantum expansion
+    try {
+      const quantumExpansion = await getQuantumRandomBytes(32);
+      biometricSeed.set(quantumExpansion, 32);
+    } catch (error) {
+      // Fallback to crypto.getRandomValues if quantum fails
+      const fallbackBytes = new Uint8Array(32);
+      crypto.getRandomValues(fallbackBytes);
+      biometricSeed.set(fallbackBytes, 32);
+      console.warn('Using crypto fallback for biometric expansion');
+    }
     
     // Generate deterministic keypair from biometric
     const keypair = ml_kem768.keygen(biometricSeed);
@@ -286,6 +297,24 @@ export const QuantumBiometricIdentity: React.FC = () => {
 
   // Placeholder implementations - to be completed
   const checkExistingBiometricIdentity = async (): Promise<BiometricIdentity | null> => null;
+  const getQuantumRandomBytes = async (length: number): Promise<Uint8Array> => {
+    // Try ANU QRNG first
+    try {
+      const response = await fetch('https://qrng.anu.edu.au/API/jsonI.php?length=' + length + '&type=uint8');
+      const data = await response.json();
+      if (data.success && data.data) {
+        return new Uint8Array(data.data);
+      }
+    } catch (error) {
+      console.warn('ANU QRNG unavailable, using crypto fallback');
+    }
+    
+    // Fallback to crypto.getRandomValues
+    const bytes = new Uint8Array(length);
+    crypto.getRandomValues(bytes);
+    return bytes;
+  };
+
   const storeQuantumPrivateKeySecurely = async (key: Uint8Array) => {};
   const getSecureDeviceId = async () => 'device-' + Math.random().toString(36).substr(2, 9);
   const getCurrentBiometricSignature = async () => 'signature-placeholder';
