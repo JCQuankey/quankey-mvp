@@ -12,6 +12,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import './QuantumBiometric.css';
 import { ToastContainer, useToast } from './ToastNotification';
 import { 
   FingerprintIcon,

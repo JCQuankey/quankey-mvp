@@ -1,0 +1,544 @@
+/* 
+ * 🧬 QUANKEY QUANTUM BIOMETRIC STYLES
+ * Military-grade design system for quantum-biometric authentication
+ * Colors and spacing based on official Quankey brand guidelines
+ */
+
+/* ================================
+   COLOR PALETTE & VARIABLES
+   ================================ */
+:root {
+  /* Quankey Brand Colors */
+  --quantum-blue: #00A6FB;
+  --electric-cyan: #00D4FF;
+  --deep-space: #0A1628;
+  --cyber-navy: #1E3A5F;
+  --quantum-white: #FFFFFF;
+  --ghost-white: #E8E8F0;
+  --steel-gray: #8B8CA5;
+  
+  /* Status Colors */
+  --quantum-success: #00FF88;
+  --quantum-warning: #FFB800;
+  --quantum-error: #FF3B30;
+  
+  /* Gradients */
+  --quantum-gradient: linear-gradient(135deg, #00A6FB 0%, #00D4FF 100%);
+  --quantum-gradient-hover: linear-gradient(135deg, #0095E8 0%, #00C3ED 100%);
+  --radial-glow: radial-gradient(circle at center, rgba(0, 166, 251, 0.1) 0%, transparent 70%);
+  
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  
+  /* Shadows */
+  --shadow-glow: 0 0 20px rgba(0, 166, 251, 0.5);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 32px rgba(0, 166, 251, 0.2);
+}
+
+/* ================================
+   QUANTUM BIOMETRIC CONTAINER
+   ================================ */
+.quantum-biometric-container {
+  min-height: 100vh;
+  background: var(--deep-space);
+  background-image: var(--radial-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.quantum-biometric-card {
+  background: var(--cyber-navy);
+  border: 1px solid rgba(0, 166, 251, 0.2);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  max-width: 500px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.quantum-biometric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--quantum-gradient);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.quantum-biometric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0, 166, 251, 0.3);
+  border-color: rgba(0, 166, 251, 0.4);
+}
+
+/* ================================
+   HEADER SECTION
+   ================================ */
+.biometric-header {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+
+.biometric-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-lg);
+  display: block;
+  color: var(--quantum-blue);
+  filter: drop-shadow(0 0 10px rgba(0, 166, 251, 0.3));
+}
+
+.biometric-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: var(--space-md);
+  background: var(--quantum-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.biometric-header p {
+  color: var(--steel-gray);
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ================================
+   REGISTRATION FORM
+   ================================ */
+.registration-form {
+  margin-bottom: var(--space-xl);
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: var(--space-lg);
+}
+
+.input-icon {
+  position: absolute;
+  left: var(--space-md);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: var(--steel-gray);
+  z-index: 2;
+}
+
+.biometric-input {
+  width: 100%;
+  background: rgba(10, 22, 40, 0.5);
+  border: 2px solid rgba(0, 166, 251, 0.2);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-md) var(--space-md) 48px;
+  color: var(--quantum-white);
+  font-size: 16px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.biometric-input:focus {
+  border-color: var(--quantum-blue);
+  background: rgba(10, 22, 40, 0.7);
+  box-shadow: 0 0 0 3px rgba(0, 166, 251, 0.1);
+}
+
+.biometric-input::placeholder {
+  color: var(--steel-gray);
+}
+
+.biometric-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================================
+   QUANTUM BIOMETRIC BUTTON
+   ================================ */
+.quantum-biometric-button {
+  width: 100%;
+  background: var(--quantum-gradient);
+  color: var(--quantum-white);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.quantum-biometric-button:hover:not(:disabled) {
+  background: var(--quantum-gradient-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.quantum-biometric-button:active {
+  transform: translateY(0);
+}
+
+.quantum-biometric-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.quantum-biometric-button.large {
+  padding: var(--space-lg) var(--space-xl);
+  font-size: 18px;
+  min-height: 64px;
+}
+
+.button-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.button-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* ================================
+   LOADING SPINNER
+   ================================ */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ================================
+   BIOMETRIC INFO SECTION
+   ================================ */
+.biometric-info {
+  border-top: 1px solid rgba(0, 166, 251, 0.1);
+  padding-top: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+  color: var(--ghost-white);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-icon {
+  font-size: 18px;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* ================================
+   LOADING CONTENT
+   ================================ */
+.loading-content {
+  text-align: center;
+  padding: var(--space-2xl) 0;
+}
+
+.quantum-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-lg);
+  display: block;
+  color: var(--quantum-blue);
+}
+
+.quantum-pulse {
+  animation: quantumPulse 2s ease-in-out infinite;
+}
+
+@keyframes quantumPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+.loading-content h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  color: var(--ghost-white);
+}
+
+.loading-content p {
+  color: var(--steel-gray);
+  font-size: 16px;
+}
+
+/* ================================
+   AUTHENTICATION SECTION
+   ================================ */
+.auth-content {
+  text-align: center;
+  padding: var(--space-xl) 0;
+}
+
+.auth-icon {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto var(--space-lg);
+  display: block;
+  color: var(--quantum-blue);
+  filter: drop-shadow(0 0 20px rgba(0, 166, 251, 0.4));
+}
+
+.auth-content h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  color: var(--ghost-white);
+}
+
+.auth-content p {
+  color: var(--steel-gray);
+  font-size: 18px;
+  margin-bottom: var(--space-xl);
+}
+
+/* ================================
+   DASHBOARD SECTION
+   ================================ */
+.dashboard-content {
+  text-align: center;
+}
+
+.identity-header {
+  margin-bottom: var(--space-xl);
+}
+
+.identity-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-md);
+  display: block;
+  color: var(--quantum-success);
+  filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.3));
+}
+
+.identity-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+  color: var(--ghost-white);
+}
+
+.identity-header p {
+  color: var(--quantum-success);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* ================================
+   IDENTITY STATS
+   ================================ */
+.identity-stats {
+  background: rgba(10, 22, 40, 0.3);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid rgba(0, 166, 251, 0.1);
+}
+
+.stat-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.stat-label {
+  color: var(--steel-gray);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.stat-value {
+  color: var(--ghost-white);
+  font-size: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  word-break: break-all;
+}
+
+/* ================================
+   DASHBOARD ACTIONS
+   ================================ */
+.dashboard-actions {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+}
+
+.action-button {
+  background: rgba(0, 166, 251, 0.1);
+  color: var(--quantum-blue);
+  border: 1px solid rgba(0, 166, 251, 0.3);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  text-decoration: none;
+}
+
+.action-button:hover {
+  background: rgba(0, 166, 251, 0.2);
+  border-color: var(--quantum-blue);
+  transform: translateY(-1px);
+}
+
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+@media (max-width: 768px) {
+  .quantum-biometric-container {
+    padding: var(--space-md);
+  }
+  
+  .quantum-biometric-card {
+    padding: var(--space-lg);
+  }
+  
+  .biometric-header h1 {
+    font-size: 28px;
+  }
+  
+  .biometric-header p {
+    font-size: 14px;
+  }
+  
+  .dashboard-actions {
+    flex-direction: column;
+  }
+  
+  .action-button {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .quantum-biometric-card {
+    padding: var(--space-md);
+  }
+  
+  .biometric-header h1 {
+    font-size: 24px;
+  }
+  
+  .auth-content h2 {
+    font-size: 24px;
+  }
+  
+  .quantum-biometric-button {
+    padding: var(--space-md);
+    font-size: 14px;
+  }
+}
+
+/* ================================
+   ACCESSIBILITY
+   ================================ */
+@media (prefers-reduced-motion: reduce) {
+  .quantum-biometric-card,
+  .quantum-biometric-button,
+  .action-button,
+  .biometric-input {
+    transition: none;
+  }
+  
+  .quantum-pulse,
+  .spinner {
+    animation: none;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.quantum-biometric-button:focus-visible,
+.action-button:focus-visible,
+.biometric-input:focus-visible {
+  outline: 2px solid var(--quantum-blue);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .quantum-biometric-card {
+    border-color: var(--quantum-blue);
+  }
+  
+  .biometric-input {
+    border-color: var(--ghost-white);
+  }
+  
+  .stat-item {
+    border-bottom-color: var(--steel-gray);
+  }
+}
