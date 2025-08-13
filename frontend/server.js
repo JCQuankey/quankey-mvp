@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Basic Auth Configuration
-const BASIC_AUTH_ENABLED = process.env.BASIC_AUTH_ENABLED === 'true';
+const BASIC_AUTH_ENABLED = process.env.BASIC_AUTH_ENABLED === 'false';
 const BASIC_AUTH_USERNAME = process.env.BASIC_AUTH_USERNAME || 'quankey';
 const BASIC_AUTH_PASSWORD = process.env.BASIC_AUTH_PASSWORD || 'quantum2025';
 const BASIC_AUTH_REALM = process.env.BASIC_AUTH_REALM || 'Quankey Staging';
