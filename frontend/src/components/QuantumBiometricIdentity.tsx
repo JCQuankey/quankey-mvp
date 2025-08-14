@@ -23,6 +23,7 @@ import {
 } from './QuankeyIcons';
 import { BiometricQuantumProcessor } from '../services/MultiQuantumEntropyService';
 import { QuantumDebugHelper } from '../services/bug-fixes';
+import HybridQuantumCrypto from '../services/noble-post-quantum-workaround';
 
 interface BiometricIdentity {
   userId: string;
@@ -56,7 +57,15 @@ export const QuantumBiometricIdentity: React.FC = () => {
   // QuantumDebugHelper.enableDebugMode();
 
   useEffect(() => {
-    checkBiometricSupport();
+    const initializeQuantumCrypto = async () => {
+      // Auto-detect best quantum crypto library
+      await HybridQuantumCrypto.autoDetectBestLibrary();
+      console.log('🔧 Quantum crypto diagnostic:', HybridQuantumCrypto.getDiagnosticInfo());
+      
+      checkBiometricSupport();
+    };
+    
+    initializeQuantumCrypto();
   }, []);
 
   /**

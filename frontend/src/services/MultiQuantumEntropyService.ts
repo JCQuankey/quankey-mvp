@@ -1,8 +1,7 @@
 // MultiQuantumEntropyService.ts
 // SOLUCI�N DEFINITIVA - M�LTIPLES FUENTES CU�NTICAS + ENCRIPTACI�N SIN HUECOS
 
-import { ml_kem768 } from '@noble/post-quantum/ml-kem.js';
-import { ml_dsa65 } from '@noble/post-quantum/ml-dsa.js';
+import HybridQuantumCrypto from './noble-post-quantum-workaround';
 
 /**
  * SERVICIO DE ENTROP�A CU�NTICA MULTI-FUENTE
@@ -410,8 +409,8 @@ export class BiometricQuantumProcessor {
     // 3. Mezclar biom�trico encriptado con entrop�a cu�ntica
     const mlkemSeed = await this.secureDeriveSeed(encryptedBiometric, quantumEntropy, 64);
     
-    // 4. Generar keypair ML-KEM-768 directamente
-    const keypair = ml_kem768.keygen(mlkemSeed);
+    // 4. Generar keypair ML-KEM-768 directamente usando hybrid implementation
+    const keypair = HybridQuantumCrypto.generateMLKEM768Keypair(mlkemSeed);
     
     // 5. Limpiar memoria sensible inmediatamente
     this.secureWipe(mlkemSeed);
@@ -442,8 +441,8 @@ export class BiometricQuantumProcessor {
     const hash = await crypto.subtle.digest('SHA-256', encryptedBiometric);
     const mldsaSeed = new Uint8Array(hash);
     
-    // 3. Generar keypair ML-DSA-65 directamente
-    const keypair = ml_dsa65.keygen(mldsaSeed);
+    // 3. Generar keypair ML-DSA-65 directamente usando hybrid implementation
+    const keypair = HybridQuantumCrypto.generateMLDSA65Keypair(mldsaSeed);
     
     // 4. Limpiar memoria
     this.secureWipe(mldsaSeed);

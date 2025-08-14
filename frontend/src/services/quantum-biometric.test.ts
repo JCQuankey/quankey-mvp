@@ -1,8 +1,7 @@
 // quantum-biometric.test.ts
 // TEST COMPLETO DEL SISTEMA QUANTUM-BIOMETRIC
 
-import { ml_kem768 } from '@noble/post-quantum/ml-kem.js';
-import { ml_dsa65 } from '@noble/post-quantum/ml-dsa.js';
+import HybridQuantumCrypto from './noble-post-quantum-workaround';
 import { MultiQuantumEntropyService, BiometricQuantumProcessor } from './MultiQuantumEntropyService';
 
 // Mock de fetch para evitar CORS en tests
@@ -28,6 +27,12 @@ if (!global.crypto) {
 
 describe('Quantum Biometric System - Complete Test Suite', () => {
   
+  // Initialize hybrid crypto before tests
+  beforeAll(async () => {
+    await HybridQuantumCrypto.autoDetectBestLibrary();
+    console.log('🔧 Test suite using:', HybridQuantumCrypto.getDiagnosticInfo());
+  });
+  
   // ============================================
   // TEST 1: VERIFICAR TODOS LOS TAMAÑOS
   // ============================================
@@ -37,7 +42,7 @@ describe('Quantum Biometric System - Complete Test Suite', () => {
       const seed = new Uint8Array(64); // 64 bytes para ML-KEM
       crypto.getRandomValues(seed);
       
-      const keypair = ml_kem768.keygen(seed);
+      const keypair = HybridQuantumCrypto.generateMLKEM768Keypair(seed);
       
       expect(keypair.publicKey.length).toBe(1184);
       expect(keypair.secretKey.length).toBe(2400);
@@ -50,7 +55,7 @@ describe('Quantum Biometric System - Complete Test Suite', () => {
       console.log('🔍 ML-DSA test - seed length:', seed.length);
       console.log('🔍 ML-DSA test - seed first 8 bytes:', Array.from(seed.slice(0, 8)));
       
-      const keypair = ml_dsa65.keygen(seed);
+      const keypair = HybridQuantumCrypto.generateMLDSA65Keypair(seed);
       
       console.log('🔍 ML-DSA test - keypair:', keypair);
       console.log('🔍 ML-DSA test - publicKey length:', keypair.publicKey?.length);
@@ -63,11 +68,11 @@ describe('Quantum Biometric System - Complete Test Suite', () => {
     test('ML-KEM encapsulation produces correct sizes', () => {
       const seed = new Uint8Array(64);
       crypto.getRandomValues(seed);
-      const keypair = ml_kem768.keygen(seed);
+      const keypair = HybridQuantumCrypto.generateMLKEM768Keypair(seed);
       
       console.log('🔍 ML-KEM test - keypair.publicKey length:', keypair.publicKey?.length);
       
-      const encap = ml_kem768.encapsulate(keypair.publicKey);
+      const encap = HybridQuantumCrypto.encapsulateMLKEM768(keypair.publicKey);
       
       console.log('🔍 ML-KEM test - encap result:', encap);
       console.log('🔍 ML-KEM test - encap.ciphertext:', encap?.ciphertext?.length);
@@ -80,7 +85,7 @@ describe('Quantum Biometric System - Complete Test Suite', () => {
     test('ML-DSA signature size is correct', () => {
       const seed = new Uint8Array(32);
       crypto.getRandomValues(seed);
-      const keypair = ml_dsa65.keygen(seed);
+      const keypair = HybridQuantumCrypto.generateMLDSA65Keypair(seed);
       
       console.log('🔍 SIGNATURE TEST - keypair:', keypair);
       console.log('🔍 SIGNATURE TEST - publicKey length:', keypair.publicKey?.length);
@@ -89,7 +94,7 @@ describe('Quantum Biometric System - Complete Test Suite', () => {
       console.log('🔍 SIGNATURE TEST - secretKey first 8:', Array.from(keypair.secretKey.slice(0, 8)));
       
       const message = new TextEncoder().encode('test');
-      const signature = ml_dsa65.sign(message, keypair.secretKey);
+      const signature = HybridQuantumCrypto.signMLDSA65(message, keypair.secretKey);
       
       expect(signature.length).toBe(3309);
     });
