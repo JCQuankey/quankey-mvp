@@ -21,6 +21,7 @@ import {
   DevicesIcon,
   UserIcon
 } from './QuankeyIcons';
+import { BiometricQuantumProcessor } from '../services/MultiQuantumEntropyService';
 
 interface BiometricIdentity {
   userId: string;
@@ -46,6 +47,9 @@ export const QuantumBiometricIdentity: React.FC = () => {
   const [authenticating, setAuthenticating] = useState(false);
   const [step, setStep] = useState<'check' | 'register' | 'authenticate' | 'identity' | 'multi-biometric'>('check');
   const { showToast, toasts, removeToast } = useToast();
+  
+  // Initialize quantum processor
+  const processor = new BiometricQuantumProcessor();
 
   useEffect(() => {
     checkBiometricSupport();
@@ -115,8 +119,8 @@ export const QuantumBiometricIdentity: React.FC = () => {
 
       console.log('✅ Biometric captured locally - generating quantum keys...');
 
-      // 2. Generate ML-KEM-768 keypair from biometric signature
-      const quantumKeys = await generateMLKEM768FromBiometric(credential);
+      // 2. Generate ML-KEM-768 keypair from biometric signature using multi-source quantum entropy
+      const quantumKeys = await processor.biometricToMLKEM(credential.rawId);
       
       // 3. Register identity on server (only quantum public key, encrypted)
       const response = await fetch('/api/identity/quantum-biometric/register', {
@@ -124,7 +128,7 @@ export const QuantumBiometricIdentity: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username,
-          quantumPublicKey: quantumKeys.encryptedPublicKey,
+          quantumPublicKey: uint8ArrayToBase64(quantumKeys.publicKey),
           biometricProof: await generateZeroKnowledgeBiometricProof(credential),
           deviceFingerprint: await getSecureDeviceId()
         })
@@ -137,13 +141,13 @@ export const QuantumBiometricIdentity: React.FC = () => {
       const result = await response.json();
       
       // 4. Store private key locally in Secure Enclave/TPM
-      await storeQuantumPrivateKeySecurely(quantumKeys.privateKey);
+      await storeQuantumPrivateKeySecurely(quantumKeys.secretKey);
 
       setIdentity({
         userId: result.userId,
         username,
         biometricTypes: ['fingerprint'], // Detected from credential
-        quantumKeyFingerprint: quantumKeys.publicKeyHash,
+        quantumKeyFingerprint: await generateKeyFingerprint(quantumKeys.publicKey),
         devices: [result.device],
         registeredAt: new Date()
       });
@@ -245,48 +249,15 @@ export const QuantumBiometricIdentity: React.FC = () => {
   // HELPER FUNCTIONS - QUANTUM CRYPTOGRAPHY
   // ========================================
 
-  const generateMLKEM768FromBiometric = async (credential: PublicKeyCredential) => {
-    // 🔐 REAL ML-KEM-768 key derivation from biometric signature
-    const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js');
-    // QUANTUM EXPANSION: Expand biometric with quantum entropy
-    const biometricSeed = new Uint8Array(64);
-    const rawIdBytes = new Uint8Array(credential.rawId); // Original biometric (32 bytes)
-
-    // First half: Original biometric data
-    biometricSeed.set(rawIdBytes);
-
-    // Second half: Pure quantum expansion
-    try {
-      const quantumExpansion = await getQuantumRandomBytes(32);
-      biometricSeed.set(quantumExpansion, 32);
-    } catch (error) {
-      // Fallback to crypto.getRandomValues if quantum fails
-      const fallbackBytes = new Uint8Array(32);
-      crypto.getRandomValues(fallbackBytes);
-      biometricSeed.set(fallbackBytes, 32);
-      console.warn('Using crypto fallback for biometric expansion');
-    }
-    
-    // Generate deterministic keypair from biometric
-    const keypair = ml_kem768.keygen(biometricSeed);
-    
-    // Encrypt data for server using server's public key
-    const serverPublicKey = await getServerQuantumPublicKey();
-    const encryptedData = ml_kem768.encapsulate(serverPublicKey);
-    
-    return {
-      privateKey: keypair.secretKey,
-      encryptedPublicKey: uint8ArrayToBase64(encryptedData.cipherText),
-      publicKeyHash: await generateKeyFingerprint(keypair.publicKey)
-    };
-  };
+  // Legacy function removed - now using BiometricQuantumProcessor
 
   const generateZeroKnowledgeBiometricProof = async (credential: PublicKeyCredential) => {
-    // 🛡️ Generate proof that validates biometric without exposing it
-    const { ml_dsa65 } = await import('@noble/post-quantum/ml-dsa.js');
+    // 🛡️ Generate proof that validates biometric without exposing it using multi-source quantum entropy
+    const mldsaKeys = await processor.biometricToMLDSA(credential.rawId);
     
     const biometricHash = await crypto.subtle.digest('SHA-256', credential.rawId);
-    const signature = ml_dsa65.sign(new Uint8Array(biometricHash), await getDeviceSigningKey());
+    const { ml_dsa65 } = await import('@noble/post-quantum/ml-dsa.js');
+    const signature = ml_dsa65.sign(new Uint8Array(biometricHash), mldsaKeys.secretKey);
     
     return {
       proof: uint8ArrayToBase64(signature),
@@ -297,23 +268,6 @@ export const QuantumBiometricIdentity: React.FC = () => {
 
   // Placeholder implementations - to be completed
   const checkExistingBiometricIdentity = async (): Promise<BiometricIdentity | null> => null;
-  const getQuantumRandomBytes = async (length: number): Promise<Uint8Array> => {
-    // Try ANU QRNG first
-    try {
-      const response = await fetch('https://qrng.anu.edu.au/API/jsonI.php?length=' + length + '&type=uint8');
-      const data = await response.json();
-      if (data.success && data.data) {
-        return new Uint8Array(data.data);
-      }
-    } catch (error) {
-      console.warn('ANU QRNG unavailable, using crypto fallback');
-    }
-    
-    // Fallback to crypto.getRandomValues
-    const bytes = new Uint8Array(length);
-    crypto.getRandomValues(bytes);
-    return bytes;
-  };
 
   const storeQuantumPrivateKeySecurely = async (key: Uint8Array) => {};
   const getSecureDeviceId = async () => 'device-' + Math.random().toString(36).substr(2, 9);
@@ -336,16 +290,7 @@ export const QuantumBiometricIdentity: React.FC = () => {
       .map(b => b.toString(16).padStart(2, '0'))
       .join('').slice(0, 16);
   };
-  const getDeviceSigningKey = async () => {
-    // Generate real ML-DSA-65 key pair with quantum entropy
-    const { ml_dsa65 } = await import('@noble/post-quantum/ml-dsa.js');
-    
-    // Use quantum entropy for key generation
-    const quantumSeed = await getQuantumRandomBytes(32);
-    const keyPair = ml_dsa65.keygen(quantumSeed);
-    
-    return keyPair.secretKey; // Returns proper 4032 byte private key
-  };
+  // Legacy function removed - now using BiometricQuantumProcessor
   const uint8ArrayToBase64 = (arr: Uint8Array) => {
     let binary = '';
     for (let i = 0; i < arr.length; i++) {
