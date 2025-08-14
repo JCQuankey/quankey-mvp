@@ -47,7 +47,14 @@ describe('Quantum Biometric System - Complete Test Suite', () => {
       const seed = new Uint8Array(32); // 32 bytes para ML-DSA
       crypto.getRandomValues(seed);
       
+      console.log('🔍 ML-DSA test - seed length:', seed.length);
+      console.log('🔍 ML-DSA test - seed first 8 bytes:', Array.from(seed.slice(0, 8)));
+      
       const keypair = ml_dsa65.keygen(seed);
+      
+      console.log('🔍 ML-DSA test - keypair:', keypair);
+      console.log('🔍 ML-DSA test - publicKey length:', keypair.publicKey?.length);
+      console.log('🔍 ML-DSA test - secretKey length:', keypair.secretKey?.length);
       
       expect(keypair.publicKey.length).toBe(1952);
       expect(keypair.secretKey.length).toBe(4032); // ¡ESTE ES EL QUE DEBE PASAR!
@@ -58,7 +65,13 @@ describe('Quantum Biometric System - Complete Test Suite', () => {
       crypto.getRandomValues(seed);
       const keypair = ml_kem768.keygen(seed);
       
+      console.log('🔍 ML-KEM test - keypair.publicKey length:', keypair.publicKey?.length);
+      
       const encap = ml_kem768.encapsulate(keypair.publicKey);
+      
+      console.log('🔍 ML-KEM test - encap result:', encap);
+      console.log('🔍 ML-KEM test - encap.ciphertext:', encap?.ciphertext?.length);
+      console.log('🔍 ML-KEM test - encap.sharedSecret:', encap?.sharedSecret?.length);
       
       expect(encap.ciphertext.length).toBe(1088);
       expect(encap.sharedSecret.length).toBe(32);
@@ -68,6 +81,12 @@ describe('Quantum Biometric System - Complete Test Suite', () => {
       const seed = new Uint8Array(32);
       crypto.getRandomValues(seed);
       const keypair = ml_dsa65.keygen(seed);
+      
+      console.log('🔍 SIGNATURE TEST - keypair:', keypair);
+      console.log('🔍 SIGNATURE TEST - publicKey length:', keypair.publicKey?.length);
+      console.log('🔍 SIGNATURE TEST - secretKey length:', keypair.secretKey?.length);
+      console.log('🔍 SIGNATURE TEST - secretKey type:', typeof keypair.secretKey);
+      console.log('🔍 SIGNATURE TEST - secretKey first 8:', Array.from(keypair.secretKey.slice(0, 8)));
       
       const message = new TextEncoder().encode('test');
       const signature = ml_dsa65.sign(message, keypair.secretKey);

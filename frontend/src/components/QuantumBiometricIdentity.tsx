@@ -22,6 +22,7 @@ import {
   UserIcon
 } from './QuankeyIcons';
 import { BiometricQuantumProcessor } from '../services/MultiQuantumEntropyService';
+import { QuantumDebugHelper } from '../services/bug-fixes';
 
 interface BiometricIdentity {
   userId: string;
@@ -50,6 +51,9 @@ export const QuantumBiometricIdentity: React.FC = () => {
   
   // Initialize quantum processor
   const processor = new BiometricQuantumProcessor();
+  
+  // 🔍 ENABLE DEBUG MODE TO FIND BUGS (disabled for testing)
+  // QuantumDebugHelper.enableDebugMode();
 
   useEffect(() => {
     checkBiometricSupport();
