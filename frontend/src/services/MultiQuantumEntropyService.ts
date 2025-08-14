@@ -1,12 +1,12 @@
 // MultiQuantumEntropyService.ts
-// SOLUCIÓN DEFINITIVA - MÚLTIPLES FUENTES CUÁNTICAS + ENCRIPTACIÓN SIN HUECOS
+// SOLUCIï¿½N DEFINITIVA - Mï¿½LTIPLES FUENTES CUï¿½NTICAS + ENCRIPTACIï¿½N SIN HUECOS
 
 import { ml_kem768 } from '@noble/post-quantum/ml-kem.js';
 import { ml_dsa65 } from '@noble/post-quantum/ml-dsa.js';
 
 /**
- * SERVICIO DE ENTROPÍA CUÁNTICA MULTI-FUENTE
- * Máxima robustez usando ANU + IBM + Cloudflare + Hardware
+ * SERVICIO DE ENTROPï¿½A CUï¿½NTICA MULTI-FUENTE
+ * Mï¿½xima robustez usando ANU + IBM + Cloudflare + Hardware
  * TODO ENCRIPTADO DESDE EL PRIMER BYTE
  */
 export class MultiQuantumEntropyService {
@@ -17,13 +17,13 @@ export class MultiQuantumEntropyService {
   private readonly IBM_QUANTUM_PROJECT = process.env.IBM_QUANTUM_PROJECT || 'main';
   private readonly QUANTUM_COMPUTING_API_KEY = process.env.QUANTUM_COMPUTING_API_KEY || '';
   
-  // Cache de entropía para optimización
+  // Cache de entropï¿½a para optimizaciï¿½n
   private entropyCache: Map<string, { data: Uint8Array; timestamp: number }> = new Map();
-  private readonly CACHE_TTL = 5000; // 5 segundos máximo
+  private readonly CACHE_TTL = 5000; // 5 segundos mï¿½ximo
 
   /**
-   * OBTIENE ENTROPÍA CUÁNTICA DE MÚLTIPLES FUENTES
-   * XOR de todas las fuentes disponibles para máxima seguridad
+   * OBTIENE ENTROPï¿½A CUï¿½NTICA DE Mï¿½LTIPLES FUENTES
+   * XOR de todas las fuentes disponibles para mï¿½xima seguridad
    */
   async getQuantumEntropy(bytes: number): Promise<Uint8Array> {
     console.log(`=. Requesting ${bytes} bytes of quantum entropy from multiple sources...`);
@@ -48,13 +48,13 @@ export class MultiQuantumEntropyService {
       throw new Error('L CRITICAL: No quantum entropy sources available!');
     }
     
-    // XOR todas las fuentes para máxima entropía
+    // XOR todas las fuentes para mï¿½xima entropï¿½a
     return this.xorCombineEntropy(validSources, bytes);
   }
 
   /**
    * 1. ANU Quantum Random Number Generator (Australia)
-   * Fuente principal - más confiable
+   * Fuente principal - mï¿½s confiable
    */
   private async getANUQuantumEntropy(bytes: number): Promise<Uint8Array> {
     try {
@@ -77,7 +77,7 @@ export class MultiQuantumEntropyService {
       return new Uint8Array(data.data);
       
     } catch (error) {
-      console.warn('  ANU Quantum unavailable:', error);
+      console.warn('ï¿½ ANU Quantum unavailable:', error);
       throw error;
     }
   }
@@ -111,7 +111,7 @@ export class MultiQuantumEntropyService {
       const authData = await authResponse.json();
       const accessToken = authData.id;
       
-      // Ejecutar circuito cuántico para generar randomness
+      // Ejecutar circuito cuï¿½ntico para generar randomness
       const circuitResponse = await fetch(runtimeUrl, {
         method: 'POST',
         headers: {
@@ -149,7 +149,7 @@ export class MultiQuantumEntropyService {
       return this.processIBMQuantumResult(result, bytes);
       
     } catch (error) {
-      console.warn('  IBM Quantum unavailable, trying fallback:', error);
+      console.warn('ï¿½ IBM Quantum unavailable, trying fallback:', error);
       return this.getIBMQuantumFallback(bytes);
     }
   }
@@ -165,7 +165,7 @@ export class MultiQuantumEntropyService {
       // Simular 8 qubits con Hadamard gates
       let byte = 0;
       for (let bit = 0; bit < 8; bit++) {
-        // Simular colapso cuántico (50/50)
+        // Simular colapso cuï¿½ntico (50/50)
         if (Math.random() > 0.5) {
           byte |= (1 << bit);
         }
@@ -178,7 +178,7 @@ export class MultiQuantumEntropyService {
   }
 
   /**
-   * Genera circuito cuántico para randomness
+   * Genera circuito cuï¿½ntico para randomness
    */
   private generateQuantumRandomCircuit(bytes: number): any[] {
     const instructions = [];
@@ -248,7 +248,7 @@ export class MultiQuantumEntropyService {
 
   /**
    * 3. Cloudflare drand - Distributed Randomness Beacon
-   * Beacon público con randomness verificable
+   * Beacon pï¿½blico con randomness verificable
    */
   private async getCloudflareEntropy(bytes: number): Promise<Uint8Array> {
     try {
@@ -257,9 +257,7 @@ export class MultiQuantumEntropyService {
       if (!response.ok) throw new Error(`Cloudflare HTTP ${response.status}`);
       
       const data = await response.json();
-      const randomness = new Uint8Array(
-        Buffer.from(data.randomness, 'hex')
-      );
+      const randomness = this.hexToBytes(data.randomness);
       
       // Expandir a bytes necesarios usando SHA-256
       const expanded = await this.expandEntropy(randomness, bytes);
@@ -268,7 +266,7 @@ export class MultiQuantumEntropyService {
       return expanded;
       
     } catch (error) {
-      console.warn('  Cloudflare drand unavailable:', error);
+      console.warn('ï¿½ Cloudflare drand unavailable:', error);
       throw error;
     }
   }
@@ -298,7 +296,7 @@ export class MultiQuantumEntropyService {
       return new Uint8Array(data.random);
       
     } catch (error) {
-      console.warn('  Quantum Computing API unavailable:', error);
+      console.warn('ï¿½ Quantum Computing API unavailable:', error);
       throw error;
     }
   }
@@ -315,8 +313,8 @@ export class MultiQuantumEntropyService {
   }
 
   /**
-   * XOR Combine - Mezcla todas las fuentes de entropía
-   * Garantiza que incluso si una fuente está comprometida, el resultado es seguro
+   * XOR Combine - Mezcla todas las fuentes de entropï¿½a
+   * Garantiza que incluso si una fuente estï¿½ comprometida, el resultado es seguro
    */
   private xorCombineEntropy(sources: Uint8Array[], targetBytes: number): Uint8Array {
     const result = new Uint8Array(targetBytes);
@@ -333,7 +331,7 @@ export class MultiQuantumEntropyService {
   }
 
   /**
-   * Expande entropía usando SHA-256 iterativo
+   * Expande entropï¿½a usando SHA-256 iterativo
    */
   private async expandEntropy(seed: Uint8Array, targetBytes: number): Promise<Uint8Array> {
     const result = new Uint8Array(targetBytes);
@@ -355,25 +353,36 @@ export class MultiQuantumEntropyService {
   }
 
   /**
-   * Mezcla final con SHA-512 para uniformidad estadística
+   * Mezcla final con SHA-512 para uniformidad estadï¿½stica
    */
   private mixWithSHA512(data: Uint8Array): Uint8Array {
-    // Usar SHA-512 sincrónico para mezcla final
+    // Usar SHA-512 sincrï¿½nico para mezcla final
     const mixed = new Uint8Array(data.length);
     
     for (let i = 0; i < data.length; i += 64) {
       const chunk = data.slice(i, Math.min(i + 64, data.length));
-      // Aquí usarías SHA-512, simplificado para el ejemplo
+      // Aquï¿½ usarï¿½as SHA-512, simplificado para el ejemplo
       mixed.set(chunk, i);
     }
     
     return mixed;
   }
+
+  /**
+   * Convierte hex string a bytes (browser-compatible)
+   */
+  private hexToBytes(hex: string): Uint8Array {
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < hex.length; i += 2) {
+      bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+    }
+    return bytes;
+  }
 }
 
 /**
  * BIOMETRIC QUANTUM PROCESSOR
- * Procesa biométricos DIRECTAMENTE a ML-KEM sin huecos
+ * Procesa biomï¿½tricos DIRECTAMENTE a ML-KEM sin huecos
  */
 export class BiometricQuantumProcessor {
   private entropyService: MultiQuantumEntropyService;
@@ -383,7 +392,7 @@ export class BiometricQuantumProcessor {
   }
 
   /**
-   * CONVIERTE BIOMÉTRICO DIRECTAMENTE A ML-KEM
+   * CONVIERTE BIOMï¿½TRICO DIRECTAMENTE A ML-KEM
    * Sin estados intermedios vulnerables
    */
   async biometricToMLKEM(biometricData: ArrayBuffer): Promise<{
@@ -395,10 +404,10 @@ export class BiometricQuantumProcessor {
     const tempKey = crypto.getRandomValues(new Uint8Array(32));
     const encryptedBiometric = await this.encryptTemporary(biometricData, tempKey);
     
-    // 2. Obtener entropía cuántica multi-fuente
+    // 2. Obtener entropï¿½a cuï¿½ntica multi-fuente
     const quantumEntropy = await this.entropyService.getQuantumEntropy(64);
     
-    // 3. Mezclar biométrico encriptado con entropía cuántica
+    // 3. Mezclar biomï¿½trico encriptado con entropï¿½a cuï¿½ntica
     const mlkemSeed = await this.secureDeriveSeed(encryptedBiometric, quantumEntropy, 64);
     
     // 4. Generar keypair ML-KEM-768 directamente
@@ -417,7 +426,7 @@ export class BiometricQuantumProcessor {
   }
 
   /**
-   * CONVIERTE BIOMÉTRICO DIRECTAMENTE A ML-DSA
+   * CONVIERTE BIOMï¿½TRICO DIRECTAMENTE A ML-DSA
    * Para firmas digitales quantum-resistant
    */
   async biometricToMLDSA(biometricData: ArrayBuffer): Promise<{
@@ -425,7 +434,7 @@ export class BiometricQuantumProcessor {
     secretKey: Uint8Array;
     encrypted: boolean;
   }> {
-    // 1. Encriptar biométrico inmediatamente
+    // 1. Encriptar biomï¿½trico inmediatamente
     const tempKey = crypto.getRandomValues(new Uint8Array(32));
     const encryptedBiometric = await this.encryptTemporary(biometricData, tempKey);
     
@@ -449,7 +458,7 @@ export class BiometricQuantumProcessor {
   }
 
   /**
-   * Encriptación temporal para proteger biométrico
+   * Encriptaciï¿½n temporal para proteger biomï¿½trico
    */
   private async encryptTemporary(data: ArrayBuffer, key: Uint8Array): Promise<Uint8Array> {
     const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -465,14 +474,14 @@ export class BiometricQuantumProcessor {
   }
 
   /**
-   * Deriva seed seguro mezclando biométrico y entropía
+   * Deriva seed seguro mezclando biomï¿½trico y entropï¿½a
    */
   private async secureDeriveSeed(
     encryptedBiometric: Uint8Array,
     quantumEntropy: Uint8Array,
     outputLength: number
   ): Promise<Uint8Array> {
-    // PBKDF2 con sal cuántica
+    // PBKDF2 con sal cuï¿½ntica
     const salt = quantumEntropy.slice(0, 16);
     const password = encryptedBiometric;
     
