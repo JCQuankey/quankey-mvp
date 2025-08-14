@@ -270,13 +270,13 @@ export const QuantumBiometricIdentity: React.FC = () => {
     // Generate deterministic keypair from biometric
     const keypair = ml_kem768.keygen(biometricSeed);
     
-    // Encrypt public key for server storage
+    // Encrypt data for server using server's public key
     const serverPublicKey = await getServerQuantumPublicKey();
-    const encryptedPublicKey = ml_kem768.encapsulate(keypair.publicKey, serverPublicKey);
+    const encryptedData = ml_kem768.encapsulate(serverPublicKey);
     
     return {
       privateKey: keypair.secretKey,
-      encryptedPublicKey: uint8ArrayToBase64(encryptedPublicKey.cipherText),
+      encryptedPublicKey: uint8ArrayToBase64(encryptedData.cipherText),
       publicKeyHash: await generateKeyFingerprint(keypair.publicKey)
     };
   };
