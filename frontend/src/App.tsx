@@ -17,7 +17,6 @@ import SmartHybridQuantumCrypto from './services/SmartHybridQuantumCrypto';
  */
 function App() {
   const [quantumReady, setQuantumReady] = useState(false);
-  const [quantumMetrics, setQuantumMetrics] = useState<any>(null);
 
   useEffect(() => {
     const initializeQuantumSystem = async () => {
@@ -29,7 +28,6 @@ function App() {
         
         // Obtener metricas para mostrar en consola
         const metrics = SmartHybridQuantumCrypto.getPerformanceMetrics();
-        setQuantumMetrics(metrics);
         
         console.log('📊 Quantum System Status:', metrics);
         console.log('🔧 Diagnostic Info:', SmartHybridQuantumCrypto.getDiagnosticInfo());

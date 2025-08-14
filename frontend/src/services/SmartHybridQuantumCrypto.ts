@@ -23,7 +23,7 @@ class ManualQuantumImplementation {
     const secretKey = new Uint8Array(2400);
     
     // Generar desde seed deterministicamente
-    let seedExtended = new Uint8Array(seed.length * 100);
+    const seedExtended = new Uint8Array(seed.length * 100);
     for (let i = 0; i < seedExtended.length; i++) {
       seedExtended[i] = seed[i % seed.length] ^ (i & 0xFF);
     }
@@ -64,7 +64,7 @@ class ManualQuantumImplementation {
     const publicKey = new Uint8Array(1952);
     const secretKey = new Uint8Array(4032);
     
-    let seedExtended = new Uint8Array(seed.length * 200);
+    const seedExtended = new Uint8Array(seed.length * 200);
     for (let i = 0; i < seedExtended.length; i++) {
       seedExtended[i] = seed[i % seed.length] ^ ((i * 7) & 0xFF);
     }

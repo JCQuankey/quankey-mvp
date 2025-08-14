@@ -179,7 +179,7 @@ export class MultiQuantumEntropyService {
   /**
    * Genera circuito cu�ntico para randomness
    */
-  private generateQuantumRandomCircuit(bytes: number): any[] {
+  private generateQuantumRandomCircuit(_bytes: number): any[] {
     const instructions = [];
     
     // Aplicar Hadamard gates a todos los qubits

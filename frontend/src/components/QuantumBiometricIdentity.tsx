@@ -22,7 +22,6 @@ import {
   UserIcon
 } from './QuankeyIcons';
 import { BiometricQuantumProcessor } from '../services/MultiQuantumEntropyService';
-import { QuantumDebugHelper } from '../services/bug-fixes';
 import SmartHybridQuantumCrypto from '../services/SmartHybridQuantumCrypto';
 
 interface BiometricIdentity {
@@ -283,21 +282,10 @@ export const QuantumBiometricIdentity: React.FC = () => {
   // Placeholder implementations - to be completed
   const checkExistingBiometricIdentity = async (): Promise<BiometricIdentity | null> => null;
 
-  const storeQuantumPrivateKeySecurely = async (key: Uint8Array) => {};
+  const storeQuantumPrivateKeySecurely = async (_key: Uint8Array) => {};
   const getSecureDeviceId = async () => 'device-' + Math.random().toString(36).substr(2, 9);
   const getCurrentBiometricSignature = async () => 'signature-placeholder';
-  const displayQuantumBridgeQR = (qr: string, token: string) => {};
-  const getServerQuantumPublicKey = async () => {
-    // Generate proper ML-KEM-768 public key (1184 bytes)
-    const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js');
-    
-    // For demo: generate a temporary keypair and return public key
-    const seed = new Uint8Array(64);
-    crypto.getRandomValues(seed);
-    const keyPair = ml_kem768.keygen(seed);
-    
-    return keyPair.publicKey; // Returns proper 1184 bytes
-  };
+  const displayQuantumBridgeQR = (_qr: string, _token: string) => {};
   const generateKeyFingerprint = async (key: Uint8Array) => {
     const hash = await crypto.subtle.digest('SHA-256', key);
     return 'key-' + Array.from(new Uint8Array(hash))
