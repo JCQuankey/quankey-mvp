@@ -261,7 +261,7 @@ export class NoblePostQuantumSafeWrapper {
         console.error(`DSA sign error on attempt ${i + 1}:`, error);
         
         // Si el error menciona el tamaño incorrecto, usar fallback inmediatamente
-        if (error.message?.includes('length=4')) {
+        if (error instanceof Error && error.message?.includes('length=4')) {
           break;
         }
       }
@@ -373,7 +373,7 @@ export class HybridQuantumCrypto {
     }
   }
   
-  static decapsulateMLKEM768(ciphertext: Uint8Array, secretKey: Uint8Array): Uint8Array {
+  static decapsulateMLKEM768(cipherText: Uint8Array, secretKey: Uint8Array): Uint8Array {
     if (this.preferredLibrary === 'noble') {
       return NoblePostQuantumSafeWrapper.kemDecapsulate(cipherText, secretKey);
     } else {

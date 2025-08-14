@@ -148,7 +148,11 @@ export class QuantumDebugHelper {
     
     // Log key generation
     const originalKEMKeygen = ml_kem768.keygen;
-    ml_kem768.keygen = function(seed: Uint8Array) {
+    ml_kem768.keygen = function(seed?: Uint8Array) {
+      // Generar seed si no se proporciona
+      if (!seed) {
+        seed = crypto.getRandomValues(new Uint8Array(64));
+      }
       console.log(`🔑 ML-KEM keygen with seed: ${seed.length} bytes`);
       const result = originalKEMKeygen.call(this, seed);
       console.log(`  → PublicKey: ${result.publicKey.length} bytes`);
@@ -157,7 +161,11 @@ export class QuantumDebugHelper {
     };
     
     const originalDSAKeygen = ml_dsa65.keygen;
-    ml_dsa65.keygen = function(seed: Uint8Array) {
+    ml_dsa65.keygen = function(seed?: Uint8Array) {
+      // Generar seed si no se proporciona  
+      if (!seed) {
+        seed = crypto.getRandomValues(new Uint8Array(32));
+      }
       console.log(`🔑 ML-DSA keygen with seed: ${seed.length} bytes`);
       const result = originalDSAKeygen.call(this, seed);
       console.log(`  → PublicKey: ${result.publicKey.length} bytes`);

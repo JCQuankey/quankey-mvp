@@ -3,6 +3,7 @@
 
 import SmartHybridQuantumCrypto from './SmartHybridQuantumCrypto';
 import { MultiQuantumEntropyService, BiometricQuantumProcessor } from './MultiQuantumEntropyService';
+import { ml_dsa65 } from '@noble/post-quantum/ml-dsa.js';
 
 // Mock de fetch para evitar CORS en tests
 global.fetch = jest.fn();
