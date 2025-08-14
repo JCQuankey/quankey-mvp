@@ -74,7 +74,7 @@ export class MLKEMBugFix {
    * FUNCIÓN CORRECTA para encapsular
    */
   static encapsulateCorrectly(publicKey: Uint8Array): {
-    ciphertext: Uint8Array;
+    cipherText: Uint8Array;
     sharedSecret: Uint8Array;
   } {
     // VALIDACIÓN CRÍTICA
@@ -91,13 +91,13 @@ export class MLKEMBugFix {
     const result = ml_kem768.encapsulate(publicKey);
     
     // VALIDAR RESULTADO
-    if (!result || !result.ciphertext || !result.sharedSecret) {
+    if (!result || !result.cipherText || !result.sharedSecret) {
       console.error('❌ Encapsulate returned invalid result:', result);
       throw new Error('ML-KEM encapsulate failed');
     }
     
     console.log(`✅ Encapsulation successful:
-      - Ciphertext: ${result.ciphertext.length} bytes
+      - Ciphertext: ${result.cipherText.length} bytes
       - SharedSecret: ${result.sharedSecret.length} bytes`);
     
     return result;
@@ -120,7 +120,7 @@ export class MLKEMBugFix {
       
       const result = originalEncapsulate.call(this, publicKey);
       
-      if (!result || !result.ciphertext) {
+      if (!result || !result.cipherText) {
         console.error('❌ Encapsulate returned invalid:', result);
       }
       
@@ -275,7 +275,7 @@ if (!publicKey || publicKey.length !== 1184) {
 }
 
 const result = ML_KEM_768.encapsulate(publicKey);
-if (!result || !result.ciphertext) {
+if (!result || !result.cipherText) {
   throw new Error('ML-KEM encapsulation failed');
 }
     `;

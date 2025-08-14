@@ -45,19 +45,19 @@ class ManualQuantumImplementation {
       throw new Error(`Invalid public key length: ${publicKey.length}`);
     }
     
-    const ciphertext = new Uint8Array(1088);
+    const cipherText = new Uint8Array(1088);
     const sharedSecret = new Uint8Array(32);
     
     // Derivar deterministicamente
-    for (let i = 0; i < ciphertext.length; i++) {
-      ciphertext[i] = publicKey[i % publicKey.length] ^ (i & 0xFF);
+    for (let i = 0; i < cipherText.length; i++) {
+      cipherText[i] = publicKey[i % publicKey.length] ^ (i & 0xFF);
     }
     
     for (let i = 0; i < sharedSecret.length; i++) {
       sharedSecret[i] = publicKey[(i * 37) % publicKey.length] ^ 0x55;
     }
     
-    return { ciphertext, sharedSecret };
+    return { cipherText, sharedSecret };
   }
   
   static generateDsaKeypair(seed: Uint8Array) {
@@ -134,7 +134,7 @@ export class SmartHybridQuantumCrypto {
       const kemKeypair = ML_KEM_768.keygen(kemSeed);
       const encap = ML_KEM_768.encapsulate(kemKeypair.publicKey);
       
-      this.capabilities.nobleMLKEM = !!(encap?.ciphertext?.length === 1088);
+      this.capabilities.nobleMLKEM = !!(encap?.cipherText?.length === 1088);
       console.log(`  ML-KEM-768: ${this.capabilities.nobleMLKEM ? '✅ Noble' : '⚠️ Fallback'}`);
     } catch (error) {
       this.capabilities.nobleMLKEM = false;
@@ -184,7 +184,7 @@ export class SmartHybridQuantumCrypto {
     if (this.capabilities.nobleMLKEM) {
       try {
         const result = ML_KEM_768.encapsulate(publicKey);
-        if (result?.ciphertext?.length === 1088) {
+        if (result?.cipherText?.length === 1088) {
           return result;
         }
       } catch (error) {
@@ -196,12 +196,12 @@ export class SmartHybridQuantumCrypto {
     return ManualQuantumImplementation.encapsulate(publicKey);
   }
   
-  static async decapsulateMLKEM768(ciphertext: Uint8Array, secretKey: Uint8Array): Promise<Uint8Array> {
+  static async decapsulateMLKEM768(cipherText: Uint8Array, secretKey: Uint8Array): Promise<Uint8Array> {
     await this.detectCapabilities();
     
     if (this.capabilities.nobleMLKEM) {
       try {
-        return ML_KEM_768.decapsulate(ciphertext, secretKey);
+        return ML_KEM_768.decapsulate(cipherText, secretKey);
       } catch (error) {
         console.warn('ML-KEM decapsulate failed, using fallback');
         this.capabilities.nobleMLKEM = false;
@@ -211,7 +211,7 @@ export class SmartHybridQuantumCrypto {
     // Manual decapsulation
     const sharedSecret = new Uint8Array(32);
     for (let i = 0; i < 32; i++) {
-      sharedSecret[i] = ciphertext[i % ciphertext.length] ^ secretKey[i % secretKey.length];
+      sharedSecret[i] = cipherText[i % cipherText.length] ^ secretKey[i % secretKey.length];
     }
     return sharedSecret;
   }

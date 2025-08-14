@@ -53,20 +53,20 @@ export class ManualQuantumImplementation {
       throw new Error(`Invalid public key length: ${publicKey.length}`);
     }
     
-    // Generar ciphertext y shared secret deterministicamente
-    const ciphertext = new Uint8Array(1088);
+    // Generar cipherText y shared secret deterministicamente
+    const cipherText = new Uint8Array(1088);
     const sharedSecret = new Uint8Array(32);
     
     // Derivar desde public key para que sea deterministico
-    for (let i = 0; i < ciphertext.length; i++) {
-      ciphertext[i] = publicKey[i % publicKey.length] ^ (i & 0xFF);
+    for (let i = 0; i < cipherText.length; i++) {
+      cipherText[i] = publicKey[i % publicKey.length] ^ (i & 0xFF);
     }
     
     for (let i = 0; i < sharedSecret.length; i++) {
       sharedSecret[i] = publicKey[(i * 37) % publicKey.length] ^ 0x55;
     }
     
-    return { ciphertext, sharedSecret };
+    return { cipherText, sharedSecret };
   }
   
   /**
@@ -164,7 +164,7 @@ export class NoblePostQuantumSafeWrapper {
         const result = ml_kem768.encapsulate(publicKey);
         
         // Validar resultado
-        if (result?.ciphertext?.length === 1088 && 
+        if (result?.cipherText?.length === 1088 && 
             result?.sharedSecret?.length === 32) {
           console.log(`✅ Noble ML-KEM encapsulate succeeded on attempt ${i + 1}`);
           return result;
@@ -181,15 +181,15 @@ export class NoblePostQuantumSafeWrapper {
     return ManualQuantumImplementation.encapsulate(publicKey);
   }
   
-  static kemDecapsulate(ciphertext: Uint8Array, secretKey: Uint8Array): Uint8Array {
+  static kemDecapsulate(cipherText: Uint8Array, secretKey: Uint8Array): Uint8Array {
     try {
-      return ml_kem768.decapsulate(ciphertext, secretKey);
+      return ml_kem768.decapsulate(cipherText, secretKey);
     } catch (error) {
       console.warn('Noble ML-KEM decapsulate failed, using derived shared secret');
       // Derivar shared secret desde ciphertext y secret key
       const sharedSecret = new Uint8Array(32);
       for (let i = 0; i < 32; i++) {
-        sharedSecret[i] = ciphertext[i % ciphertext.length] ^ secretKey[i % secretKey.length];
+        sharedSecret[i] = cipherText[i % cipherText.length] ^ secretKey[i % secretKey.length];
       }
       return sharedSecret;
     }
@@ -375,12 +375,12 @@ export class HybridQuantumCrypto {
   
   static decapsulateMLKEM768(ciphertext: Uint8Array, secretKey: Uint8Array): Uint8Array {
     if (this.preferredLibrary === 'noble') {
-      return NoblePostQuantumSafeWrapper.kemDecapsulate(ciphertext, secretKey);
+      return NoblePostQuantumSafeWrapper.kemDecapsulate(cipherText, secretKey);
     } else {
       // Manual decapsulation
       const sharedSecret = new Uint8Array(32);
       for (let i = 0; i < 32; i++) {
-        sharedSecret[i] = ciphertext[i % ciphertext.length] ^ secretKey[i % secretKey.length];
+        sharedSecret[i] = cipherText[i % cipherText.length] ^ secretKey[i % secretKey.length];
       }
       return sharedSecret;
     }

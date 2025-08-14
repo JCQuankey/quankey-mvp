@@ -76,10 +76,10 @@ describe('Quantum Biometric System - Complete Test Suite', () => {
       const encap = await SmartHybridQuantumCrypto.encapsulateMLKEM768(keypair.publicKey);
       
       console.log('🔍 ML-KEM test - encap result:', encap);
-      console.log('🔍 ML-KEM test - encap.ciphertext:', encap?.ciphertext?.length);
+      console.log('🔍 ML-KEM test - encap.cipherText:', encap?.cipherText?.length);
       console.log('🔍 ML-KEM test - encap.sharedSecret:', encap?.sharedSecret?.length);
       
-      expect(encap.ciphertext.length).toBe(1088);
+      expect(encap.cipherText.length).toBe(1088);
       expect(encap.sharedSecret.length).toBe(32);
     });
     
@@ -118,8 +118,8 @@ describe('Quantum Biometric System - Complete Test Suite', () => {
       
       const encap = await SmartHybridQuantumCrypto.encapsulateMLKEM768(keypair.publicKey);
       expect(encap).toBeDefined();
-      expect(encap.ciphertext).toBeDefined();
-      expect(encap.ciphertext.length).toBe(1088);
+      expect(encap.cipherText).toBeDefined();
+      expect(encap.cipherText.length).toBe(1088);
       
       console.log('✅ ML-KEM working via smart hybrid approach');
     });
