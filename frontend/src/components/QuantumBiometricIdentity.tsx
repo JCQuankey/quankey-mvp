@@ -319,8 +319,23 @@ export const QuantumBiometricIdentity: React.FC = () => {
   const getSecureDeviceId = async () => 'device-' + Math.random().toString(36).substr(2, 9);
   const getCurrentBiometricSignature = async () => 'signature-placeholder';
   const displayQuantumBridgeQR = (qr: string, token: string) => {};
-  const getServerQuantumPublicKey = async () => new Uint8Array(32);
-  const generateKeyFingerprint = async (key: Uint8Array) => 'key-' + Math.random().toString(36);
+  const getServerQuantumPublicKey = async () => {
+    // Generate proper ML-KEM-768 public key (1184 bytes)
+    const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js');
+    
+    // For demo: generate a temporary keypair and return public key
+    const seed = new Uint8Array(64);
+    crypto.getRandomValues(seed);
+    const keyPair = ml_kem768.keygen(seed);
+    
+    return keyPair.publicKey; // Returns proper 1184 bytes
+  };
+  const generateKeyFingerprint = async (key: Uint8Array) => {
+    const hash = await crypto.subtle.digest('SHA-256', key);
+    return 'key-' + Array.from(new Uint8Array(hash))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('').slice(0, 16);
+  };
   const getDeviceSigningKey = async () => {
     // Generate real ML-DSA-65 key pair with quantum entropy
     const { ml_dsa65 } = await import('@noble/post-quantum/ml-dsa.js');
