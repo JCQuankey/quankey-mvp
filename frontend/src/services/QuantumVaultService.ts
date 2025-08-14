@@ -1,3 +1,5 @@
+import SmartHybridQuantumCrypto from './SmartHybridQuantumCrypto';
+
 /**
  * 🔐 QUANTUM VAULT SERVICE - ARQUITECTURA REALISTA PQC
  * 
@@ -288,9 +290,9 @@ export class QuantumVaultService {
    */
   private static async generateMLKEM768KeyPair(): Promise<DeviceKeyPair> {
     // 🔐 REAL ML-KEM-768 keypair generation - NO SIMULATIONS
-    const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js');
-    
-    const keypair = ml_kem768.keygen();
+    // ✅ Use SmartHybridQuantumCrypto for consistent fallback handling
+    const seed = crypto.getRandomValues(new Uint8Array(64));
+    const keypair = await SmartHybridQuantumCrypto.generateMLKEM768Keypair(seed);
     
     return { 
       publicKey: keypair.publicKey, 
@@ -307,12 +309,11 @@ export class QuantumVaultService {
     deviceSecretKey: Uint8Array
   ): Promise<Uint8Array> {
     // 🔐 REAL ML-KEM-768 decapsulation - NO SIMULATIONS
-    const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js');
-    
+    // ✅ Use SmartHybridQuantumCrypto for consistent fallback handling
     const wrappedBytes = this.base64ToUint8Array(wrappedMK);
     
     // Real ML-KEM-768 decapsulation
-    const masterKey = ml_kem768.decapsulate(wrappedBytes, deviceSecretKey);
+    const masterKey = await SmartHybridQuantumCrypto.decapsulateMLKEM768(wrappedBytes, deviceSecretKey);
     
     return masterKey;
   }

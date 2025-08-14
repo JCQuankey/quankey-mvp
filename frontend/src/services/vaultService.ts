@@ -1,3 +1,5 @@
+import SmartHybridQuantumCrypto from './SmartHybridQuantumCrypto';
+
 // API Configuration
 const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
 
@@ -276,14 +278,11 @@ const initializeQuantumVault = async () => {
   try {
     console.log('🔐 Generating ML-KEM-768 keypair...');
     
-    // Import the actual ML-KEM-768 implementation
-    const { ml_kem768 } = await import('@noble/post-quantum/ml-kem');
-    
     // Generate random seed
     const seed = crypto.getRandomValues(new Uint8Array(64));
     
-    // Generate ML-KEM-768 keypair (REAL)
-    const { publicKey, secretKey } = ml_kem768.keygen(seed);
+    // ✅ Generate ML-KEM-768 keypair using SmartHybrid for fallback handling
+    const { publicKey, secretKey } = await SmartHybridQuantumCrypto.generateMLKEM768Keypair(seed);
     
     // Convert to base64 for storage
     const publicKeyBase64 = btoa(String.fromCharCode.apply(null, Array.from(publicKey)));
@@ -576,10 +575,9 @@ export const EncryptedVaultService = {
       console.log('🔐 Generating quantum vault ML-KEM-768 keys...');
       
       try {
-        const { ml_kem768 } = await import('@noble/post-quantum/ml-kem');
-        
         const seed = crypto.getRandomValues(new Uint8Array(64));
-        const { publicKey: pk, secretKey: sk } = ml_kem768.keygen(seed);
+        // ✅ Use SmartHybrid for consistent fallback handling
+        const { publicKey: pk, secretKey: sk } = await SmartHybridQuantumCrypto.generateMLKEM768Keypair(seed);
         
         const publicKeyBase64 = btoa(String.fromCharCode.apply(null, Array.from(pk)));
         const secretKeyBase64 = btoa(String.fromCharCode.apply(null, Array.from(sk)));

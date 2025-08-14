@@ -270,8 +270,8 @@ export const QuantumBiometricIdentity: React.FC = () => {
     const mldsaKeys = await processor.biometricToMLDSA(credential.rawId);
     
     const biometricHash = await crypto.subtle.digest('SHA-256', credential.rawId);
-    const { ml_dsa65 } = await import('@noble/post-quantum/ml-dsa.js');
-    const signature = ml_dsa65.sign(new Uint8Array(biometricHash), mldsaKeys.secretKey);
+    // ✅ Use SmartHybridQuantumCrypto instead of calling Noble directly
+    const signature = await SmartHybridQuantumCrypto.signMLDSA65(new Uint8Array(biometricHash), mldsaKeys.secretKey);
     
     return {
       proof: uint8ArrayToBase64(signature),
