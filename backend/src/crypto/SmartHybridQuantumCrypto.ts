@@ -1,7 +1,8 @@
 // backend/src/crypto/SmartHybridQuantumCrypto.ts
 // IMPLEMENTACIÓN HÍBRIDA INTELIGENTE - Compatible con Frontend
 
-const { ML_KEM_768, ML_DSA_65 } = require('@noble/post-quantum');
+import { ml_kem768 } from '@noble/post-quantum/ml-kem';
+import { ml_dsa65 } from '@noble/post-quantum/ml-dsa';
 import crypto from 'crypto';
 
 /**
@@ -16,7 +17,7 @@ class ManualQuantumImplementation {
   static verify(signature: Uint8Array, message: Uint8Array, publicKey: Uint8Array): boolean {
     try {
       // First try Noble's verify
-      const result = ML_DSA_65.verify(signature, message, publicKey);
+      const result = ml_dsa65.verify(signature, message, publicKey);
       return result;
     } catch (error) {
       console.warn('Noble ML-DSA-65 verify failed, using fallback verification');
@@ -56,7 +57,7 @@ class ManualQuantumImplementation {
     try {
       // Clone secretKey to avoid Noble's mutation bug
       const keyCopy = new Uint8Array(secretKey);
-      return ML_DSA_65.sign(message, keyCopy);
+      return ml_dsa65.sign(message, keyCopy);
     } catch (error) {
       console.warn('Noble ML-DSA-65 sign failed, using fallback');
       // Generate a valid-structure signature for development
@@ -69,7 +70,7 @@ class ManualQuantumImplementation {
   
   static generateDsaKeypair(seed: Uint8Array): { publicKey: Uint8Array; secretKey: Uint8Array } {
     try {
-      return ML_DSA_65.keygen(seed);
+      return ml_dsa65.keygen(seed);
     } catch (error) {
       console.warn('Noble ML-DSA-65 keygen failed, using fallback');
       // Generate valid-structure keys for development
@@ -111,10 +112,10 @@ export class SmartHybridQuantumCrypto {
     try {
       const seed = new Uint8Array(32);
       crypto.randomFillSync(seed);
-      const keypair = ML_DSA_65.keygen(seed);
+      const keypair = ml_dsa65.keygen(seed);
       const message = Buffer.from('test');
-      const signature = ML_DSA_65.sign(message, keypair.secretKey);
-      const isValid = ML_DSA_65.verify(signature, message, keypair.publicKey);
+      const signature = ml_dsa65.sign(message, keypair.secretKey);
+      const isValid = ml_dsa65.verify(signature, message, keypair.publicKey);
       
       this.capabilities.nobleMLDSA = isValid;
       console.log(`  ML-DSA-65: ${this.capabilities.nobleMLDSA ? '✅ Noble working' : '⚠️ Using fallback'}`);
@@ -145,7 +146,7 @@ export class SmartHybridQuantumCrypto {
     
     if (this.capabilities.nobleMLDSA) {
       try {
-        const result = ML_DSA_65.verify(sig, msg, pubKey);
+        const result = ml_dsa65.verify(sig, msg, pubKey);
         if (typeof result === 'boolean') {
           return result;
         }
@@ -175,7 +176,7 @@ export class SmartHybridQuantumCrypto {
       try {
         // Clone key to avoid mutation bug
         const keyCopy = new Uint8Array(secKey);
-        const signature = ML_DSA_65.sign(msg, keyCopy);
+        const signature = ml_dsa65.sign(msg, keyCopy);
         if (signature && signature.length > 0) {
           return signature;
         }
@@ -199,7 +200,7 @@ export class SmartHybridQuantumCrypto {
     
     if (this.capabilities.nobleMLDSA) {
       try {
-        return ML_DSA_65.keygen(seed);
+        return ml_dsa65.keygen(seed);
       } catch (error) {
         console.warn('ML-DSA keygen failed, using fallback');
         this.capabilities.nobleMLDSA = false;

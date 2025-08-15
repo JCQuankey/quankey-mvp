@@ -32,7 +32,8 @@ inputValidation_middleware_1.inputValidation.validateQuantumBiometricRegistratio
     try {
         const { username, quantumPublicKey, // ML-KEM-768 public key (encrypted)
         biometricProof, // Zero-knowledge proof
-        deviceFingerprint, biometricTypes } = req.body;
+        deviceFingerprint, biometricTypes, devicePublicKey // ML-DSA-65 public key for signature verification
+         } = req.body;
         console.log(`🧬 API: Quantum biometric registration request for: ${username}`);
         // Validate no biometric data is present in request
         if (req.body.biometricData || req.body.fingerprint || req.body.faceData) {
@@ -59,7 +60,8 @@ inputValidation_middleware_1.inputValidation.validateQuantumBiometricRegistratio
             quantumPublicKey,
             biometricProof,
             deviceFingerprint,
-            biometricTypes
+            biometricTypes,
+            devicePublicKey
         });
         if (!result.success) {
             auditLogger.logSecurityEvent({

@@ -1,7 +1,8 @@
 // backend/src/services/QuantumBiometricService.ts
 // VERSIÓN CORREGIDA - Usa la misma implementación híbrida que el frontend
 
-const { ML_DSA_65, ML_KEM_768 } = require('@noble/post-quantum');
+import { ml_kem768 } from '@noble/post-quantum/ml-kem';
+import { ml_dsa65 } from '@noble/post-quantum/ml-dsa';
 import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
 import { SmartHybridQuantumCrypto } from '../crypto/SmartHybridQuantumCrypto';
