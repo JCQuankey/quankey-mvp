@@ -104,13 +104,14 @@ export class QuantumBiometricService {
     biometricProof: BiometricProof;  // Zero-knowledge proof of biometric
     deviceFingerprint: string;
     biometricTypes: string[];
+    devicePublicKey: string;         // ML-DSA-65 public key for signature verification
   }): Promise<{ success: boolean; userId: string; device: BiometricDevice; error?: string }> {
     
     try {
       console.log(`🧬 Registering quantum biometric identity: ${data.username}`);
 
       // 1. Validate zero-knowledge biometric proof (without seeing biometric)
-      const proofValid = await this.validateBiometricProof(data.biometricProof, data.deviceFingerprint);
+      const proofValid = await this.validateBiometricProof(data.biometricProof, data.deviceFingerprint, data.devicePublicKey);
       if (!proofValid) {
         throw new Error('Invalid biometric proof - identity verification failed');
       }
@@ -366,18 +367,27 @@ export class QuantumBiometricService {
   // PRIVATE HELPER METHODS
   // ========================================
 
-  private async validateBiometricProof(proof: BiometricProof, deviceFingerprint: string): Promise<boolean> {
+  private async validateBiometricProof(proof: BiometricProof, deviceFingerprint: string, devicePublicKey?: string): Promise<boolean> {
     try {
       // Validate ML-DSA-65 signature without accessing original biometric
       const challengeBytes = this.base64ToUint8Array(proof.challenge);
       const signatureBytes = this.base64ToUint8Array(proof.proof);
       
       // Get device public key for verification
-      const devicePublicKey = await this.getDevicePublicKey(deviceFingerprint);
-      if (!devicePublicKey) return false;
+      let publicKeyBytes: Uint8Array;
+      
+      if (devicePublicKey) {
+        // Use provided public key (for registration)
+        publicKeyBytes = this.base64ToUint8Array(devicePublicKey);
+      } else {
+        // Look up public key in database (for authentication)
+        const storedPublicKey = await this.getDevicePublicKey(deviceFingerprint);
+        if (!storedPublicKey) return false;
+        publicKeyBytes = storedPublicKey;
+      }
 
       // Verify signature (proves biometric ownership without exposing biometric)
-      return ml_dsa65.verify(signatureBytes, challengeBytes, devicePublicKey);
+      return ml_dsa65.verify(signatureBytes, challengeBytes, publicKeyBytes);
       
     } catch (error) {
       console.error('❌ Biometric proof validation failed:', error);

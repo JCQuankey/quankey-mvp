@@ -38,7 +38,8 @@ router.post('/quantum-biometric/register',
         quantumPublicKey,      // ML-KEM-768 public key (encrypted)
         biometricProof,        // Zero-knowledge proof
         deviceFingerprint,
-        biometricTypes 
+        biometricTypes,
+        devicePublicKey        // ML-DSA-65 public key for signature verification
       } = req.body;
 
       console.log(`🧬 API: Quantum biometric registration request for: ${username}`);
@@ -72,7 +73,8 @@ router.post('/quantum-biometric/register',
         quantumPublicKey,
         biometricProof,
         deviceFingerprint,
-        biometricTypes
+        biometricTypes,
+        devicePublicKey
       });
 
       if (!result.success) {
