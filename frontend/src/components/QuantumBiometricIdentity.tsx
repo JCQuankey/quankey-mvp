@@ -28,7 +28,7 @@ interface BiometricIdentity {
   userId: string;
   username: string;
   biometricTypes: ('fingerprint' | 'faceId' | 'voiceprint')[];
-  quantumKeyFingerprint: string;
+  deviceFingerprint: string;
   devices: BiometricDevice[];
   registeredAt: Date;
 }
@@ -143,7 +143,8 @@ export const QuantumBiometricIdentity: React.FC = () => {
           username,
           quantumPublicKey: uint8ArrayToBase64(quantumKeys.publicKey),
           biometricProof: await generateZeroKnowledgeBiometricProof(credential),
-          biometricTypes: ["fingerprint", "face"]
+          biometricTypes: ["fingerprint", "faceId"],
+          deviceFingerprint: "device-" + Math.random().toString(36).substr(2, 9)
         })
       });
 
@@ -160,7 +161,7 @@ export const QuantumBiometricIdentity: React.FC = () => {
         userId: result.userId,
         username,
         biometricTypes: ['fingerprint'], // Detected from credential
-        quantumKeyFingerprint: await generateKeyFingerprint(quantumKeys.publicKey),
+        deviceFingerprint: await generateKeyFingerprint(quantumKeys.publicKey),
         devices: [result.device],
         registeredAt: new Date()
       });
@@ -202,7 +203,8 @@ export const QuantumBiometricIdentity: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           biometricProof: quantumProof,
-          biometricTypes: ["fingerprint", "face"]
+          biometricTypes: ["fingerprint", "faceId"],
+          deviceFingerprint: "device-" + Math.random().toString(36).substr(2, 9)
         })
       });
 
@@ -464,8 +466,8 @@ const QuantumBiometricDashboard: React.FC<{
               <span className="stat-value">{identity.biometricTypes.join(', ')}</span>
             </div>
             <div className="stat-item">
-              <span className="stat-label">Quantum Key:</span>
-              <span className="stat-value">{identity.quantumKeyFingerprint}</span>
+              <span className="stat-label">Device Key:</span>
+              <span className="stat-value">{identity.deviceFingerprint}</span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Devices:</span>
