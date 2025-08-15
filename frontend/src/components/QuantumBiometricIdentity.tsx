@@ -143,7 +143,7 @@ export const QuantumBiometricIdentity: React.FC = () => {
           username,
           quantumPublicKey: uint8ArrayToBase64(quantumKeys.publicKey),
           biometricProof: await generateZeroKnowledgeBiometricProof(credential),
-          deviceFingerprint: await getSecureDeviceId()
+          biometricTypes: ["fingerprint", "face"]
         })
       });
 
@@ -202,7 +202,7 @@ export const QuantumBiometricIdentity: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           biometricProof: quantumProof,
-          deviceFingerprint: await getSecureDeviceId()
+          biometricTypes: ["fingerprint", "face"]
         })
       });
 
@@ -283,7 +283,6 @@ export const QuantumBiometricIdentity: React.FC = () => {
   const checkExistingBiometricIdentity = async (): Promise<BiometricIdentity | null> => null;
 
   const storeQuantumPrivateKeySecurely = async (_key: Uint8Array) => {};
-  const getSecureDeviceId = async () => 'device-' + Math.random().toString(36).substr(2, 9);
   const getCurrentBiometricSignature = async () => 'signature-placeholder';
   const displayQuantumBridgeQR = (_qr: string, _token: string) => {};
   const generateKeyFingerprint = async (key: Uint8Array) => {
