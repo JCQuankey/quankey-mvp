@@ -29,6 +29,7 @@ interface BiometricIdentity {
   username: string;
   biometricTypes: ('fingerprint' | 'faceId' | 'voiceprint')[];
   deviceFingerprint: string;
+  quantumKeyFingerprint: string;
   devices: BiometricDevice[];
   registeredAt: Date;
 }
@@ -161,7 +162,8 @@ export const QuantumBiometricIdentity: React.FC = () => {
         userId: result.userId,
         username,
         biometricTypes: ['fingerprint'], // Detected from credential
-        deviceFingerprint: await generateKeyFingerprint(quantumKeys.publicKey),
+        deviceFingerprint: "device-" + Math.random().toString(36).substr(2, 9),
+        quantumKeyFingerprint: await generateKeyFingerprint(quantumKeys.publicKey),
         devices: [result.device],
         registeredAt: new Date()
       });
@@ -466,7 +468,11 @@ const QuantumBiometricDashboard: React.FC<{
               <span className="stat-value">{identity.biometricTypes.join(', ')}</span>
             </div>
             <div className="stat-item">
-              <span className="stat-label">Device Key:</span>
+              <span className="stat-label">Quantum Key:</span>
+              <span className="stat-value">{identity.quantumKeyFingerprint}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Device ID:</span>
               <span className="stat-value">{identity.deviceFingerprint}</span>
             </div>
             <div className="stat-item">
