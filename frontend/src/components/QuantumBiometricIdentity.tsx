@@ -137,15 +137,17 @@ export const QuantumBiometricIdentity: React.FC = () => {
       const quantumKeys = await processor.biometricToMLKEM(credential.rawId);
       
       // 3. Register identity on server (only quantum public key, encrypted)
+      const biometricProofData = await generateZeroKnowledgeBiometricProof(credential);
       const response = await fetch('/api/identity/quantum-biometric/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username,
           quantumPublicKey: uint8ArrayToBase64(quantumKeys.publicKey),
-          biometricProof: await generateZeroKnowledgeBiometricProof(credential),
+          biometricProof: biometricProofData,
           biometricTypes: ["fingerprint", "faceId"],
-          deviceFingerprint: "device-" + Math.random().toString(36).substr(2, 9)
+          deviceFingerprint: "device-" + Math.random().toString(36).substr(2, 9),
+          devicePublicKey: biometricProofData.devicePublicKey
         })
       });
 
@@ -279,7 +281,8 @@ export const QuantumBiometricIdentity: React.FC = () => {
     return {
       proof: uint8ArrayToBase64(signature),
       challenge: uint8ArrayToBase64(new Uint8Array(biometricHash)),
-      algorithm: 'ML-DSA-65'
+      algorithm: 'ML-DSA-65',
+      devicePublicKey: uint8ArrayToBase64(mldsaKeys.publicKey)
     };
   };
 
