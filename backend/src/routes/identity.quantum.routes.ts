@@ -15,6 +15,10 @@ import { quantumBiometricService } from '../services/QuantumBiometricService';
 import { inputValidation } from '../middleware/inputValidation.middleware';
 import { authLimiter } from '../middleware/rateLimiter';
 import { AuditLogger } from '../services/auditLogger.service';
+import { 
+  quantumSecurityStack, 
+  securityUtils 
+} from '../middleware/quantumSecurity.middleware';
 
 const router = Router();
 const auditLogger = new AuditLogger();
@@ -29,7 +33,7 @@ const auditLogger = new AuditLogger();
  * - Device fingerprint for identification
  */
 router.post('/quantum-biometric/register', 
-  authLimiter, // Use existing auth limiter
+  ...quantumSecurityStack, // Apply full quantum security middleware
   inputValidation.validateQuantumBiometricRegistration(),
   async (req: Request, res: Response) => {
     try {
@@ -78,6 +82,9 @@ router.post('/quantum-biometric/register',
       });
 
       if (!result.success) {
+        // Record failed attempt for brute force protection
+        securityUtils.recordFailedAttempt(req.ip || 'unknown');
+        
         auditLogger.logSecurityEvent({
           type: 'QUANTUM_BIOMETRIC_REGISTRATION_FAILED',
           userId: 'unknown',
@@ -96,6 +103,9 @@ router.post('/quantum-biometric/register',
           error: result.error || 'Quantum biometric registration failed'
         });
       }
+      
+      // Clear failed attempts on success
+      securityUtils.clearFailedAttempts(req.ip || 'unknown');
 
       // Success - audit log
       auditLogger.logSecurityEvent({
@@ -164,7 +174,7 @@ router.post('/quantum-biometric/register',
  * Zero-knowledge biometric authentication - server validates without seeing biometric
  */
 router.post('/quantum-biometric/authenticate',
-  authLimiter, // Use existing auth limiter
+  ...quantumSecurityStack, // Apply full quantum security middleware
   inputValidation.validateQuantumBiometricAuth(),
   async (req: Request, res: Response) => {
     try {

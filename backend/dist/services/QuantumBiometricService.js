@@ -1,14 +1,10 @@
 "use strict";
 // backend/src/services/QuantumBiometricService.ts
 // VERSIÓN CORREGIDA - Usa la misma implementación híbrida que el frontend
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.quantumBiometricService = exports.QuantumBiometricService = void 0;
-const crypto_1 = __importDefault(require("crypto"));
 const client_1 = require("@prisma/client");
-const SmartHybridQuantumCrypto_1 = require("../crypto/SmartHybridQuantumCrypto");
+const QuantumSecureCrypto_1 = require("../crypto/QuantumSecureCrypto");
 const prisma = new client_1.PrismaClient();
 class QuantumBiometricService {
     /**
@@ -38,18 +34,23 @@ class QuantumBiometricService {
                     message: 'Authentication requires devicePublicKey to be provided'
                 };
             }
-            // Verify ML-DSA-65 signature using Smart Hybrid implementation
+            // Verify ML-DSA-65 signature using SECURE implementation
             if (biometricProof.algorithm === 'ML-DSA-65') {
-                console.log('🔑 Verifying ML-DSA-65 signature with Smart Hybrid');
+                console.log('🔑 Verifying ML-DSA-65 signature with Quantum Secure Crypto');
+                // Initialize secure crypto
+                await QuantumSecureCrypto_1.QuantumSecureCrypto.initialize();
                 // Decode from base64
                 const signatureBytes = Buffer.from(biometricProof.proof, 'base64');
                 const challengeBytes = Buffer.from(biometricProof.challenge, 'base64');
                 const publicKeyBytes = Buffer.from(devicePublicKey, 'base64');
-                console.log('📊 Signature length:', signatureBytes.length);
-                console.log('📊 Challenge length:', challengeBytes.length);
-                console.log('📊 PublicKey length:', publicKeyBytes.length);
-                // CRITICAL: Use Smart Hybrid verify that matches frontend
-                const isValid = await SmartHybridQuantumCrypto_1.SmartHybridQuantumCrypto.verifyMLDSA65(signatureBytes, challengeBytes, publicKeyBytes);
+                console.log('🔍 Biometric Proof Validation:');
+                console.log('  Algorithm:', biometricProof.algorithm);
+                console.log('  Signature length:', signatureBytes.length);
+                console.log('  Challenge length:', challengeBytes.length);
+                console.log('  PublicKey length:', publicKeyBytes.length);
+                // For now, use simple verify (without anti-replay) for compatibility
+                // TODO: Update frontend to send timestamp and nonce
+                const isValid = await QuantumSecureCrypto_1.QuantumSecureCrypto.verifySimple(signatureBytes, challengeBytes, publicKeyBytes);
                 if (isValid) {
                     console.log('✅ Biometric proof validated successfully');
                     // For registration, we'll store the public key when schema is updated
@@ -152,13 +153,13 @@ class QuantumBiometricService {
      * Generate quantum-secure keypair for device
      */
     async generateDeviceKeypair(deviceId) {
-        // Use Smart Hybrid for key generation
-        const seed = new Uint8Array(32);
-        crypto_1.default.getRandomValues(seed);
-        const keypair = await SmartHybridQuantumCrypto_1.SmartHybridQuantumCrypto.generateMLDSA65Keypair(seed);
+        // Use Quantum Secure Crypto for REAL quantum-safe key generation
+        await QuantumSecureCrypto_1.QuantumSecureCrypto.initialize();
+        const keypair = await QuantumSecureCrypto_1.QuantumSecureCrypto.generateMLDSA65Keypair();
         return {
             publicKey: Buffer.from(keypair.publicKey).toString('base64'),
-            privateKey: Buffer.from(keypair.secretKey).toString('base64')
+            privateKey: Buffer.from(keypair.secretKey).toString('base64'),
+            implementation: keypair.implementation
         };
     }
 }

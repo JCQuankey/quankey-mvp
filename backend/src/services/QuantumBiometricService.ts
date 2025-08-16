@@ -1,11 +1,9 @@
 // backend/src/services/QuantumBiometricService.ts
 // VERSIÓN CORREGIDA - Usa la misma implementación híbrida que el frontend
 
-import { ml_kem768 } from '@noble/post-quantum/ml-kem';
-import { ml_dsa65 } from '@noble/post-quantum/ml-dsa';
 import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
-import { SmartHybridQuantumCrypto } from '../crypto/SmartHybridQuantumCrypto';
+import { QuantumSecureCrypto } from '../crypto/QuantumSecureCrypto';
 
 const prisma = new PrismaClient();
 
@@ -47,21 +45,27 @@ export class QuantumBiometricService {
         };
       }
       
-      // Verify ML-DSA-65 signature using Smart Hybrid implementation
+      // Verify ML-DSA-65 signature using SECURE implementation
       if (biometricProof.algorithm === 'ML-DSA-65') {
-        console.log('🔑 Verifying ML-DSA-65 signature with Smart Hybrid');
+        console.log('🔑 Verifying ML-DSA-65 signature with Quantum Secure Crypto');
+        
+        // Initialize secure crypto
+        await QuantumSecureCrypto.initialize();
         
         // Decode from base64
         const signatureBytes = Buffer.from(biometricProof.proof, 'base64');
         const challengeBytes = Buffer.from(biometricProof.challenge, 'base64');
         const publicKeyBytes = Buffer.from(devicePublicKey, 'base64');
         
-        console.log('📊 Signature length:', signatureBytes.length);
-        console.log('📊 Challenge length:', challengeBytes.length);
-        console.log('📊 PublicKey length:', publicKeyBytes.length);
+        console.log('🔍 Biometric Proof Validation:');
+        console.log('  Algorithm:', biometricProof.algorithm);
+        console.log('  Signature length:', signatureBytes.length);
+        console.log('  Challenge length:', challengeBytes.length);
+        console.log('  PublicKey length:', publicKeyBytes.length);
         
-        // CRITICAL: Use Smart Hybrid verify that matches frontend
-        const isValid = await SmartHybridQuantumCrypto.verifyMLDSA65(
+        // For now, use simple verify (without anti-replay) for compatibility
+        // TODO: Update frontend to send timestamp and nonce
+        const isValid = await QuantumSecureCrypto.verifySimple(
           signatureBytes,
           challengeBytes,
           publicKeyBytes
@@ -189,16 +193,16 @@ export class QuantumBiometricService {
   async generateDeviceKeypair(deviceId: string): Promise<{
     publicKey: string;
     privateKey: string;
+    implementation: string;
   }> {
-    // Use Smart Hybrid for key generation
-    const seed = new Uint8Array(32);
-    crypto.getRandomValues(seed);
-    
-    const keypair = await SmartHybridQuantumCrypto.generateMLDSA65Keypair(seed);
+    // Use Quantum Secure Crypto for REAL quantum-safe key generation
+    await QuantumSecureCrypto.initialize();
+    const keypair = await QuantumSecureCrypto.generateMLDSA65Keypair();
     
     return {
       publicKey: Buffer.from(keypair.publicKey).toString('base64'),
-      privateKey: Buffer.from(keypair.secretKey).toString('base64')
+      privateKey: Buffer.from(keypair.secretKey).toString('base64'),
+      implementation: keypair.implementation
     };
   }
 }

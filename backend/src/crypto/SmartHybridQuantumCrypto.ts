@@ -26,30 +26,23 @@ class ManualQuantumImplementation {
       // In production, this would use a full Dilithium implementation
       // For now, we validate the signature structure
       
-      // ML-DSA-65 signature should be 3293 bytes
+      // ML-DSA-65 signature MUST be 3293 bytes
       if (signature.length !== 3293) {
-        console.log(`Invalid signature length: ${signature.length}, expected 3293`);
-        return false;
+        console.error(`❌ SECURITY: Invalid signature length: ${signature.length}, expected 3293`);
+        return false; // FAIL SECURE - never accept invalid signatures
       }
       
-      // ML-DSA-65 public key should be 1952 bytes
+      // ML-DSA-65 public key MUST be 1952 bytes  
       if (publicKey.length !== 1952) {
-        console.log(`Invalid public key length: ${publicKey.length}, expected 1952`);
-        return false;
+        console.error(`❌ SECURITY: Invalid public key length: ${publicKey.length}, expected 1952`);
+        return false; // FAIL SECURE - never accept invalid keys
       }
       
-      // Compute a deterministic check based on the data
-      // This is a simplified validation - real implementation would use full Dilithium
-      const hash = crypto.createHash('sha256');
-      hash.update(signature);
-      hash.update(message);
-      hash.update(publicKey);
-      const checksum = hash.digest();
-      
-      // For development, we accept signatures that have valid structure
-      // In production, this would be replaced with actual Dilithium verification
-      console.log('⚠️ Using structural validation fallback for ML-DSA-65');
-      return true; // Temporarily accept for development
+      // CRITICAL: We need a real Dilithium implementation as fallback
+      // This is a security issue that MUST be fixed with real crypto
+      console.error('❌ CRITICAL: Noble ML-DSA-65 failed and no secure fallback available');
+      console.error('❌ SECURITY: Denying authentication - install Dilithium implementation');
+      return false; // FAIL SECURE - deny when crypto fails
     }
   }
   
@@ -143,6 +136,8 @@ export class SmartHybridQuantumCrypto {
     const pubKey = publicKey instanceof Uint8Array ? publicKey : new Uint8Array(publicKey);
     
     await this.detectCapabilities();
+    
+    console.log('🔐 Verify attempt with fallback:', this.capabilities.nobleMLDSA ? 'Noble' : 'Manual');
     
     if (this.capabilities.nobleMLDSA) {
       try {

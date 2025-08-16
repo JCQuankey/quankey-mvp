@@ -92,7 +92,8 @@
       "Bash(DB_ENCRYPTION_KEY=\"87d730491dd45bca1f557b8dede3e0dec86c8f85b5b47aeddf42f798eb6e356a87d730491dd45bca1f557b8dede3e0dec86c8f85b5b47aeddf42f798eb6e356a\" npm test src/tests/security.comprehensive.test.ts -- --no-coverage)",
       "Bash(git stash:*)",
       "Bash(REACT_APP_API_URL=http://localhost:5000 npm run build)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(npm info:*)"
     ],
     "deny": []
   }

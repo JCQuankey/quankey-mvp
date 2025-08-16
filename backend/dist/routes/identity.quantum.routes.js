@@ -16,6 +16,7 @@ const QuantumBiometricService_1 = require("../services/QuantumBiometricService")
 const inputValidation_middleware_1 = require("../middleware/inputValidation.middleware");
 const rateLimiter_1 = require("../middleware/rateLimiter");
 const auditLogger_service_1 = require("../services/auditLogger.service");
+const quantumSecurity_middleware_1 = require("../middleware/quantumSecurity.middleware");
 const router = (0, express_1.Router)();
 const auditLogger = new auditLogger_service_1.AuditLogger();
 /**
@@ -27,7 +28,7 @@ const auditLogger = new auditLogger_service_1.AuditLogger();
  * - Zero-knowledge proof of biometric (no actual biometric data)
  * - Device fingerprint for identification
  */
-router.post('/quantum-biometric/register', rateLimiter_1.authLimiter, // Use existing auth limiter
+router.post('/quantum-biometric/register', ...quantumSecurity_middleware_1.quantumSecurityStack, // Apply full quantum security middleware
 inputValidation_middleware_1.inputValidation.validateQuantumBiometricRegistration(), async (req, res) => {
     try {
         const { username, quantumPublicKey, // ML-KEM-768 public key (encrypted)
@@ -64,6 +65,8 @@ inputValidation_middleware_1.inputValidation.validateQuantumBiometricRegistratio
             devicePublicKey
         });
         if (!result.success) {
+            // Record failed attempt for brute force protection
+            quantumSecurity_middleware_1.securityUtils.recordFailedAttempt(req.ip || 'unknown');
             auditLogger.logSecurityEvent({
                 type: 'QUANTUM_BIOMETRIC_REGISTRATION_FAILED',
                 userId: 'unknown',
@@ -81,6 +84,8 @@ inputValidation_middleware_1.inputValidation.validateQuantumBiometricRegistratio
                 error: result.error || 'Quantum biometric registration failed'
             });
         }
+        // Clear failed attempts on success
+        quantumSecurity_middleware_1.securityUtils.clearFailedAttempts(req.ip || 'unknown');
         // Success - audit log
         auditLogger.logSecurityEvent({
             type: 'QUANTUM_BIOMETRIC_IDENTITY_CREATED',
@@ -141,7 +146,7 @@ inputValidation_middleware_1.inputValidation.validateQuantumBiometricRegistratio
  *
  * Zero-knowledge biometric authentication - server validates without seeing biometric
  */
-router.post('/quantum-biometric/authenticate', rateLimiter_1.authLimiter, // Use existing auth limiter
+router.post('/quantum-biometric/authenticate', ...quantumSecurity_middleware_1.quantumSecurityStack, // Apply full quantum security middleware
 inputValidation_middleware_1.inputValidation.validateQuantumBiometricAuth(), async (req, res) => {
     try {
         const { biometricProof, deviceFingerprint } = req.body;
