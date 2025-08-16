@@ -19,7 +19,8 @@ import {
   ShieldIcon,
   QuantumIcon,
   DevicesIcon,
-  UserIcon
+  UserIcon,
+  KeyIcon
 } from './QuankeyIcons';
 import { BiometricQuantumProcessor } from '../services/MultiQuantumEntropyService';
 import { QuantumPureCrypto } from '../services/QuantumPureCrypto';
@@ -432,15 +433,15 @@ const QuantumBiometricRegistration: React.FC<{
 
         <div className="biometric-info">
           <div className="info-item">
-            <span className="info-icon">🧬</span>
+            <QuantumIcon className="info-icon quantum-icon" />
             <span>Your biometric generates quantum-resistant keys</span>
           </div>
           <div className="info-item">
-            <span className="info-icon">🔒</span>
+            <ShieldIcon className="info-icon security-icon" />
             <span>Zero biometric data sent to servers</span>
           </div>
           <div className="info-item">
-            <span className="info-icon">🚫</span>
+            <KeyIcon className="info-icon key-icon" />
             <span>No passwords, no recovery codes to lose</span>
           </div>
         </div>
