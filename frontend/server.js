@@ -84,8 +84,9 @@ app.get('*', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🌐 Frontend server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Frontend server running on 0.0.0.0:${PORT}`);
+  console.log(`🌐 Accessible from: http://54.72.3.39:${PORT}`);
   
   if (BASIC_AUTH_ENABLED) {
     console.log(`🔐 Basic Auth enabled - Realm: "${BASIC_AUTH_REALM}"`);
@@ -95,5 +96,6 @@ app.listen(PORT, () => {
     console.log(`⚠️  Basic Auth disabled - Site is PUBLIC`);
   }
   
-  console.log(`🚀 Access: http://localhost:${PORT}`);
+  console.log(`🚀 Local access: http://localhost:${PORT}`);
+  console.log(`🌍 Public access: http://54.72.3.39:${PORT}`);
 });

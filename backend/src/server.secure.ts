@@ -240,11 +240,14 @@ async function initialize() {
   });
   
   // Start server
-  app.listen(PORT, () => {
-    console.log(`✅ Server running on port ${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ Backend server running on 0.0.0.0:${PORT}`);
+    console.log(`🌐 Accessible from: http://54.72.3.39:${PORT}`);
     console.log('🔒 Security features: ACTIVE');
     console.log('📊 Audit logging: ENABLED');
     console.log('🚫 Rate limiting: ENFORCED');
+    console.log(`🚀 Local access: http://localhost:${PORT}`);
+    console.log(`🌍 Public access: http://54.72.3.39:${PORT}`);
   });
 }
 
