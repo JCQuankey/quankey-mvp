@@ -93,7 +93,9 @@
       "Bash(git stash:*)",
       "Bash(REACT_APP_API_URL=http://localhost:5000 npm run build)",
       "Bash(rg:*)",
-      "Bash(npm info:*)"
+      "Bash(npm info:*)",
+      "Bash(ping:*)",
+      "Bash(telnet:*)"
     ],
     "deny": []
   }
