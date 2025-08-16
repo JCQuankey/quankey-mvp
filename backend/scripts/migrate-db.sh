@@ -16,7 +16,7 @@ fi
 
 # Verify PostgreSQL connection first
 echo "🔍 Verifying PostgreSQL connection..."
-if ! PGPASSWORD='Quantum#BiometricSecure$2024!PQC' psql -h localhost -U quankey_user -d quankey_db -c "SELECT 'Database ready!' as status;" > /dev/null 2>&1; then
+if ! PGPASSWORD='QuantumBiometric2024PQC' psql -h localhost -U quankey_user -d quankey_db -c "SELECT 'Database ready!' as status;" > /dev/null 2>&1; then
     echo "❌ Cannot connect to PostgreSQL. Run setup first:"
     echo "   bash scripts/setup-postgresql.sh"
     exit 1
@@ -59,7 +59,7 @@ echo "✅ Migration deployed successfully"
 
 # Verify schema deployment
 echo "🔍 Verifying quantum biometric schema..."
-PGPASSWORD='Quantum#BiometricSecure$2024!PQC' psql -h localhost -U quankey_user -d quankey_db << EOF
+PGPASSWORD='QuantumBiometric2024PQC' psql -h localhost -U quankey_user -d quankey_db << EOF
 -- Verify all quantum tables exist
 SELECT 
     schemaname,
@@ -115,7 +115,7 @@ fi
 
 # Optional: Show current database stats
 echo "📊 Database Statistics:"
-PGPASSWORD='Quantum#BiometricSecure$2024!PQC' psql -h localhost -U quankey_user -d quankey_db -c "
+PGPASSWORD='QuantumBiometric2024PQC' psql -h localhost -U quankey_user -d quankey_db -c "
 SELECT 
     COUNT(*) as table_count 
 FROM information_schema.tables 

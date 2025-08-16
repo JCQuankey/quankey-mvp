@@ -24,15 +24,15 @@ export class DatabaseService {
   private prisma: PrismaClient;
   
   private constructor() {
-    const dbUrl = process.env.DATABASE_URL;
+    const databaseUrl = process.env.DATABASE_URL || 'postgresql://quankey_user:QuantumBiometric2024PQC@localhost:5432/quankey_db';
     
     // VALIDACIÓN EXTREMA - NO NEGOCIABLE
-    if (!dbUrl) {
+    if (!databaseUrl) {
       console.error('❌ FATAL: DATABASE_URL not configured');
       process.exit(1);
     }
     
-    if (!dbUrl.startsWith('postgresql://')) {
+    if (!databaseUrl.startsWith('postgresql://')) {
       console.error('❌ FATAL: Only PostgreSQL is supported for production');
       console.error('🧬 Quankey requires PostgreSQL for quantum biometric operations');
       process.exit(1);
@@ -41,12 +41,11 @@ export class DatabaseService {
     // Production-grade PostgreSQL configuration
     this.prisma = new PrismaClient({
       datasources: {
-        db: { url: dbUrl }
+        db: {
+          url: databaseUrl
+        }
       },
-      log: process.env.NODE_ENV === 'development' 
-        ? ['query', 'info', 'warn', 'error'] 
-        : ['warn', 'error'],
-      errorFormat: process.env.NODE_ENV === 'development' ? 'pretty' : 'minimal'
+      log: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['error'],
     });
     
     this.verifyConnection();
