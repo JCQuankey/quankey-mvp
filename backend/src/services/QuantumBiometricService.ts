@@ -33,6 +33,9 @@ export class QuantumBiometricService {
     try {
       console.log('🔐 Starting biometric proof validation for user:', username);
       console.log('📝 Proof algorithm:', biometricProof.algorithm);
+      console.log('🔍 DEBUG - biometricProof keys:', Object.keys(biometricProof));
+      console.log('🔍 DEBUG - devicePublicKey in proof:', !!biometricProof.devicePublicKey);
+      console.log('🔍 DEBUG - devicePublicKey length:', biometricProof.devicePublicKey?.length || 0);
       
       // For registration, devicePublicKey comes in the request
       // For authentication, we retrieve it from database
@@ -164,10 +167,17 @@ export class QuantumBiometricService {
   }): Promise<{ success: boolean; userId: string; device: any; error?: string }> {
     try {
       // Use the new validateBiometricProof method
-      const result = await this.validateBiometricProof(data.username, {
+      // REGISTRATION FLOW: devicePublicKey always provided
+      const biometricProofWithKey = {
         ...data.biometricProof,
-        devicePublicKey: data.devicePublicKey
-      });
+        devicePublicKey: data.devicePublicKey // Ensure devicePublicKey is present for registration
+      };
+      
+      console.log(`🧬 REGISTRATION: Validating biometric proof for user: ${data.username}`);
+      console.log(`📦 DevicePublicKey present: ${!!biometricProofWithKey.devicePublicKey}`);
+      console.log(`📦 DevicePublicKey length: ${biometricProofWithKey.devicePublicKey?.length || 0} chars`);
+      
+      const result = await this.validateBiometricProof(data.username, biometricProofWithKey);
       
       if (result.valid) {
         return {
