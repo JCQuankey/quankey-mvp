@@ -1,6 +1,25 @@
-# FUNCTIONALITIES TESTED Status - 2025-08-03 (FINAL UPDATE)
+# FUNCIONALIDADES PROBADAS - 16 Agosto 2024
 
-## Overall Progress: 90%
+## ✅ FUNCIONANDO:
+- PostgreSQL: Conexión exitosa con schema cuántico
+- Backend: Todas las rutas respondiendo en localhost:5000
+- Frontend Build: Compilación exitosa (main.93aae9ac.js)
+- Quantum Keys: ML-DSA-65 generándose (1952 bytes public key)
+- devicePublicKey: Enviándose correctamente (2604 bytes base64)
+- Entropy Sources: Fallbacks funcionando (Hardware RNG, IBM Simulator, Cloudflare)
+
+## ⚠️ PENDIENTE DE VERIFICAR:
+- Registro completo en PostgreSQL (bloqueado por cache)
+- Login post-registro
+- Persistencia de sesión
+- Vault operations
+
+## 🔴 ERRORES CONOCIDOS:
+- ANU Quantum: Error 500 (servidor caído)
+- React Dev Server: Cacheando bundle viejo
+- CORS: Algunos servicios quantum bloqueados (no crítico, hay fallbacks)
+
+## 📊 HISTORICAL TESTING COVERAGE
 
 ### ✅ COMPLETED - Working Features
 | Feature | Test Status | Coverage | Notes |
