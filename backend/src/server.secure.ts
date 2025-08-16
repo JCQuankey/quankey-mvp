@@ -17,7 +17,7 @@ import quantumBiometricRoutes from './routes/quantum.biometric.routes';
 import identityQuantumRoutes from './routes/identity.quantum.routes';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 
 // Inicialización crítica
 async function initialize() {

@@ -475,12 +475,16 @@ export class InputValidationMiddleware {
       body('quantumPublicKey')
         .isBase64()
         .withMessage('Quantum public key must be valid base64')
-        .isLength({ min: 1500, max: 2000 })
-        .withMessage('ML-KEM-768 public key must be correct size (encrypted)')
+        .isLength({ min: 2500, max: 2700 })
+        .withMessage('ML-DSA-65 public key must be correct size (1952 bytes base64 encoded)')
         .custom((value) => {
-          // Validate this looks like an encrypted ML-KEM-768 key
-          if (!value.match(/^[A-Za-z0-9+/=]+$/)) {
+          // Validate this looks like an ML-DSA-65 quantum key
+          if (!value || !value.match(/^[A-Za-z0-9+/=]+$/)) {
             throw new Error('Invalid quantum public key format');
+          }
+          // ML-DSA-65 public key is exactly 1952 bytes = ~2604 chars in base64
+          if (value.length < 2500 || value.length > 2700) {
+            throw new Error('ML-DSA-65 public key size must be approximately 2604 characters');
           }
           return true;
         }),
