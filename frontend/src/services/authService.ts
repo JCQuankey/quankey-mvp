@@ -1,7 +1,7 @@
 // frontend/src/services/authService.ts
 import axios from 'axios';
 
-const API_BASE = `${process.env.REACT_APP_API_URL || 'https://api.quankey.xyz'}/api`;
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 export interface User {
   id: string;

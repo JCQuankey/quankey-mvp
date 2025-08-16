@@ -95,7 +95,8 @@
       "Bash(rg:*)",
       "Bash(npm info:*)",
       "Bash(ping:*)",
-      "Bash(telnet:*)"
+      "Bash(telnet:*)",
+      "Bash(sed:*)"
     ],
     "deny": [],
     "additionalDirectories": [

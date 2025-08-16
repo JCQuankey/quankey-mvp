@@ -129,7 +129,7 @@ const LandingPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       const response = await fetch(`${API_URL}/api/demo-request`, {
         method: 'POST',
         headers: {

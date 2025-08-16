@@ -135,7 +135,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
    */
   const loadVaultStatus = async () => {
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       
       // Get authentication token/credentials
       const authHeaders = getAuthHeaders();
@@ -167,7 +167,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
   const loadVaultItems = async () => {
     try {
       setLoading(true);
-      const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       const authHeaders = getAuthHeaders();
       
       // 🔴 CRITICAL FIX: Send any userId - backend will use JWT token userId and ignore this
@@ -199,7 +199,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
   const initializeVault = async () => {
     try {
       setLoading(true);
-      const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       const authHeaders = getAuthHeaders();
       
       const response = await fetch(`${API_URL}/api/vault/initialize`, {
@@ -244,7 +244,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
       const { EncryptedVaultService } = await import('../services/vaultService');
       const realQuantumKey = await EncryptedVaultService.getQuantumVaultKey();
       
-      const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       const authHeaders = getAuthHeaders();
       
       console.log('🔐 Using REAL ML-KEM-768 quantum key (', realQuantumKey.length, 'chars base64)');
@@ -292,7 +292,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
     try {
       setLoading(true);
       
-      const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       const authHeaders = getAuthHeaders();
       
       const response = await fetch(`${API_URL}/api/vault/items/${itemId}/decrypt`, {
@@ -334,7 +334,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
   const runSelfTest = async () => {
     try {
       setLoading(true);
-      const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       const authHeaders = getAuthHeaders();
       
       const response = await fetch(`${API_URL}/api/vault/test`, {

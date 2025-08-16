@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 // API Configuration
-const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Simple icon components
 const UploadIcon: React.FC<{ size?: number; color?: string }> = ({ size = 20, color = 'currentColor' }) => (

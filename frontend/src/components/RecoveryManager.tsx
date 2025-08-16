@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../styles/RecoveryManager.css';
 
 // API Configuration
-const API_URL = process.env.REACT_APP_API_URL || 'https://api.quankey.xyz';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Import icons from QuankeyIcons - using the correct export names
 interface IconProps {

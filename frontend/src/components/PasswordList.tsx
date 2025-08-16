@@ -74,7 +74,7 @@ export const PasswordList: React.FC<PasswordListProps> = ({ userId, onAddNew }) 
       }
       
       // Load from backend API
-      const response = await fetch(`https://api.quankey.xyz/api/vault/items/${tokenUserId}`, {
+      const response = await fetch(`http://localhost:5000/api/vault/items/${tokenUserId}`, {
         headers: {
           'Authorization': `Bearer ${EncryptedVaultService.getAuthToken()}`
         }
