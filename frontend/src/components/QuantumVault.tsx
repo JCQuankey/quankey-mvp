@@ -141,7 +141,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
       const authHeaders = getAuthHeaders();
       
       // 🔴 CRITICAL FIX: Backend will use JWT token userId, ignore URL param
-      const response = await fetch(`${API_URL}/api/vault/status/jwt-user`, {
+      const response = await fetch(`${API_URL}/vault/status/jwt-user`, {
         headers: authHeaders
       });
       
@@ -172,7 +172,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
       
       // 🔴 CRITICAL FIX: Send any userId - backend will use JWT token userId and ignore this
       // Backend extracts userId from JWT token for security
-      const response = await fetch(`${API_URL}/api/vault/items/jwt-user`, {
+      const response = await fetch(`${API_URL}/vault/items/jwt-user`, {
         headers: authHeaders
       });
       
@@ -202,7 +202,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       const authHeaders = getAuthHeaders();
       
-      const response = await fetch(`${API_URL}/api/vault/initialize`, {
+      const response = await fetch(`${API_URL}/vault/initialize`, {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({
@@ -253,7 +253,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
       const keyBytes = atob(realQuantumKey);
       console.log('✅ Quantum key verified:', keyBytes.length, 'bytes (should be 1184)');
       
-      const response = await fetch(`${API_URL}/api/vault/items`, {
+      const response = await fetch(`${API_URL}/vault/items`, {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({
@@ -295,7 +295,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       const authHeaders = getAuthHeaders();
       
-      const response = await fetch(`${API_URL}/api/vault/items/${itemId}/decrypt`, {
+      const response = await fetch(`${API_URL}/vault/items/${itemId}/decrypt`, {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({
@@ -337,7 +337,7 @@ export const QuantumVault: React.FC<QuantumVaultProps> = ({
       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       const authHeaders = getAuthHeaders();
       
-      const response = await fetch(`${API_URL}/api/vault/test`, {
+      const response = await fetch(`${API_URL}/vault/test`, {
         method: 'POST',
         headers: authHeaders
       });

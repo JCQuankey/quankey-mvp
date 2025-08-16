@@ -141,7 +141,7 @@ export const QuantumBiometricIdentity: React.FC = () => {
       
       // 3. Register identity on server (only quantum public key, encrypted)
       const biometricProofData = await generateZeroKnowledgeBiometricProof(credential);
-      const response = await fetch(`${API_URL}/api/identity/quantum-biometric/register`, {
+      const response = await fetch(`${API_URL}/identity/quantum-biometric/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -205,7 +205,7 @@ export const QuantumBiometricIdentity: React.FC = () => {
       const quantumProof = await generateZeroKnowledgeBiometricProof(credential);
 
       // 3. Server validates proof without seeing biometric data
-      const response = await fetch(`${API_URL}/api/identity/quantum-biometric/authenticate`, {
+      const response = await fetch(`${API_URL}/identity/quantum-biometric/authenticate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -241,7 +241,7 @@ export const QuantumBiometricIdentity: React.FC = () => {
     
     try {
       // Generate temporal quantum bridge (60 seconds, single use)
-      const response = await fetch(`${API_URL}/api/identity/quantum-bridge/create`, {
+      const response = await fetch(`${API_URL}/identity/quantum-bridge/create`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

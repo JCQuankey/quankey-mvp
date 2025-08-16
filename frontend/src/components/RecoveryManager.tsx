@@ -105,7 +105,7 @@ const RecoveryManager: React.FC<RecoveryManagerProps> = ({ userId = 'demo-user' 
       if (!authData) return;
       
       const { token } = JSON.parse(authData);
-      const response = await fetch(`${API_URL}/api/recovery/status`, {
+      const response = await fetch(`${API_URL}/recovery/status`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -130,7 +130,7 @@ const RecoveryManager: React.FC<RecoveryManagerProps> = ({ userId = 'demo-user' 
       if (!authData) throw new Error('Not authenticated');
       
       const { token } = JSON.parse(authData);
-      const response = await fetch(`${API_URL}/api/recovery/generate-kit`, {
+      const response = await fetch(`${API_URL}/recovery/generate-kit`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -160,7 +160,7 @@ const RecoveryManager: React.FC<RecoveryManagerProps> = ({ userId = 'demo-user' 
       if (!authData) return;
       
       const { token } = JSON.parse(authData);
-      const response = await fetch(`${API_URL}/api/recovery/share/${shareId}/download`, {
+      const response = await fetch(`${API_URL}/recovery/share/${shareId}/download`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

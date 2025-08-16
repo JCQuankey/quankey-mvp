@@ -400,7 +400,7 @@ export const EncryptedVaultService = {
     }
 
     // Use secure quantum password generation endpoint
-    const response = await fetch(`${API_URL}/api/quantum/password`, {
+    const response = await fetch(`${API_URL}/quantum/password`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ length, includeSymbols }),
@@ -422,7 +422,7 @@ export const EncryptedVaultService = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_URL}/api/vault/items`, {
+    const response = await fetch(`${API_URL}/vault/items`, {
       headers,
       credentials: 'include'
     });
@@ -510,7 +510,7 @@ export const EncryptedVaultService = {
       
       // 🔴 FIX: Enhanced debugging before fetch
       console.log('🔍 DEBUG: About to fetch to backend:', {
-        url: `${API_URL}/api/vault/items`,
+        url: `${API_URL}/vault/items`,
         method: 'POST',
         hasHeaders: !!headers,
         hasAuth: headers.Authorization ? 'yes' : 'no',
@@ -524,7 +524,7 @@ export const EncryptedVaultService = {
         }
       });
       
-      const response = await fetch(`${API_URL}/api/vault/items`, {
+      const response = await fetch(`${API_URL}/vault/items`, {
         method: 'POST',
         headers,
         body: JSON.stringify({

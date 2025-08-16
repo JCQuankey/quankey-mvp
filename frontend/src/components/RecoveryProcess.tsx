@@ -119,7 +119,7 @@ const RecoveryProcess: React.FC<RecoveryProcessProps> = ({ onRecoveryComplete })
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}/api/recovery/recover`, {
+      const response = await fetch(`${API_URL}/recovery/recover`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

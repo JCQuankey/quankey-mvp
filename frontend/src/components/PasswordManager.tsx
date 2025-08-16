@@ -116,7 +116,7 @@ const PasswordManager: React.FC = () => {
         }
       }
       
-      const response = await axios.post<PasswordResponse>(`${API_URL}/api/quantum/password`, {
+      const response = await axios.post<PasswordResponse>(`${API_URL}/quantum/password`, {
         length: passwordLength,
         includeSymbols
       }, {
