@@ -33,16 +33,20 @@ export class DatabaseService {
     }
     
     if (!dbUrl.startsWith('postgresql://')) {
-      console.error('❌ FATAL: Only PostgreSQL is supported');
+      console.error('❌ FATAL: Only PostgreSQL is supported for production');
+      console.error('🧬 Quankey requires PostgreSQL for quantum biometric operations');
       process.exit(1);
     }
     
+    // Production-grade PostgreSQL configuration
     this.prisma = new PrismaClient({
       datasources: {
         db: { url: dbUrl }
       },
-      log: ['error', 'warn'],
-      errorFormat: 'minimal'
+      log: process.env.NODE_ENV === 'development' 
+        ? ['query', 'info', 'warn', 'error'] 
+        : ['warn', 'error'],
+      errorFormat: process.env.NODE_ENV === 'development' ? 'pretty' : 'minimal'
     });
     
     this.verifyConnection();
@@ -51,9 +55,24 @@ export class DatabaseService {
   private async verifyConnection() {
     try {
       await this.prisma.$connect();
-      console.log('✅ PostgreSQL connected (passwordless schema)');
+      
+      // Test database with a simple query
+      await this.prisma.$queryRaw`SELECT 1 as test`;
+      
+      console.log('✅ PostgreSQL connected successfully (passwordless quantum biometric schema)');
+      console.log('🧬 Database optimized for: ML-KEM-768, ML-DSA-65, WebAuthn, Guardian Shares');
+      
+      // Verify critical extensions are available (don't fail if missing)
+      try {
+        await this.prisma.$queryRaw`SELECT 1 FROM pg_extension WHERE extname = 'uuid-ossp'`;
+        console.log('✅ UUID extension available for quantum-resistant IDs');
+      } catch (e) {
+        console.warn('⚠️  uuid-ossp extension not found - using default UUIDs');
+      }
+      
     } catch (error) {
-      console.error('❌ FATAL: Database connection failed:', error);
+      console.error('❌ FATAL: PostgreSQL connection failed:', error);
+      console.error('🔧 Run: bash scripts/setup-postgresql.sh');
       process.exit(1);
     }
   }

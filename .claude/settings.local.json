@@ -97,6 +97,10 @@
       "Bash(ping:*)",
       "Bash(telnet:*)"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "C:\\c\\Users\\JuanCano\\dev\\quankey-mvp",
+      "C:\\c\\Users\\JuanCano"
+    ]
   }
 }

@@ -52,7 +52,7 @@ const quantum_biometric_routes_1 = __importDefault(require("./routes/quantum.bio
 const identity_quantum_routes_1 = __importDefault(require("./routes/identity.quantum.routes"));
 const app = (0, express_1.default)();
 exports.app = app;
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 // Inicialización crítica
 async function initialize() {
     console.log('🚀 Starting Quankey Security Service...');
@@ -255,11 +255,14 @@ async function initialize() {
         });
     });
     // Start server
-    app.listen(PORT, () => {
-        console.log(`✅ Server running on port ${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`✅ Backend server running on 0.0.0.0:${PORT}`);
+        console.log(`🌐 Accessible from: http://54.72.3.39:${PORT}`);
         console.log('🔒 Security features: ACTIVE');
         console.log('📊 Audit logging: ENABLED');
         console.log('🚫 Rate limiting: ENFORCED');
+        console.log(`🚀 Local access: http://localhost:${PORT}`);
+        console.log(`🌍 Public access: http://54.72.3.39:${PORT}`);
     });
 }
 // Start con manejo de errores
