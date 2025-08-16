@@ -273,14 +273,25 @@ export const QuantumBiometricIdentity: React.FC = () => {
   // Legacy function removed - now using BiometricQuantumProcessor
 
   const generateZeroKnowledgeBiometricProof = async (credential: PublicKeyCredential) => {
+    console.log('🧬 Generating zero-knowledge biometric proof...');
+    
     // 🛡️ Generate proof that validates biometric without exposing it using multi-source quantum entropy
     const mldsaKeys = await processor.biometricToMLDSA(credential.rawId);
+    
+    console.log('🔑 MLDSA Keys generated:');
+    console.log('  - Public key length:', mldsaKeys.publicKey?.length || 0);
+    console.log('  - Secret key length:', mldsaKeys.secretKey?.length || 0);
+    console.log('  - Public key present:', !!mldsaKeys.publicKey);
     
     const biometricHash = await crypto.subtle.digest('SHA-256', credential.rawId);
     // ✅ Use QuantumPureCrypto with strategic quantum fallbacks
     const signature = await QuantumPureCrypto.quantumSign(new Uint8Array(biometricHash), mldsaKeys.secretKey);
     
-    return {
+    const devicePublicKeyB64 = uint8ArrayToBase64(mldsaKeys.publicKey);
+    console.log('📦 DevicePublicKey base64 length:', devicePublicKeyB64.length);
+    console.log('📦 DevicePublicKey preview:', devicePublicKeyB64.substring(0, 50) + '...');
+    
+    const biometricProof = {
       proof: uint8ArrayToBase64(signature.signature),
       challenge: uint8ArrayToBase64(new Uint8Array(biometricHash)),
       algorithm: signature.algorithm,
@@ -288,8 +299,14 @@ export const QuantumBiometricIdentity: React.FC = () => {
       timestamp: signature.timestamp,
       quantumNonce: uint8ArrayToBase64(signature.quantumNonce),
       quantumEntropy: uint8ArrayToBase64(signature.quantumEntropy),
-      devicePublicKey: uint8ArrayToBase64(mldsaKeys.publicKey)
+      devicePublicKey: devicePublicKeyB64
     };
+    
+    console.log('✅ Biometric proof generated with keys:');
+    console.log('  - Keys in proof:', Object.keys(biometricProof));
+    console.log('  - devicePublicKey in proof:', !!biometricProof.devicePublicKey);
+    
+    return biometricProof;
   };
 
   // Placeholder implementations - to be completed
