@@ -16,42 +16,51 @@ interface BiometricProof {
 }
 
 export class QuantumBiometricIdentity {
-  private smartHybrid: SmartHybridQuantumCrypto;
-
   constructor() {
-    this.smartHybrid = new SmartHybridQuantumCrypto();
+    // SmartHybridQuantumCrypto uses static methods
+  }
+
+  // Helper method for browser-compatible base64 encoding
+  private uint8ArrayToBase64(arr: Uint8Array): string {
+    let binary = '';
+    for (let i = 0; i < arr.length; i++) {
+      binary += String.fromCharCode(arr[i]);
+    }
+    return btoa(binary);
   }
 
   async generateZeroKnowledgeBiometricProof(biometricData: BiometricData): Promise<BiometricProof> {
     console.log('🧬 Generating zero-knowledge biometric proof...');
     
-    // Generate ML-DSA-65 keys
-    const mldsaKeys = await this.smartHybrid.generateMLDSAKeys();
+    // Generate ML-DSA-65 keys with random seed
+    const seed = new Uint8Array(32);
+    crypto.getRandomValues(seed);
+    
+    const mldsaKeys = await SmartHybridQuantumCrypto.generateMLDSA65Keypair(seed);
     
     console.log('🔑 MLDSA Keys generated:');
     console.log('  - Public key length:', mldsaKeys.publicKey?.length || 0);
     console.log('  - Secret key length:', mldsaKeys.secretKey?.length || 0);
     console.log('  - Public key present:', !!mldsaKeys.publicKey);
     
-    // Convert public key to base64 for transmission
-    const devicePublicKeyB64 = Buffer.from(mldsaKeys.publicKey).toString('base64');
+    // Convert public key to base64 for transmission (browser compatible)
+    const devicePublicKeyB64 = this.uint8ArrayToBase64(mldsaKeys.publicKey);
     
     console.log('📦 DevicePublicKey base64 length:', devicePublicKeyB64.length);
     console.log('📦 DevicePublicKey preview:', devicePublicKeyB64.substring(0, 50) + '...');
     
     // Create challenge from biometric data
-    const challenge = Buffer.from(
-      await crypto.subtle.digest('SHA-256', biometricData.publicKey)
-    ).toString('base64');
+    const challengeBytes = new Uint8Array(await crypto.subtle.digest('SHA-256', biometricData.publicKey));
+    const challenge = this.uint8ArrayToBase64(challengeBytes);
     
     // Sign the challenge with ML-DSA
-    const signature = await this.smartHybrid.signWithMLDSA(
-      Buffer.from(challenge),
+    const signature = await SmartHybridQuantumCrypto.signMLDSA65(
+      challengeBytes,
       mldsaKeys.secretKey
     );
     
     const proof: BiometricProof = {
-      proof: Buffer.from(signature).toString('base64'),
+      proof: this.uint8ArrayToBase64(signature),
       challenge: challenge,
       algorithm: 'ML-DSA-65' as const,
       devicePublicKey: devicePublicKeyB64  // CRITICAL: Include the public key
