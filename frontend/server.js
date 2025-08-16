@@ -9,6 +9,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const basicAuth = require('basic-auth');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -74,6 +75,20 @@ const basicAuthMiddleware = (req, res, next) => {
 
 // Apply Basic Auth to all routes
 app.use(basicAuthMiddleware);
+
+// API Proxy to Backend - MUST be before static files
+app.use('/api', createProxyMiddleware({
+  target: 'http://localhost:5000',
+  changeOrigin: true,
+  logLevel: 'debug',
+  onProxyReq: (proxyReq, req, res) => {
+    console.log(`🔄 Proxying ${req.method} ${req.path} to backend`);
+  },
+  onError: (err, req, res) => {
+    console.error('❌ Proxy error:', err.message);
+    res.status(500).json({ error: 'Backend connection failed' });
+  }
+}));
 
 // Serve React build files
 app.use(express.static(path.join(__dirname, 'build')));
