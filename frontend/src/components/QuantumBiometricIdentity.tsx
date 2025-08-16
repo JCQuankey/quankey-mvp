@@ -22,7 +22,7 @@ import {
   UserIcon
 } from './QuankeyIcons';
 import { BiometricQuantumProcessor } from '../services/MultiQuantumEntropyService';
-import SmartHybridQuantumCrypto from '../services/SmartHybridQuantumCrypto';
+import { QuantumPureCrypto } from '../services/QuantumPureCrypto';
 
 interface BiometricIdentity {
   userId: string;
@@ -62,9 +62,8 @@ export const QuantumBiometricIdentity: React.FC = () => {
   useEffect(() => {
     const initializeQuantumCrypto = async () => {
       // Auto-detect best quantum crypto library
-      await SmartHybridQuantumCrypto.detectCapabilities();
-      console.log('🔧 Quantum crypto diagnostic:', SmartHybridQuantumCrypto.getDiagnosticInfo());
-      console.log('📊 Performance metrics:', SmartHybridQuantumCrypto.getPerformanceMetrics());
+      await QuantumPureCrypto.initializeQuantumOnly();
+      console.log('🌌 Quantum crypto status:', QuantumPureCrypto.getQuantumStatus());
       
       checkBiometricSupport();
     };
@@ -113,7 +112,7 @@ export const QuantumBiometricIdentity: React.FC = () => {
       // 1. Capture biometric locally - ZERO data to server
       const credential = await navigator.credentials.create({
         publicKey: {
-          challenge: new Uint8Array(32),
+          challenge: crypto.getRandomValues(new Uint8Array(32)),
           rp: {
             name: "Quankey",
             id: window.location.hostname
@@ -195,7 +194,7 @@ export const QuantumBiometricIdentity: React.FC = () => {
       // 1. Biometric authentication challenge
       const credential = await navigator.credentials.get({
         publicKey: {
-          challenge: new Uint8Array(32),
+          challenge: crypto.getRandomValues(new Uint8Array(32)),
           userVerification: "required",
           timeout: 60000
         }
@@ -278,13 +277,17 @@ export const QuantumBiometricIdentity: React.FC = () => {
     const mldsaKeys = await processor.biometricToMLDSA(credential.rawId);
     
     const biometricHash = await crypto.subtle.digest('SHA-256', credential.rawId);
-    // ✅ Use SmartHybridQuantumCrypto instead of calling Noble directly
-    const signature = await SmartHybridQuantumCrypto.signMLDSA65(new Uint8Array(biometricHash), mldsaKeys.secretKey);
+    // ✅ Use QuantumPureCrypto with strategic quantum fallbacks
+    const signature = await QuantumPureCrypto.quantumSign(new Uint8Array(biometricHash), mldsaKeys.secretKey);
     
     return {
-      proof: uint8ArrayToBase64(signature),
+      proof: uint8ArrayToBase64(signature.signature),
       challenge: uint8ArrayToBase64(new Uint8Array(biometricHash)),
-      algorithm: 'ML-DSA-65',
+      algorithm: signature.algorithm,
+      implementation: signature.implementation,
+      timestamp: signature.timestamp,
+      quantumNonce: uint8ArrayToBase64(signature.quantumNonce),
+      quantumEntropy: uint8ArrayToBase64(signature.quantumEntropy),
       devicePublicKey: uint8ArrayToBase64(mldsaKeys.publicKey)
     };
   };
